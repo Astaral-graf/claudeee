@@ -1,0 +1,1978 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>DUST PROTOCOL — Tactical Top-Down Shooter</title>
+<style>
+/* ============================================================
+   СТИЛИ: базовая раскладка, оверлеи меню, закупка, ассист-панель
+   ============================================================ */
+* { margin:0; padding:0; box-sizing:border-box; }
+html,body { width:100%; height:100%; overflow:hidden; background:#0b0e11; font-family:'Segoe UI', Arial, sans-serif; user-select:none; }
+#game { display:block; width:100vw; height:100vh; cursor:none; }
+.overlay {
+  position:fixed; inset:0; display:flex; align-items:center; justify-content:center;
+  background:rgba(8,10,14,.82); backdrop-filter:blur(3px); z-index:20; color:#dfe6ee;
+}
+.hidden { display:none !important; }
+.panel {
+  background:#12161c; border:1px solid #2a3340; border-radius:10px; padding:28px 34px;
+  min-width:420px; max-width:760px; box-shadow:0 20px 60px rgba(0,0,0,.6);
+}
+h1 { font-size:42px; letter-spacing:4px; color:#f5a623; text-shadow:0 0 24px rgba(245,166,35,.35); margin-bottom:4px; }
+h2 { font-size:20px; color:#9fb3c8; margin-bottom:14px; font-weight:600; }
+.sub { color:#6d7f92; font-size:13px; margin-bottom:22px; }
+button.btn {
+  background:#f5a623; color:#14181d; border:none; padding:12px 30px; font-size:16px; font-weight:700;
+  border-radius:6px; cursor:pointer; letter-spacing:1px; transition:transform .08s, background .15s;
+}
+button.btn:hover { background:#ffc14d; transform:translateY(-1px); }
+button.btn.secondary { background:#2a3340; color:#c9d6e2; }
+button.btn.secondary:hover { background:#39465a; }
+.controls-list { margin:18px 0; font-size:13px; color:#8aa0b5; line-height:1.9; columns:2; }
+.controls-list b { color:#d7e3ef; display:inline-block; min-width:64px; }
+.row { display:flex; gap:10px; align-items:center; margin:8px 0; }
+.row label { flex:1; font-size:13px; color:#9fb3c8; }
+input[type=range] { width:150px; accent-color:#f5a623; }
+input[type=color] { width:36px; height:24px; border:none; background:none; cursor:pointer; }
+input[type=checkbox] { width:16px; height:16px; accent-color:#f5a623; cursor:pointer; }
+select { background:#1c232c; color:#d7e3ef; border:1px solid #2a3340; border-radius:4px; padding:3px 8px; }
+.val { color:#f5a623; font-size:12px; min-width:34px; text-align:right; }
+
+/* ---- меню закупки ---- */
+#buyMenu .panel { min-width:640px; }
+.buy-tabs { display:flex; gap:6px; margin-bottom:14px; }
+.buy-tab {
+  padding:8px 16px; background:#1c232c; border:1px solid #2a3340; border-radius:5px;
+  font-size:13px; color:#8aa0b5; cursor:pointer;
+}
+.buy-tab.active { background:#f5a623; color:#14181d; font-weight:700; border-color:#f5a623; }
+.buy-grid { display:grid; grid-template-columns:repeat(3,1fr); gap:10px; min-height:220px; align-content:start; }
+.buy-item {
+  background:#1a212a; border:1px solid #2a3340; border-radius:6px; padding:12px; cursor:pointer;
+  transition:border-color .12s, background .12s;
+}
+.buy-item:hover { border-color:#f5a623; background:#232d39; }
+.buy-item.owned { opacity:.45; cursor:default; }
+.buy-item.poor { opacity:.55; }
+.buy-item .w-name { font-size:14px; font-weight:700; color:#d7e3ef; }
+.buy-item .w-stats { font-size:11px; color:#6d7f92; margin-top:4px; line-height:1.5; }
+.buy-item .w-price { font-size:13px; color:#7ed957; font-weight:700; margin-top:6px; }
+.buy-head { display:flex; justify-content:space-between; align-items:baseline; margin-bottom:10px; }
+#buyMoney { color:#7ed957; font-size:22px; font-weight:800; }
+#buyTimer { color:#f5a623; font-size:18px; font-weight:700; }
+
+/* ---- ассист-меню (Insert) ---- */
+#assistMenu { justify-content:flex-start; align-items:flex-start; background:rgba(5,7,10,.45); }
+#assistMenu .panel { margin:60px 0 0 60px; min-width:460px; border-color:#7c4dff55; box-shadow:0 0 40px rgba(124,77,255,.25); }
+#assistMenu h2 { color:#b39dff; }
+.as-tabs { display:flex; gap:4px; margin-bottom:16px; }
+.as-tab { padding:7px 14px; background:#181d26; border-radius:4px; font-size:12px; color:#8aa0b5; cursor:pointer; border:1px solid #262f3b; }
+.as-tab.active { background:#7c4dff; color:#fff; border-color:#7c4dff; }
+.as-page { display:none; }
+.as-page.active { display:block; }
+.hint { font-size:11px; color:#556575; margin-top:14px; }
+
+/* ---- итоги раунда / game over ---- */
+.big-result { font-size:34px; font-weight:800; margin-bottom:8px; letter-spacing:2px; }
+.win  { color:#7ed957; text-shadow:0 0 22px rgba(126,217,87,.4); }
+.lose { color:#ff4d4d; text-shadow:0 0 22px rgba(255,77,77,.4); }
+.stats-table { width:100%; font-size:14px; color:#9fb3c8; margin:14px 0 20px; border-collapse:collapse; }
+.stats-table td { padding:5px 2px; border-bottom:1px solid #1e2630; }
+.stats-table td:last-child { text-align:right; color:#d7e3ef; font-weight:600; }
+</style>
+</head>
+<body>
+
+<canvas id="game"></canvas>
+
+<!-- ===================== ГЛАВНОЕ МЕНЮ ===================== -->
+<div id="mainMenu" class="overlay">
+  <div class="panel" style="text-align:center;">
+    <h1>DUST PROTOCOL</h1>
+    <div class="sub">Тактический top-down шутер · одиночная зачистка карты от ботов</div>
+    <div class="controls-list" style="text-align:left;">
+      <div><b>WASD</b> движение</div>
+      <div><b>Мышь</b> прицел</div>
+      <div><b>ЛКМ</b> огонь</div>
+      <div><b>ПКМ</b> прицеливание</div>
+      <div><b>Shift</b> тихий шаг</div>
+      <div><b>Ctrl</b> присед</div>
+      <div><b>R</b> перезарядка</div>
+      <div><b>1/2/3/4</b> слоты оружия</div>
+      <div><b>E</b> подобрать оружие</div>
+      <div><b>B</b> закупка (в фазе)</div>
+      <div><b>G</b> сменить гранату</div>
+      <div><b>Insert</b> меню ассистентов</div>
+    </div>
+    <div class="row" style="justify-content:center; margin-bottom:18px;">
+      <label style="flex:none;">Чувствительность прицела</label>
+      <input type="range" id="sensSlider" min="0.3" max="2" step="0.05" value="1">
+      <span class="val" id="sensVal">1.0</span>
+    </div>
+    <button class="btn" id="btnStart">НАЧАТЬ ОПЕРАЦИЮ</button>
+  </div>
+</div>
+
+<!-- ===================== МЕНЮ ЗАКУПКИ ===================== -->
+<div id="buyMenu" class="overlay hidden">
+  <div class="panel">
+    <div class="buy-head">
+      <h2 style="margin:0;">ЗАКУПКА СНАРЯЖЕНИЯ</h2>
+      <div><span id="buyTimer">15</span>с &nbsp; <span id="buyMoney">$800</span></div>
+    </div>
+    <div class="buy-tabs" id="buyTabs"></div>
+    <div class="buy-grid" id="buyGrid"></div>
+    <div class="row" style="margin-top:16px; justify-content:space-between;">
+      <span class="hint">Клавиши 1–5 — категории · клик — купить · B — закрыть/открыть</span>
+      <button class="btn" id="btnReady">В БОЙ ➜</button>
+    </div>
+  </div>
+</div>
+
+<!-- ===================== МЕНЮ АССИСТЕНТОВ (Insert) ===================== -->
+<div id="assistMenu" class="overlay hidden">
+  <div class="panel">
+    <h2>ИГРОВЫЕ АССИСТЕНТЫ <span style="font-size:11px;color:#556575;">[Insert — закрыть]</span></h2>
+    <div class="as-tabs">
+      <div class="as-tab active" data-page="pgAim">Aimbot</div>
+      <div class="as-tab" data-page="pgVis">Visuals</div>
+      <div class="as-tab" data-page="pgMisc">Misc</div>
+      <div class="as-tab" data-page="pgSkin">Skins</div>
+    </div>
+
+    <div class="as-page active" id="pgAim">
+      <div class="row"><label>Aimbot включён</label><input type="checkbox" data-path="assist.aimbot.on"></div>
+      <div class="row"><label>Сила прилипания</label><input type="range" min="0" max="100" step="1" data-path="assist.aimbot.strength"><span class="val" data-show="assist.aimbot.strength"></span></div>
+      <div class="row"><label>Радиус захвата (FOV, °)</label><input type="range" min="5" max="180" step="1" data-path="assist.aimbot.fov"><span class="val" data-show="assist.aimbot.fov"></span></div>
+      <div class="row"><label>Приоритет цели</label>
+        <select data-path="assist.aimbot.priority">
+          <option value="fov">Ближе к прицелу</option>
+          <option value="near">Ближайший</option>
+          <option value="hp">Меньше HP</option>
+        </select>
+      </div>
+    </div>
+
+    <div class="as-page" id="pgVis">
+      <div class="row"><label>ESP: боты сквозь стены</label><input type="checkbox" data-path="assist.visuals.esp"></div>
+      <div class="row"><label>Цвет ESP</label><input type="color" data-path="assist.visuals.espColor"></div>
+      <div class="row"><label>Показывать здоровье</label><input type="checkbox" data-path="assist.visuals.espHp"></div>
+      <div class="row"><label>Показывать дистанцию</label><input type="checkbox" data-path="assist.visuals.espDist"></div>
+      <div class="row"><label>Подсветка оружия на земле</label><input type="checkbox" data-path="assist.visuals.drops"></div>
+      <div class="row"><label>Радар: всегда видны боты</label><input type="checkbox" data-path="assist.visuals.radar"></div>
+    </div>
+
+    <div class="as-page" id="pgMisc">
+      <div class="row"><label>Авто-огонь по цели (triggerbot)</label><input type="checkbox" data-path="assist.misc.trigger"></div>
+      <div class="row"><label>Анти-эйм (рандом угла модели)</label><input type="checkbox" data-path="assist.misc.antiaim"></div>
+      <div class="row"><label>Прицел: размер</label><input type="range" min="2" max="20" step="1" data-path="crosshair.size"><span class="val" data-show="crosshair.size"></span></div>
+      <div class="row"><label>Прицел: зазор</label><input type="range" min="0" max="12" step="1" data-path="crosshair.gap"><span class="val" data-show="crosshair.gap"></span></div>
+      <div class="row"><label>Прицел: цвет</label><input type="color" data-path="crosshair.color"></div>
+      <div class="row"><label>Прицел: точка в центре</label><input type="checkbox" data-path="crosshair.dot"></div>
+    </div>
+
+    <div class="as-page" id="pgSkin">
+      <div class="row"><label>Цвет модели игрока</label><input type="color" data-path="assist.skins.player"></div>
+      <div class="row"><label>Цвет оружия</label><input type="color" data-path="assist.skins.weapon"></div>
+      <div class="row"><label>Паттерн</label>
+        <select data-path="assist.skins.pattern">
+          <option value="solid">Solid</option>
+          <option value="stripes">Stripes</option>
+          <option value="dots">Camo Dots</option>
+        </select>
+      </div>
+    </div>
+    <div class="hint">Все настройки применяются мгновенно и сохраняются в localStorage.</div>
+  </div>
+</div>
+
+<!-- ===================== ИТОГИ РАУНДА ===================== -->
+<div id="roundEnd" class="overlay hidden">
+  <div class="panel" style="text-align:center;">
+    <div class="big-result" id="reTitle">РАУНД ВЫИГРАН</div>
+    <table class="stats-table" id="reStats"></table>
+    <button class="btn" id="btnNextRound">СЛЕДУЮЩИЙ РАУНД ➜</button>
+  </div>
+</div>
+
+<!-- ===================== GAME OVER ===================== -->
+<div id="gameOver" class="overlay hidden">
+  <div class="panel" style="text-align:center;">
+    <div class="big-result lose">ОПЕРАЦИЯ ПРОВАЛЕНА</div>
+    <table class="stats-table" id="goStats"></table>
+    <button class="btn" id="btnRestart">ИГРАТЬ СНОВА</button>
+  </div>
+</div>
+
+<script>
+'use strict';
+/* ################################################################
+   #  SECTION 0: CONFIG — оружие, боты, экономика, константы
+   ################################################################ */
+const TILE = 64;
+const STEP = 1/60;               // фиксированный шаг симуляции
+const BUY_TIME = 15;             // секунд на закупку
+const ROUND_TIME = 120;          // лимит раунда
+const START_MONEY = 800;
+const KILL_REWARD = 300;
+const WIN_REWARD = 3250;
+const LOSS_REWARD = 1400;
+const MAX_MONEY = 16000;
+const PLAYER_LIVES = 3;
+
+/* Таблица оружия. dmg — урон в тело; hs — множитель в голову;
+   rate — выстрелов/с; spread — базовый разброс (°); range — дальность
+   до начала спада урона (px); mag/reserve — магазин/запас;
+   reload — сек; move — множитель скорости; auto — автоматический огонь */
+const WEAPONS = {
+  knife:  { name:'Нож',      slot:'melee',  dmg:45,  hs:2.0, rate:1.6, spread:0,   range:58,   price:0,    mag:Infinity, reserve:0, reload:0,   move:1.08, auto:false, pellets:1 },
+  usp:    { name:'USP-S',    slot:'pistol', dmg:28,  hs:4.0, rate:4.5, spread:2.6, range:900,  price:0,    mag:12, reserve:24, reload:2.0, move:1.0,  auto:false, pellets:1 },
+  deagle: { name:'Deagle',   slot:'pistol', dmg:48,  hs:4.0, rate:2.4, spread:4.2, range:1000, price:700,  mag:7,  reserve:21, reload:2.2, move:1.0,  auto:false, pellets:1 },
+  mp7:    { name:'MP7',      slot:'primary',dmg:22,  hs:3.0, rate:12,  spread:5.0, range:700,  price:1500, mag:30, reserve:90, reload:2.3, move:1.02, auto:true,  pellets:1 },
+  ak47:   { name:'AK-47',    slot:'primary',dmg:34,  hs:4.0, rate:10,  spread:4.4, range:1200, price:2700, mag:30, reserve:90, reload:2.5, move:0.92, auto:true,  pellets:1 },
+  m4:     { name:'M4A4',     slot:'primary',dmg:30,  hs:3.6, rate:11,  spread:3.7, range:1200, price:3100, mag:30, reserve:90, reload:2.4, move:0.94, auto:true,  pellets:1 },
+  awp:    { name:'AWP',      slot:'primary',dmg:110, hs:2.0, rate:0.85,spread:9.0, range:2200, price:4750, mag:5,  reserve:15, reload:3.2, move:0.82, auto:false, pellets:1, adsSpread:0.35 },
+  nova:   { name:'Nova',     slot:'primary',dmg:9,   hs:2.5, rate:1.1, spread:11,  range:420,  price:1050, mag:8,  reserve:32, reload:2.8, move:0.96, auto:false, pellets:8 },
+};
+const GRENADES = {
+  he:    { name:'Осколочная', price:300, max:1 },
+  smoke: { name:'Дымовая',    price:300, max:1 },
+  flash: { name:'Светошумовая', price:200, max:2 },
+};
+const GEAR = {
+  armor:  { name:'Бронежилет',        price:650  },
+  helmet: { name:'Броня + шлем',      price:1000 },
+};
+
+/* Уровни сложности ботов: reaction — задержка реакции (с),
+   aimErr — базовая ошибка прицела (°), viewDist/fov — зрение,
+   aggro — 0..1 агрессивность (шанс давить вместо укрытия) */
+const BOT_TIERS = [
+  { label:'Новобранец', reaction:0.75, aimErr:10,  viewDist:520, fov:95,  speed:150, aggro:0.35, burst:[2,4], pause:[0.5,0.9] },
+  { label:'Боец',       reaction:0.50, aimErr:6.5, viewDist:640, fov:105, speed:170, aggro:0.55, burst:[3,5], pause:[0.35,0.7] },
+  { label:'Ветеран',    reaction:0.32, aimErr:4.0, viewDist:760, fov:115, speed:185, aggro:0.7,  burst:[4,7], pause:[0.25,0.5] },
+  { label:'Элита',      reaction:0.18, aimErr:2.4, viewDist:900, fov:130, speed:200, aggro:0.85, burst:[5,9], pause:[0.15,0.35] },
+];
+const BOT_NAMES = ['Phoenix','Viper','Sarge','Ghost','Havoc','Rex','Blitz','Cobra','Titan','Wasp','Onyx','Drake','Storm','Falcon','Bishop','Ivan'];
+
+/* Настройки по умолчанию (хранятся в localStorage) */
+const DEFAULT_SETTINGS = {
+  sens: 1,
+  crosshair: { size:8, gap:3, color:'#00ff66', dot:false },
+  assist: {
+    aimbot:  { on:false, strength:60, fov:35, priority:'fov' },
+    visuals: { esp:false, espColor:'#ff3355', espHp:true, espDist:true, drops:false, radar:false },
+    misc:    { trigger:false, antiaim:false },
+    skins:   { player:'#3a86ff', weapon:'#20262e', pattern:'solid' },
+  },
+};
+
+/* ################################################################
+   #  SECTION 1: UTILS — математика, геометрия
+   ################################################################ */
+const clamp = (v,a,b) => v<a?a:(v>b?b:v);
+const lerp  = (a,b,t) => a+(b-a)*t;
+const rand  = (a,b) => a+Math.random()*(b-a);
+const randi = (a,b) => Math.floor(rand(a,b+1));
+const dist2 = (ax,ay,bx,by) => { const dx=bx-ax, dy=by-ay; return dx*dx+dy*dy; };
+const dist  = (ax,ay,bx,by) => Math.sqrt(dist2(ax,ay,bx,by));
+const angTo = (ax,ay,bx,by) => Math.atan2(by-ay,bx-ax);
+const deg   = d => d*Math.PI/180;
+
+/* Кратчайшая разница углов [-PI, PI] */
+function angDiff(a,b){ let d=(b-a)%(Math.PI*2); if(d>Math.PI)d-=Math.PI*2; if(d<-Math.PI)d+=Math.PI*2; return d; }
+function lerpAngle(a,b,t){ return a + angDiff(a,b)*clamp(t,0,1); }
+
+/* Расстояние от точки p до отрезка a-b (для попаданий по кругу) */
+function segPointDist(ax,ay,bx,by,px,py){
+  const dx=bx-ax, dy=by-ay;
+  const len2 = dx*dx+dy*dy;
+  if(len2===0) return {d:dist(ax,ay,px,py), t:0};
+  let t = ((px-ax)*dx+(py-ay)*dy)/len2;
+  t = clamp(t,0,1);
+  return { d: dist(ax+dx*t, ay+dy*t, px, py), t };
+}
+
+function deepMerge(base, over){
+  const out = Array.isArray(base) ? base.slice() : {...base};
+  if(!over || typeof over!=='object') return out;
+  for(const k of Object.keys(over)){
+    if(base && typeof base[k]==='object' && base[k]!==null && !Array.isArray(base[k])) out[k]=deepMerge(base[k], over[k]);
+    else out[k]=over[k];
+  }
+  return out;
+}
+function getPath(obj, path){ return path.split('.').reduce((o,k)=>o&&o[k], obj); }
+function setPath(obj, path, val){
+  const ks = path.split('.'); let o = obj;
+  for(let i=0;i<ks.length-1;i++) o = o[ks[i]];
+  o[ks[ks.length-1]] = val;
+}
+
+/* ################################################################
+   #  SECTION 2: AUDIO — синтез звуков через Web Audio API
+   ################################################################ */
+const AudioSys = {
+  ctx: null, master: null, noiseBuf: null,
+  init(){
+    if(this.ctx) return;
+    try {
+      this.ctx = new (window.AudioContext||window.webkitAudioContext)();
+      this.master = this.ctx.createGain();
+      this.master.gain.value = 0.5;
+      this.master.connect(this.ctx.destination);
+      // общий буфер белого шума на 1 сек
+      const len = this.ctx.sampleRate;
+      this.noiseBuf = this.ctx.createBuffer(1, len, this.ctx.sampleRate);
+      const d = this.noiseBuf.getChannelData(0);
+      for(let i=0;i<len;i++) d[i]=Math.random()*2-1;
+    } catch(e){ this.ctx = null; }
+  },
+  /* шумовой всплеск с фильтром — основа выстрелов/шагов */
+  burst(vol, dur, freq, q, decay){
+    if(!this.ctx) return;
+    const t = this.ctx.currentTime;
+    const src = this.ctx.createBufferSource(); src.buffer=this.noiseBuf;
+    const f = this.ctx.createBiquadFilter(); f.type='bandpass'; f.frequency.value=freq; f.Q.value=q;
+    const g = this.ctx.createGain();
+    g.gain.setValueAtTime(vol, t);
+    g.gain.exponentialRampToValueAtTime(0.001, t+decay);
+    src.connect(f); f.connect(g); g.connect(this.master);
+    src.start(t); src.stop(t+dur);
+  },
+  tone(vol, f0, f1, dur, type){
+    if(!this.ctx) return;
+    const t = this.ctx.currentTime;
+    const o = this.ctx.createOscillator(); o.type=type||'square';
+    o.frequency.setValueAtTime(f0,t);
+    o.frequency.exponentialRampToValueAtTime(Math.max(1,f1), t+dur);
+    const g = this.ctx.createGain();
+    g.gain.setValueAtTime(vol,t);
+    g.gain.exponentialRampToValueAtTime(0.001, t+dur);
+    o.connect(g); g.connect(this.master);
+    o.start(t); o.stop(t+dur);
+  },
+  /* громкость с учётом дистанции до игрока */
+  atten(x,y){
+    const p = G.player; if(!p) return 1;
+    return clamp(1 - dist(x,y,p.x,p.y)/1100, 0, 1);
+  },
+  shot(wkey, x, y){
+    const a = this.atten(x,y); if(a<=0.02) return;
+    switch(wkey){
+      case 'awp':    this.burst(0.9*a, .4, 220, .7, .38); this.tone(0.3*a, 90, 30, .3, 'sawtooth'); break;
+      case 'ak47':   this.burst(0.7*a, .25, 500, 1, .17); this.tone(0.18*a, 140, 50, .12,'square'); break;
+      case 'm4':     this.burst(0.65*a,.22, 700, 1, .15); this.tone(0.15*a, 160, 60, .1, 'square'); break;
+      case 'mp7':    this.burst(0.5*a, .15, 1000,1, .1); break;
+      case 'nova':   this.burst(0.85*a,.35, 320, .8,.3); this.tone(0.2*a, 100, 40, .2, 'sawtooth'); break;
+      case 'deagle': this.burst(0.8*a, .3, 380, .9,.25); break;
+      case 'knife':  this.burst(0.25*a,.08, 2400,2, .06); break;
+      default:       this.burst(0.55*a,.2, 800, 1, .14);
+    }
+  },
+  reload(x,y){ const a=this.atten(x,y); this.tone(0.2*a, 900, 500, .06,'square'); setTimeout(()=>this.tone(0.2*a, 600, 900, .06,'square'), 180); },
+  step(x,y){ this.burst(0.10*this.atten(x,y), .07, 200, 1.2, .06); },
+  hit(){ this.tone(0.25, 1400, 900, .05, 'square'); },
+  death(x,y){ const a=this.atten(x,y); this.tone(0.4*a, 300, 60, .5, 'sawtooth'); },
+  buy(){ this.tone(0.3, 700, 1100, .09, 'sine'); },
+  explosion(x,y){ const a=this.atten(x,y); this.burst(1.0*a, .6, 120, .5, .55); this.tone(0.4*a, 70, 25, .5, 'sine'); },
+  flashbang(x,y){ const a=this.atten(x,y); this.tone(0.5*a, 2000, 1900, .8, 'sine'); this.burst(0.6*a,.2,1500,1,.15); },
+};
+
+/* ################################################################
+   #  SECTION 3: INPUT — клавиатура и мышь
+   ################################################################ */
+const Input = {
+  keys: {}, mouseX: 0, mouseY: 0, lmb: false, rmb: false, lmbClick: false,
+  init(canvas){
+    window.addEventListener('keydown', e=>{
+      if(e.code==='Tab' || e.code==='F1') e.preventDefault();
+      this.keys[e.code]=true;
+      Game.onKeyDown(e.code, e);
+    });
+    window.addEventListener('keyup', e=>{ this.keys[e.code]=false; });
+    canvas.addEventListener('mousemove', e=>{
+      const r = canvas.getBoundingClientRect();
+      this.mouseX = e.clientX - r.left; this.mouseY = e.clientY - r.top;
+    });
+    canvas.addEventListener('mousedown', e=>{
+      AudioSys.init();
+      if(e.button===0){ this.lmb=true; this.lmbClick=true; }
+      if(e.button===2) this.rmb=true;
+    });
+    window.addEventListener('mouseup', e=>{
+      if(e.button===0) this.lmb=false;
+      if(e.button===2) this.rmb=false;
+    });
+    canvas.addEventListener('contextmenu', e=>e.preventDefault());
+  },
+  consumeClick(){ const c=this.lmbClick; this.lmbClick=false; return c; },
+};
+
+/* ################################################################
+   #  SECTION 4: MAP — сетка тайлов по мотивам de_dust2, A*, рейкасты
+   #  0 = пол, 1 = стена, 2 = ящик (укрытие)
+   ################################################################ */
+const MAP_W = 44, MAP_H = 34;
+const WORLD_W = MAP_W*TILE, WORLD_H = MAP_H*TILE;
+let grid = [];
+
+/* Вырезаемые из скалы зоны: [x, y, w, h] в тайлах */
+const CARVES = [
+  [2,2,11,8],    // B site (северо-запад)
+  [13,4,5,2],    // коридор B ↔ CT
+  [18,2,9,6],    // CT spawn (север-центр)
+  [27,4,4,2],    // катвок CT ↔ A
+  [31,2,10,8],   // A site (северо-восток)
+  [8,10,2,2],    // выход с B вниз к B-doors
+  [7,12,13,2],   // коридор B-doors → mid
+  [4,10,3,17],   // туннели (запад, вертикаль)
+  [6,26,7,2],    // туннели → T spawn
+  [20,8,4,18],   // mid (центральная кишка)
+  [24,14,13,2],  // short: mid → long
+  [37,10,4,16],  // long A (восток, вертикаль)
+  [30,24,8,2],   // long → подход к T
+  [30,25,2,2],   // спуск к T spawn
+  [12,26,20,6],  // T spawn (юг)
+];
+const CRATES = [
+  [5,4],[6,4],[5,5],[10,7],[3,8],          // ящики на B
+  [34,5],[35,5],[34,6],[39,3],[38,8],      // ящики на A
+  [25,6],                                   // CT
+  [21,16],[22,20],                          // mid
+  [38,18],                                  // long
+  [15,28],[16,28],[27,29],                  // T spawn
+  [13,12],[30,14],                          // коридоры
+];
+const PLAYER_SPAWN = { x: 21.5*TILE, y: 29.5*TILE };
+const BOT_SPAWNS = [
+  [4,4],[6,6],[10,3],[20,3],[23,5],[25,3],[33,4],[36,6],[39,8],
+  [21,10],[38,12],[38,22],[5,14],[5,22],[9,12],
+];
+/* точки интереса для патруля */
+const POIS = [[6,5],[22,4],[35,5],[21,12],[21,22],[38,13],[38,23],[5,13],[5,24],[13,13],[30,15],[16,29],[26,29],[33,25]];
+
+function buildMap(){
+  grid = Array.from({length:MAP_H}, ()=>Array(MAP_W).fill(1));
+  for(const [x,y,w,h] of CARVES)
+    for(let j=y;j<y+h;j++) for(let i=x;i<x+w;i++) grid[j][i]=0;
+  for(const [x,y] of CRATES) grid[y][x]=2;
+}
+function tileAt(px,py){
+  const tx = Math.floor(px/TILE), ty = Math.floor(py/TILE);
+  if(tx<0||ty<0||tx>=MAP_W||ty>=MAP_H) return 1;
+  return grid[ty][tx];
+}
+function isSolid(px,py){ return tileAt(px,py)!==0; }
+
+/* Столкновение круга (персонаж) со стенами: выталкивание из тайлов */
+function collideCircle(x,y,r){
+  const tx0=Math.floor((x-r)/TILE), tx1=Math.floor((x+r)/TILE);
+  const ty0=Math.floor((y-r)/TILE), ty1=Math.floor((y+r)/TILE);
+  for(let ty=ty0;ty<=ty1;ty++) for(let tx=tx0;tx<=tx1;tx++){
+    if(tx<0||ty<0||tx>=MAP_W||ty>=MAP_H || grid[ty][tx]!==0){
+      // ближайшая точка AABB тайла к центру круга
+      const cx = clamp(x, tx*TILE, tx*TILE+TILE);
+      const cy = clamp(y, ty*TILE, ty*TILE+TILE);
+      const dx = x-cx, dy = y-cy;
+      const d2 = dx*dx+dy*dy;
+      if(d2 < r*r){
+        const d = Math.sqrt(d2)||0.001;
+        const push = r-d;
+        x += dx/d*push; y += dy/d*push;
+      }
+    }
+  }
+  return {x,y};
+}
+
+/* Рейкаст DDA по сетке: возвращает дистанцию до стены (или maxDist) */
+function raycastWall(x,y,angle,maxDist){
+  const dx=Math.cos(angle), dy=Math.sin(angle);
+  let tx=Math.floor(x/TILE), ty=Math.floor(y/TILE);
+  const stepX = dx>0?1:-1, stepY = dy>0?1:-1;
+  const tDeltaX = Math.abs(TILE/dx), tDeltaY = Math.abs(TILE/dy);
+  let tMaxX = dx>0 ? ((tx+1)*TILE-x)/dx : (tx*TILE-x)/dx;
+  let tMaxY = dy>0 ? ((ty+1)*TILE-y)/dy : (ty*TILE-y)/dy;
+  if(dx===0) tMaxX=Infinity; if(dy===0) tMaxY=Infinity;
+  let t=0;
+  for(let i=0;i<160;i++){
+    if(tx<0||ty<0||tx>=MAP_W||ty>=MAP_H) return t;
+    if(grid[ty][tx]!==0 && i>0) return t;
+    if(grid[ty][tx]!==0 && i===0) return 0; // старт внутри стены
+    if(tMaxX<tMaxY){ t=tMaxX; tMaxX+=tDeltaX; tx+=stepX; }
+    else           { t=tMaxY; tMaxY+=tDeltaY; ty+=stepY; }
+    if(t>maxDist) return maxDist;
+  }
+  return maxDist;
+}
+
+/* Проверка прямой видимости между двумя точками (стены + дым) */
+function hasLOS(ax,ay,bx,by,checkSmoke){
+  const d = dist(ax,ay,bx,by);
+  if(raycastWall(ax,ay,angTo(ax,ay,bx,by),d) < d-1) return false;
+  if(checkSmoke){
+    for(const s of G.smokes){
+      if(s.r<20) continue;
+      if(segPointDist(ax,ay,bx,by,s.x,s.y).d < s.r*0.8) return false;
+    }
+  }
+  return true;
+}
+
+/* A* по тайловой сетке (для навигации ботов) */
+function findPath(sx,sy,tx,ty){
+  if(sx===tx&&sy===ty) return [];
+  const open=[], came={}, gScore={};
+  const key=(x,y)=>y*MAP_W+x;
+  const h=(x,y)=>Math.abs(x-tx)+Math.abs(y-ty);
+  open.push({x:sx,y:sy,f:h(sx,sy)});
+  gScore[key(sx,sy)]=0;
+  const dirs=[[1,0],[-1,0],[0,1],[0,-1]];
+  let iter=0;
+  while(open.length && iter++<2500){
+    let bi=0; for(let i=1;i<open.length;i++) if(open[i].f<open[bi].f) bi=i;
+    const cur=open.splice(bi,1)[0];
+    if(cur.x===tx&&cur.y===ty){
+      // восстановление пути
+      const path=[]; let k=key(tx,ty);
+      while(came[k]!==undefined){ path.push({x:k%MAP_W, y:Math.floor(k/MAP_W)}); k=came[k]; }
+      path.reverse();
+      return path;
+    }
+    const cg=gScore[key(cur.x,cur.y)];
+    for(const [dx,dy] of dirs){
+      const nx=cur.x+dx, ny=cur.y+dy;
+      if(nx<0||ny<0||nx>=MAP_W||ny>=MAP_H||grid[ny][nx]!==0) continue;
+      const nk=key(nx,ny), ng=cg+1;
+      if(gScore[nk]===undefined || ng<gScore[nk]){
+        gScore[nk]=ng; came[nk]=key(cur.x,cur.y);
+        open.push({x:nx,y:ny,f:ng+h(nx,ny)});
+      }
+    }
+  }
+  return null;
+}
+function randomFloorTile(){
+  for(let i=0;i<200;i++){
+    const x=randi(1,MAP_W-2), y=randi(1,MAP_H-2);
+    if(grid[y][x]===0) return {x,y};
+  }
+  return {x:21,y:29};
+}
+
+/* ################################################################
+   #  SECTION 5: PARTICLES — вспышки, гильзы, искры, дым, пробоины
+   ################################################################ */
+const Particles = {
+  list: [],
+  spawn(p){ this.list.push(Object.assign({age:0}, p)); },
+  muzzle(x,y,ang){
+    this.spawn({type:'flash', x:x, y:y, ang:ang, life:0.05, r:rand(10,16)});
+    for(let i=0;i<3;i++){
+      const a = ang+rand(-0.4,0.4);
+      this.spawn({type:'spark', x:x, y:y, vx:Math.cos(a)*rand(150,350), vy:Math.sin(a)*rand(150,350), life:rand(.08,.18), col:'#ffd166'});
+    }
+  },
+  casing(x,y,ang){
+    const a = ang + Math.PI/2 + rand(-.4,.4);
+    this.spawn({type:'casing', x:x, y:y, vx:Math.cos(a)*rand(80,160), vy:Math.sin(a)*rand(80,160), rot:rand(0,6.28), vr:rand(-12,12), life:rand(.5,.9)});
+  },
+  impact(x,y,ang){
+    for(let i=0;i<5;i++){
+      const a = ang + Math.PI + rand(-1,1);
+      this.spawn({type:'spark', x:x, y:y, vx:Math.cos(a)*rand(60,240), vy:Math.sin(a)*rand(60,240), life:rand(.1,.25), col:'#cbb89c'});
+    }
+  },
+  blood(x,y,ang){
+    for(let i=0;i<7;i++){
+      const a = ang + rand(-.9,.9);
+      this.spawn({type:'blood', x:x, y:y, vx:Math.cos(a)*rand(40,220), vy:Math.sin(a)*rand(40,220), life:rand(.2,.5)});
+    }
+  },
+  explosion(x,y){
+    for(let i=0;i<26;i++){
+      const a = rand(0,6.28);
+      this.spawn({type:'spark', x:x, y:y, vx:Math.cos(a)*rand(100,520), vy:Math.sin(a)*rand(100,520), life:rand(.2,.6), col: Math.random()<.5?'#ff9f43':'#ffd166'});
+    }
+    this.spawn({type:'boom', x:x, y:y, life:.35, r:10});
+  },
+  smokePuff(x,y,r){
+    this.spawn({type:'smoke', x:x+rand(-r*.5,r*.5), y:y+rand(-r*.5,r*.5),
+      vx:rand(-12,12), vy:rand(-12,12), life:rand(1.6,2.6), r:rand(r*.35,r*.6)});
+  },
+  update(dt){
+    for(let i=this.list.length-1;i>=0;i--){
+      const p=this.list[i];
+      p.age+=dt;
+      if(p.age>=p.life){ this.list.splice(i,1); continue; }
+      if(p.vx!==undefined){
+        p.x+=p.vx*dt; p.y+=p.vy*dt;
+        p.vx*=0.9; p.vy*=0.9;
+      }
+      if(p.vr!==undefined) p.rot+=p.vr*dt;
+    }
+  },
+  draw(ctx){
+    for(const p of this.list){
+      const k = 1 - p.age/p.life;
+      ctx.save();
+      if(p.type==='flash'){
+        ctx.globalAlpha = k;
+        ctx.fillStyle='#ffe08a';
+        ctx.beginPath(); ctx.arc(p.x,p.y,p.r*k,0,6.28); ctx.fill();
+      } else if(p.type==='spark'){
+        ctx.globalAlpha = k;
+        ctx.fillStyle=p.col;
+        ctx.fillRect(p.x-1.5,p.y-1.5,3,3);
+      } else if(p.type==='blood'){
+        ctx.globalAlpha = k*0.8;
+        ctx.fillStyle='#c0392b';
+        ctx.fillRect(p.x-2,p.y-2,4,4);
+      } else if(p.type==='casing'){
+        ctx.globalAlpha = Math.min(1,k*2);
+        ctx.translate(p.x,p.y); ctx.rotate(p.rot);
+        ctx.fillStyle='#d4af37';
+        ctx.fillRect(-3,-1,6,2);
+      } else if(p.type==='boom'){
+        ctx.globalAlpha = k*.7;
+        ctx.strokeStyle='#ff9f43'; ctx.lineWidth=4;
+        ctx.beginPath(); ctx.arc(p.x,p.y, p.r+(1-k)*90, 0,6.28); ctx.stroke();
+      } else if(p.type==='smoke'){
+        ctx.globalAlpha = Math.min(.85, k*1.1);
+        ctx.fillStyle='#aeb6bf';
+        ctx.beginPath(); ctx.arc(p.x,p.y,p.r*(0.6+0.4*(1-k)),0,6.28); ctx.fill();
+      }
+      ctx.restore();
+    }
+  }
+};
+
+/* ################################################################
+   #  SECTION 6: WEAPONS / СТРЕЛЬБА — hitscan, урон, броня
+   ################################################################ */
+/* Экземпляр оружия у персонажа */
+function makeGun(key){
+  const w = WEAPONS[key];
+  return { key, ammo: w.mag, reserve: w.reserve, reloading: 0, cooldown: 0 };
+}
+
+/* Нанесение урона с учётом брони/шлема и хедшотов */
+function applyDamage(target, rawDmg, isHead, attacker, wkey){
+  const w = WEAPONS[wkey];
+  let dmg = rawDmg;
+  if(isHead){
+    dmg *= w.hs;
+    if(target.helmet) dmg *= 0.6;
+  }
+  if(!isHead && target.armor>0){
+    const absorbed = dmg*0.5;
+    target.armor = Math.max(0, target.armor - absorbed*0.5);
+    dmg -= absorbed;
+  }
+  target.hp -= dmg;
+  target.lastHitTime = G.time;
+  if(target.isBot){
+    // бот мгновенно узнаёт, откуда прилетело
+    target.lastKnown = {x:attacker.x, y:attacker.y};
+    if(target.state==='patrol'||target.state==='alert') target.setState('combat');
+  }
+  if(target===G.player){ G.dmgFlash = 0.4; }
+  if(target.hp<=0 && !target.dead) killCharacter(target, attacker, wkey, isHead);
+  return dmg;
+}
+
+function killCharacter(target, attacker, wkey, isHead){
+  target.dead = true;
+  target.hp = 0;
+  AudioSys.death(target.x, target.y);
+  Particles.blood(target.x, target.y, rand(0,6.28));
+  const wname = WEAPONS[wkey] ? WEAPONS[wkey].name : wkey;
+  G.killfeed.unshift({ text: (attacker.name||'Игрок')+'  ['+wname+(isHead?' ▸HS':'')+']  '+(target.name||'Игрок'), time: G.time });
+  if(G.killfeed.length>6) G.killfeed.pop();
+  if(target.isBot){
+    // дроп оружия бота
+    if(target.gun && target.gun.key!=='knife' && target.gun.key!=='usp')
+      G.drops.push({ x:target.x+rand(-8,8), y:target.y+rand(-8,8), key:target.gun.key, ammo:target.gun.ammo, ang:rand(0,6.28) });
+    if(attacker===G.player){
+      G.player.money = Math.min(MAX_MONEY, G.player.money + KILL_REWARD);
+      G.roundKills++; G.totalKills++;
+      AudioSys.hit();
+    }
+  }
+}
+
+/* Один hitscan-выстрел (или нож). Возвращает true при попадании по персонажу */
+function fireHitscan(shooter, angle, wkey){
+  const w = WEAPONS[wkey];
+  const pellets = w.pellets||1;
+  let hitAny = false;
+  for(let p=0;p<pellets;p++){
+    let spreadDeg = w.spread;
+    if(shooter===G.player){
+      // модификаторы разброса игрока: ПКМ, присед, движение
+      if(Input.rmb) spreadDeg *= (w.adsSpread!==undefined ? w.adsSpread : 0.45);
+      if(shooter.crouch) spreadDeg *= 0.7;
+      const spd = Math.hypot(shooter.vx,shooter.vy);
+      spreadDeg *= 1 + spd/300;
+    }
+    const a = angle + deg(rand(-spreadDeg,spreadDeg))*0.5;
+    const maxD = wkey==='knife' ? w.range : 2400;
+    const wallD = raycastWall(shooter.x, shooter.y, a, maxD);
+    // поиск ближайшего персонажа на луче
+    let best = null, bestD = wallD;
+    const targets = shooter===G.player ? G.bots : [G.player];
+    for(const t of targets){
+      if(t.dead) continue;
+      const r = t.crouch ? 11 : 14;
+      const ex = shooter.x+Math.cos(a)*maxD, ey = shooter.y+Math.sin(a)*maxD;
+      const sp = segPointDist(shooter.x,shooter.y,ex,ey,t.x,t.y);
+      const dAlong = sp.t*maxD;
+      if(sp.d < r && dAlong < bestD && dAlong>1){ best = t; bestD = dAlong; }
+    }
+    const endX = shooter.x+Math.cos(a)*bestD, endY = shooter.y+Math.sin(a)*bestD;
+    if(wkey!=='knife'){
+      G.tracers.push({x0:shooter.x+Math.cos(a)*20, y0:shooter.y+Math.sin(a)*20, x1:endX, y1:endY, life:.06, age:0});
+    }
+    if(best){
+      hitAny = true;
+      // шанс хедшота растёт при прицеливании/приседе
+      let hsChance = 0.14;
+      if(shooter===G.player){ if(Input.rmb) hsChance+=0.12; if(shooter.crouch) hsChance+=0.05; }
+      else hsChance = 0.08;
+      const isHead = Math.random()<hsChance;
+      // спад урона за пределами range
+      let dmg = w.dmg;
+      if(bestD > w.range) dmg *= Math.max(0.35, 1-(bestD-w.range)/1200);
+      Particles.blood(best.x, best.y, a);
+      applyDamage(best, dmg, isHead, shooter, wkey);
+    } else if(bestD>=wallD-1 && wkey!=='knife' && wallD<maxD){
+      // пробоина в стене
+      Particles.impact(endX, endY, a);
+      G.holes.push({x:endX-Math.cos(a)*2, y:endY-Math.sin(a)*2});
+      if(G.holes.length>90) G.holes.shift();
+    }
+  }
+  // звук + шум для ботов
+  AudioSys.shot(wkey, shooter.x, shooter.y);
+  if(wkey!=='knife') emitNoise(shooter.x, shooter.y, 780, shooter);
+  const mx = shooter.x+Math.cos(angle)*24, my = shooter.y+Math.sin(angle)*24;
+  if(wkey!=='knife'){ Particles.muzzle(mx,my,angle); Particles.casing(mx,my,angle); }
+  return hitAny;
+}
+
+/* Шум: боты в радиусе переходят в Alert */
+function emitNoise(x,y,radius,source){
+  if(source!==G.player) return; // ботов интересует только шум игрока
+  for(const b of G.bots){
+    if(b.dead) continue;
+    if(dist2(b.x,b.y,x,y) < radius*radius){
+      b.lastKnown = {x,y};
+      if(b.state==='patrol' || b.state==='search') b.setState('alert');
+    }
+  }
+}
+
+/* ################################################################
+   #  SECTION 7: ENTITIES — игрок, бот, граната
+   ################################################################ */
+class Player {
+  constructor(){
+    this.x = PLAYER_SPAWN.x; this.y = PLAYER_SPAWN.y;
+    this.vx=0; this.vy=0; this.angle=0; this.aimAngle=0;
+    this.hp=100; this.armor=0; this.helmet=false;
+    this.money = START_MONEY;
+    this.dead=false; this.crouch=false; this.walk=false;
+    this.slots = { primary:null, pistol:makeGun('usp'), melee:makeGun('knife') };
+    this.grenades = { he:0, smoke:0, flash:0 };
+    this.curSlot = 'pistol';
+    this.gnadeSel = 'he';
+    this.stepAcc = 0;
+    this.name = 'Игрок';
+    this.isBot = false;
+    this.lastHitTime = -99;
+  }
+  get gun(){
+    if(this.curSlot==='grenade') return null;
+    return this.slots[this.curSlot];
+  }
+  resetForRound(lostWeapons){
+    this.dead=false; this.hp=100;
+    this.x=PLAYER_SPAWN.x; this.y=PLAYER_SPAWN.y; this.vx=0; this.vy=0;
+    if(lostWeapons){
+      this.slots.primary=null;
+      this.slots.pistol=makeGun('usp');
+      this.grenades={he:0,smoke:0,flash:0};
+      this.armor=0; this.helmet=false;
+    } else {
+      // пополняем магазины между раундами
+      for(const s of ['primary','pistol']){
+        const g=this.slots[s];
+        if(g){ g.ammo=WEAPONS[g.key].mag; g.reserve=WEAPONS[g.key].reserve; g.reloading=0; g.cooldown=0; }
+      }
+    }
+    this.curSlot = this.slots.primary ? 'primary' : 'pistol';
+  }
+  update(dt){
+    if(this.dead) return;
+    const S = Game.settings;
+    this.crouch = !!Input.keys['ControlLeft'] || !!Input.keys['ControlRight'];
+    this.walk = !!Input.keys['ShiftLeft'] || !!Input.keys['ShiftRight'];
+
+    /* --- движение: плавное ускорение/торможение --- */
+    let ix=0, iy=0;
+    if(Input.keys['KeyW']) iy-=1;
+    if(Input.keys['KeyS']) iy+=1;
+    if(Input.keys['KeyA']) ix-=1;
+    if(Input.keys['KeyD']) ix+=1;
+    const len = Math.hypot(ix,iy)||1;
+    let speed = 215;
+    if(this.walk) speed*=0.5;
+    if(this.crouch) speed*=0.55;
+    if(Input.rmb) speed*=0.75;
+    const g = this.gun;
+    if(g) speed *= WEAPONS[g.key].move;
+    const tx = ix/len*speed, ty = iy/len*speed;
+    const accel = 10;
+    this.vx = lerp(this.vx, tx, 1-Math.exp(-accel*dt));
+    this.vy = lerp(this.vy, ty, 1-Math.exp(-accel*dt));
+    this.x += this.vx*dt; this.y += this.vy*dt;
+    const r = this.crouch?11:14;
+    const c = collideCircle(this.x,this.y,r);
+    this.x=c.x; this.y=c.y;
+
+    /* шаги: звук + шум (тихий шаг не слышен ботам) */
+    const spd = Math.hypot(this.vx,this.vy);
+    if(spd>40){
+      this.stepAcc += spd*dt;
+      if(this.stepAcc>52){
+        this.stepAcc=0;
+        if(!this.walk && !this.crouch){ AudioSys.step(this.x,this.y); emitNoise(this.x,this.y,230,this); }
+      }
+    }
+
+    /* --- прицел: мышь + aimbot --- */
+    const world = Game.screenToWorld(Input.mouseX, Input.mouseY);
+    let targetAngle = angTo(this.x,this.y,world.x,world.y);
+    const ab = S.assist.aimbot;
+    if(ab.on && G.state==='combat'){
+      const t = pickAimbotTarget(targetAngle, ab);
+      if(t){
+        const want = angTo(this.x,this.y,t.x,t.y);
+        targetAngle = lerpAngle(targetAngle, want, ab.strength/100);
+      }
+    }
+    this.aimAngle = targetAngle;
+    // сглаживание поворота модели по чувствительности
+    this.angle = lerpAngle(this.angle, targetAngle, clamp(S.sens*22*dt, 0, 1));
+
+    /* --- оружие --- */
+    if(g){
+      if(g.cooldown>0) g.cooldown-=dt;
+      if(g.reloading>0){
+        g.reloading-=dt;
+        if(g.reloading<=0){
+          const w=WEAPONS[g.key];
+          const need=w.mag-g.ammo, take=Math.min(need,g.reserve);
+          g.ammo+=take; g.reserve-=take;
+        }
+      }
+    }
+    if(G.state!=='combat') { Input.consumeClick(); return; }
+
+    /* triggerbot: авто-выстрел, если прицел на боте и есть LOS */
+    let wantFire = Input.lmb;
+    if(S.assist.misc.trigger && this.curSlot!=='grenade' && g && g.key!=='knife'){
+      for(const b of G.bots){
+        if(b.dead) continue;
+        const d = dist(this.x,this.y,b.x,b.y);
+        const sp = segPointDist(this.x,this.y,
+          this.x+Math.cos(this.aimAngle)*d, this.y+Math.sin(this.aimAngle)*d, b.x,b.y);
+        if(sp.d<16 && hasLOS(this.x,this.y,b.x,b.y,false)){ wantFire=true; break; }
+      }
+    }
+
+    if(this.curSlot==='grenade'){
+      if(Input.consumeClick()) this.throwGrenade(world);
+    } else if(g){
+      const w = WEAPONS[g.key];
+      const clicked = Input.consumeClick();
+      const trigger = w.auto ? wantFire : (clicked || (wantFire && S.assist.misc.trigger));
+      if(trigger && g.cooldown<=0 && g.reloading<=0){
+        if(g.key==='knife'){
+          g.cooldown = 1/w.rate;
+          fireHitscan(this, this.aimAngle, 'knife');
+        } else if(g.ammo>0){
+          g.cooldown = 1/w.rate;
+          g.ammo--;
+          fireHitscan(this, this.aimAngle, g.key);
+          G.recoil = Math.min(1, G.recoil+0.35);
+        } else {
+          this.startReload();
+        }
+      }
+    }
+    if(Input.keys['KeyR']) this.startReload();
+  }
+  startReload(){
+    const g=this.gun;
+    if(!g || g.key==='knife' || g.reloading>0) return;
+    const w=WEAPONS[g.key];
+    if(g.ammo>=w.mag || g.reserve<=0) return;
+    g.reloading = w.reload;
+    AudioSys.reload(this.x,this.y);
+  }
+  throwGrenade(worldTarget){
+    const type=this.gnadeSel;
+    if(this.grenades[type]<=0) return;
+    this.grenades[type]--;
+    const a = this.aimAngle;
+    const d = clamp(dist(this.x,this.y,worldTarget.x,worldTarget.y), 100, 620);
+    G.grenades.push(new Grenade(this.x,this.y, a, d, type, this));
+    // авто-возврат к оружию, если гранаты кончились
+    if(this.grenades[type]<=0){
+      const other = Object.keys(this.grenades).find(k=>this.grenades[k]>0);
+      if(other) this.gnadeSel=other;
+      else this.curSlot = this.slots.primary?'primary':'pistol';
+    }
+  }
+  selectSlot(s){
+    if(s==='primary' && !this.slots.primary) return;
+    if(s==='grenade'){
+      const has = Object.keys(this.grenades).find(k=>this.grenades[k]>0);
+      if(!has) return;
+      this.gnadeSel = this.grenades[this.gnadeSel]>0 ? this.gnadeSel : has;
+    }
+    this.curSlot=s;
+  }
+}
+
+/* Граната: летит, замедляется, взрывается по таймеру */
+class Grenade {
+  constructor(x,y,angle,throwDist,type,owner){
+    this.x=x; this.y=y; this.type=type; this.owner=owner;
+    const v = Math.sqrt(throwDist)*22;
+    this.vx=Math.cos(angle)*v; this.vy=Math.sin(angle)*v;
+    this.fuse = type==='he' ? 1.4 : 1.1;
+    this.dead=false;
+  }
+  update(dt){
+    this.fuse-=dt;
+    // отскок от стен
+    const nx=this.x+this.vx*dt;
+    if(isSolid(nx,this.y)) this.vx*=-0.45; else this.x=nx;
+    const ny=this.y+this.vy*dt;
+    if(isSolid(this.x,ny)) this.vy*=-0.45; else this.y=ny;
+    this.vx*=Math.pow(0.25,dt); this.vy*=Math.pow(0.25,dt);
+    if(this.fuse<=0) this.explode();
+  }
+  explode(){
+    this.dead=true;
+    if(this.type==='he'){
+      AudioSys.explosion(this.x,this.y);
+      Particles.explosion(this.x,this.y);
+      const R=230;
+      const victims=[G.player, ...G.bots];
+      for(const t of victims){
+        if(t.dead) continue;
+        const d=dist(this.x,this.y,t.x,t.y);
+        if(d<R && hasLOS(this.x,this.y,t.x,t.y,false)){
+          const dmg = lerp(95,10,d/R);
+          applyDamage(t,dmg,false,this.owner,'he');
+        }
+      }
+      emitNoise(this.x,this.y,1000,this.owner);
+    } else if(this.type==='smoke'){
+      G.smokes.push({x:this.x,y:this.y,r:0,maxR:140,life:12});
+      AudioSys.burst(0.3*AudioSys.atten(this.x,this.y),.3,400,1,.25);
+    } else if(this.type==='flash'){
+      AudioSys.flashbang(this.x,this.y);
+      Particles.spawn({type:'flash',x:this.x,y:this.y,ang:0,life:.15,r:60});
+      // ослепление: игрок (если смотрит/близко) и боты с LOS
+      const p=G.player;
+      if(!p.dead && hasLOS(this.x,this.y,p.x,p.y,true)){
+        const d=dist(this.x,this.y,p.x,p.y);
+        if(d<700){
+          const facing = Math.abs(angDiff(p.aimAngle, angTo(p.x,p.y,this.x,this.y)));
+          const k = facing<Math.PI/2 ? 1 : 0.35;
+          G.flashAlpha = Math.max(G.flashAlpha, clamp(1.6-d/700,0,1.4)*k);
+        }
+      }
+      for(const b of G.bots){
+        if(b.dead) continue;
+        const d=dist(this.x,this.y,b.x,b.y);
+        if(d<650 && hasLOS(this.x,this.y,b.x,b.y,true))
+          b.blind = Math.max(b.blind, lerp(3.5,1,d/650));
+      }
+    }
+  }
+}
+
+/* ################################################################
+   #  SECTION 8: AI — бот с конечным автоматом
+   #  Patrol → Alert → Combat → Search → Flee
+   ################################################################ */
+class Bot {
+  constructor(tileX,tileY,tier,idx){
+    this.x=tileX*TILE+TILE/2; this.y=tileY*TILE+TILE/2;
+    this.vx=0; this.vy=0; this.angle=rand(0,6.28);
+    this.tier=tier; this.cfg=BOT_TIERS[tier];
+    this.hp=100; this.armor = tier>=2?50:(Math.random()<.4?50:0); this.helmet=tier>=3;
+    this.dead=false; this.crouch=false; this.isBot=true;
+    this.name='Bot_'+BOT_NAMES[idx%BOT_NAMES.length];
+    this.state='patrol';
+    this.stateTime=0;
+    this.path=null; this.pathIdx=0; this.repathTimer=0;
+    this.lastKnown=null;
+    this.reactTimer=0;         // накопление реакции при виде игрока
+    this.burstLeft=0; this.burstPause=0;
+    this.blind=0;
+    this.gun = makeGun(this.pickWeapon());
+    this.stepAcc=0;
+    this.strafeDir = Math.random()<.5?1:-1;
+    this.strafeTimer = rand(.5,1.5);
+    this.lastHitTime=-99;
+  }
+  /* случайная закупка бота: пул оружия зависит от сложности */
+  pickWeapon(){
+    const pools=[
+      ['usp','usp','mp7','nova'],
+      ['mp7','nova','deagle','ak47'],
+      ['ak47','m4','mp7','awp'],
+      ['ak47','m4','awp','awp'],
+    ];
+    const p=pools[this.tier];
+    return p[randi(0,p.length-1)];
+  }
+  setState(s){
+    if(this.state===s) return;
+    this.state=s; this.stateTime=0;
+    this.path=null; this.repathTimer=0;
+    if(s==='patrol') this.reactTimer=0;
+  }
+  canSeePlayer(){
+    const p=G.player;
+    if(p.dead || this.blind>0) return false;
+    const d=dist(this.x,this.y,p.x,p.y);
+    let vd = this.cfg.viewDist;
+    if(p.crouch) vd*=0.8;
+    if(p.walk) vd*=0.9;
+    if(d>vd) return false;
+    const a = angTo(this.x,this.y,p.x,p.y);
+    if(Math.abs(angDiff(this.angle,a)) > deg(this.cfg.fov)/2 && d>90) return false;
+    return hasLOS(this.x,this.y,p.x,p.y,true);
+  }
+  /* переместиться по пути A* к тайлу-цели */
+  moveAlongPath(tx,ty,speedMul,dt){
+    this.repathTimer-=dt;
+    const myTx=Math.floor(this.x/TILE), myTy=Math.floor(this.y/TILE);
+    if(!this.path || this.repathTimer<=0){
+      this.path = findPath(myTx,myTy,tx,ty);
+      this.pathIdx=0;
+      this.repathTimer=0.9;
+    }
+    if(!this.path || this.path.length===0) return true; // пришли/пути нет
+    let node=this.path[this.pathIdx];
+    let nx=node.x*TILE+TILE/2, ny=node.y*TILE+TILE/2;
+    if(dist2(this.x,this.y,nx,ny)<26*26){
+      this.pathIdx++;
+      if(this.pathIdx>=this.path.length){ this.path=null; return true; }
+      node=this.path[this.pathIdx];
+      nx=node.x*TILE+TILE/2; ny=node.y*TILE+TILE/2;
+    }
+    const a=angTo(this.x,this.y,nx,ny);
+    const sp=this.cfg.speed*speedMul;
+    this.vx=lerp(this.vx, Math.cos(a)*sp, 1-Math.exp(-8*dt));
+    this.vy=lerp(this.vy, Math.sin(a)*sp, 1-Math.exp(-8*dt));
+    if(this.state!=='combat') this.angle=lerpAngle(this.angle,a,6*dt);
+    return false;
+  }
+  update(dt){
+    if(this.dead) return;
+    this.stateTime+=dt;
+    if(this.blind>0) this.blind-=dt;
+    const p=G.player;
+    const sees=this.canSeePlayer();
+
+    /* накопление реакции: бот "замечает" игрока не сразу */
+    if(sees){
+      this.reactTimer+=dt;
+      this.lastKnown={x:p.x,y:p.y};
+    } else {
+      this.reactTimer=Math.max(0,this.reactTimer-dt*2);
+    }
+
+    switch(this.state){
+      case 'patrol': {
+        if(sees && this.reactTimer>=this.cfg.reaction){ this.setState('combat'); break; }
+        if(!this.patrolTarget || this.moveAlongPath(this.patrolTarget.x,this.patrolTarget.y,0.55,dt)){
+          const poi=POIS[randi(0,POIS.length-1)];
+          this.patrolTarget={x:poi[0],y:poi[1]};
+        }
+        break;
+      }
+      case 'alert': {
+        // идём проверить источник шума
+        if(sees && this.reactTimer>=this.cfg.reaction*0.6){ this.setState('combat'); break; }
+        if(this.lastKnown){
+          const done=this.moveAlongPath(Math.floor(this.lastKnown.x/TILE),Math.floor(this.lastKnown.y/TILE),0.8,dt);
+          if(done) this.setState('search');
+        } else this.setState('patrol');
+        if(this.stateTime>8) this.setState('patrol');
+        break;
+      }
+      case 'combat': {
+        if(p.dead){ this.setState('patrol'); break; }
+        if(this.hp<30 && Math.random()<(1-this.cfg.aggro)*0.02){ this.setState('flee'); break; }
+        if(!sees){
+          if(this.stateTime>0.8) this.setState('search');
+          break;
+        }
+        const d=dist(this.x,this.y,p.x,p.y);
+        /* прицеливание с ошибкой; анти-эйм игрока добавляет ошибку */
+        let err=this.cfg.aimErr;
+        if(Game.settings.assist.misc.antiaim) err*=2.6;
+        if(p.walk||p.crouch) err*=0.9;
+        const spd=Math.hypot(p.vx,p.vy);
+        err *= 1+spd/400;
+        const perfect=angTo(this.x,this.y,p.x,p.y);
+        this.angle=lerpAngle(this.angle,perfect,10*dt);
+
+        /* движение в бою: сближение или стрейф */
+        const wRange=WEAPONS[this.gun.key].range;
+        const ideal=this.gun.key==='awp'? 620 : (this.gun.key==='nova'? 200 : Math.min(430,wRange*0.55));
+        this.strafeTimer-=dt;
+        if(this.strafeTimer<=0){ this.strafeDir*=-1; this.strafeTimer=rand(.5,1.4); }
+        let mvA;
+        if(d>ideal+80) mvA=perfect;
+        else if(d<ideal-120 && Math.random()<(1-this.cfg.aggro)) mvA=perfect+Math.PI;
+        else mvA=perfect+Math.PI/2*this.strafeDir;
+        const sp=this.cfg.speed*0.85;
+        this.vx=lerp(this.vx,Math.cos(mvA)*sp,1-Math.exp(-6*dt));
+        this.vy=lerp(this.vy,Math.sin(mvA)*sp,1-Math.exp(-6*dt));
+
+        /* стрельба очередями */
+        const g=this.gun, w=WEAPONS[g.key];
+        if(g.cooldown>0) g.cooldown-=dt;
+        if(g.reloading>0){
+          g.reloading-=dt;
+          if(g.reloading<=0){ const need=w.mag-g.ammo,take=Math.min(need,g.reserve); g.ammo+=take; g.reserve-=take; }
+        } else if(this.burstPause>0){
+          this.burstPause-=dt;
+        } else if(g.cooldown<=0 && d<wRange*1.6){
+          if(g.ammo<=0){
+            if(g.reserve>0){ g.reloading=w.reload; AudioSys.reload(this.x,this.y); }
+            else this.gun=makeGun('usp');
+          } else {
+            if(this.burstLeft<=0) this.burstLeft=randi(this.cfg.burst[0],this.cfg.burst[1]);
+            g.cooldown=1/w.rate; g.ammo--; this.burstLeft--;
+            const aimA=perfect+deg(rand(-err,err))*0.5;
+            fireHitscan(this,aimA,g.key);
+            if(this.burstLeft<=0) this.burstPause=rand(this.cfg.pause[0],this.cfg.pause[1]);
+          }
+        }
+        break;
+      }
+      case 'search': {
+        if(sees && this.reactTimer>=this.cfg.reaction*0.5){ this.setState('combat'); break; }
+        if(this.lastKnown){
+          const done=this.moveAlongPath(Math.floor(this.lastKnown.x/TILE),Math.floor(this.lastKnown.y/TILE),0.75,dt);
+          if(done){
+            // побродить рядом
+            if(!this.searchWander || this.moveAlongPath(this.searchWander.x,this.searchWander.y,0.6,dt)){
+              const t=randomFloorTile();
+              const lx=Math.floor(this.lastKnown.x/TILE), ly=Math.floor(this.lastKnown.y/TILE);
+              this.searchWander={x:clamp(lx+randi(-3,3),1,MAP_W-2), y:clamp(ly+randi(-3,3),1,MAP_H-2)};
+              if(grid[this.searchWander.y][this.searchWander.x]!==0) this.searchWander=t;
+            }
+          }
+        }
+        if(this.stateTime>7){ this.setState('patrol'); this.searchWander=null; }
+        break;
+      }
+      case 'flee': {
+        // бежим к дальней точке без прямой видимости игрока
+        if(!this.fleeTarget){
+          let best=null,bestScore=-1;
+          for(let i=0;i<14;i++){
+            const t=randomFloorTile();
+            const wx=t.x*TILE+TILE/2, wy=t.y*TILE+TILE/2;
+            const dp=dist(wx,wy,p.x,p.y);
+            const hidden=!hasLOS(wx,wy,p.x,p.y,true)?400:0;
+            if(dp+hidden>bestScore){ bestScore=dp+hidden; best=t; }
+          }
+          this.fleeTarget=best;
+        }
+        const done=this.moveAlongPath(this.fleeTarget.x,this.fleeTarget.y,1.0,dt);
+        if(done || this.stateTime>6){
+          this.fleeTarget=null;
+          this.setState(sees?'combat':'patrol');
+        }
+        // отстреливаемся, если игрок близко
+        if(sees && dist(this.x,this.y,p.x,p.y)<260) this.setState('combat');
+        break;
+      }
+    }
+
+    /* физика + шаги */
+    if(this.state!=='combat'){ /* в бою скорость задана выше */ }
+    this.x+=this.vx*dt; this.y+=this.vy*dt;
+    const c=collideCircle(this.x,this.y,14);
+    this.x=c.x; this.y=c.y;
+    const spd2=Math.hypot(this.vx,this.vy);
+    if(spd2>40){
+      this.stepAcc+=spd2*dt;
+      if(this.stepAcc>56){ this.stepAcc=0; AudioSys.step(this.x,this.y); }
+    }
+    // затухание скорости вне активного движения
+    if(this.state==='combat' && !this.canSeePlayer()){ this.vx*=0.9; this.vy*=0.9; }
+  }
+}
+
+/* Выбор цели аимбота по приоритету и FOV */
+function pickAimbotTarget(curAngle, ab){
+  const p=G.player;
+  let best=null, bestScore=Infinity;
+  for(const b of G.bots){
+    if(b.dead) continue;
+    const a=angTo(p.x,p.y,b.x,b.y);
+    const off=Math.abs(angDiff(curAngle,a));
+    if(off>deg(ab.fov)/2) continue;
+    if(!hasLOS(p.x,p.y,b.x,b.y,false)) continue;
+    let score;
+    if(ab.priority==='near') score=dist2(p.x,p.y,b.x,b.y);
+    else if(ab.priority==='hp') score=b.hp;
+    else score=off;
+    if(score<bestScore){ bestScore=score; best=b; }
+  }
+  return best;
+}
+
+
+/* ################################################################
+   #  SECTION 9: UI — меню закупки, ассист-панель, оверлеи
+   ################################################################ */
+const UI = {
+  buyCat: 0,
+  buyCats: [
+    { name:'1 Пистолеты', items:[{t:'w',k:'deagle'}] },
+    { name:'2 ПП / Дробовик', items:[{t:'w',k:'mp7'},{t:'w',k:'nova'}] },
+    { name:'3 Винтовки', items:[{t:'w',k:'ak47'},{t:'w',k:'m4'},{t:'w',k:'awp'}] },
+    { name:'4 Гранаты', items:[{t:'g',k:'he'},{t:'g',k:'smoke'},{t:'g',k:'flash'}] },
+    { name:'5 Снаряжение', items:[{t:'a',k:'armor'},{t:'a',k:'helmet'}] },
+  ],
+  el(id){ return document.getElementById(id); },
+  showOverlay(id){
+    for(const o of ['mainMenu','buyMenu','roundEnd','gameOver'])
+      this.el(o).classList.toggle('hidden', o!==id);
+  },
+  init(){
+    // вкладки закупки
+    const tabs=this.el('buyTabs');
+    this.buyCats.forEach((c,i)=>{
+      const d=document.createElement('div');
+      d.className='buy-tab'; d.textContent=c.name;
+      d.onclick=()=>{ this.buyCat=i; this.renderBuy(); };
+      tabs.appendChild(d);
+    });
+    this.el('btnStart').onclick=()=>{ AudioSys.init(); Game.startMatch(); };
+    this.el('btnReady').onclick=()=>Game.startCombat();
+    this.el('btnNextRound').onclick=()=>Game.startBuyPhase();
+    this.el('btnRestart').onclick=()=>{ UI.showOverlay('mainMenu'); Game.state='menu'; };
+
+    // чувствительность (главное меню)
+    const ss=this.el('sensSlider');
+    ss.value=Game.settings.sens;
+    this.el('sensVal').textContent=(+ss.value).toFixed(2);
+    ss.oninput=()=>{ Game.settings.sens=+ss.value; this.el('sensVal').textContent=(+ss.value).toFixed(2); Game.saveSettings(); };
+
+    // ассист-меню: вкладки
+    document.querySelectorAll('.as-tab').forEach(t=>{
+      t.onclick=()=>{
+        document.querySelectorAll('.as-tab').forEach(x=>x.classList.remove('active'));
+        document.querySelectorAll('.as-page').forEach(x=>x.classList.remove('active'));
+        t.classList.add('active');
+        document.getElementById(t.dataset.page).classList.add('active');
+      };
+    });
+    // универсальный биндинг input[data-path] ↔ настройки
+    document.querySelectorAll('[data-path]').forEach(inp=>{
+      const path=inp.dataset.path;
+      const val=getPath(Game.settings, path);
+      if(inp.type==='checkbox') inp.checked=!!val;
+      else inp.value=val;
+      const showEl=document.querySelector('[data-show="'+path+'"]');
+      if(showEl) showEl.textContent=val;
+      const apply=()=>{
+        let v;
+        if(inp.type==='checkbox') v=inp.checked;
+        else if(inp.type==='range') v=+inp.value;
+        else v=inp.value;
+        setPath(Game.settings, path, v);
+        if(showEl) showEl.textContent=v;
+        Game.saveSettings();
+      };
+      inp.oninput=apply; inp.onchange=apply;
+    });
+  },
+  toggleAssist(){
+    this.el('assistMenu').classList.toggle('hidden');
+  },
+  renderBuy(){
+    const p=G.player;
+    this.el('buyMoney').textContent='$'+p.money;
+    document.querySelectorAll('.buy-tab').forEach((t,i)=>t.classList.toggle('active',i===this.buyCat));
+    const gridEl=this.el('buyGrid');
+    gridEl.innerHTML='';
+    for(const item of this.buyCats[this.buyCat].items){
+      const d=document.createElement('div');
+      d.className='buy-item';
+      let name, price, stats, owned=false;
+      if(item.t==='w'){
+        const w=WEAPONS[item.k];
+        name=w.name; price=w.price;
+        stats='Урон '+w.dmg+' (x'+w.hs+' HS) · '+w.rate+' в/с<br>Магазин '+w.mag+' · Перезарядка '+w.reload+'с';
+        const slot=w.slot==='pistol'?'pistol':'primary';
+        owned = !!(p.slots[slot] && p.slots[slot].key===item.k);
+      } else if(item.t==='g'){
+        const g=GRENADES[item.k];
+        name=g.name; price=g.price;
+        stats='В наличии: '+p.grenades[item.k]+' / '+g.max;
+        owned = p.grenades[item.k]>=g.max;
+      } else {
+        const a=GEAR[item.k];
+        name=a.name; price=a.price;
+        stats = item.k==='helmet' ? 'Броня 100 + защита головы' : 'Броня 100 (−50% урона в тело)';
+        owned = item.k==='helmet' ? (p.armor>=100&&p.helmet) : p.armor>=100;
+      }
+      const poor=p.money<price;
+      if(owned) d.classList.add('owned');
+      else if(poor) d.classList.add('poor');
+      d.innerHTML='<div class="w-name">'+name+'</div><div class="w-stats">'+stats+'</div><div class="w-price">$'+price+'</div>';
+      if(!owned && !poor) d.onclick=()=>{ this.buy(item); };
+      gridEl.appendChild(d);
+    }
+  },
+  buy(item){
+    const p=G.player;
+    let price;
+    if(item.t==='w'){
+      const w=WEAPONS[item.k]; price=w.price;
+      if(p.money<price) return;
+      const slot=w.slot==='pistol'?'pistol':'primary';
+      p.slots[slot]=makeGun(item.k);
+      p.curSlot=slot;
+    } else if(item.t==='g'){
+      const g=GRENADES[item.k]; price=g.price;
+      if(p.money<price || p.grenades[item.k]>=g.max) return;
+      p.grenades[item.k]++;
+    } else {
+      const a=GEAR[item.k]; price=a.price;
+      if(p.money<price) return;
+      p.armor=100;
+      if(item.k==='helmet') p.helmet=true;
+    }
+    p.money-=price;
+    AudioSys.buy();
+    this.renderBuy();
+  },
+};
+
+/* ################################################################
+   #  SECTION 10: RENDER — мир, персонажи, HUD, ESP, миникарта
+   ################################################################ */
+const Render = {
+  canvas:null, ctx:null, W:0, H:0,
+  worldCanvas:null, minimapCanvas:null,
+  init(){
+    this.canvas=document.getElementById('game');
+    this.ctx=this.canvas.getContext('2d');
+    const resize=()=>{ this.W=this.canvas.width=window.innerWidth; this.H=this.canvas.height=window.innerHeight; };
+    window.addEventListener('resize',resize); resize();
+    this.prerenderWorld();
+    this.prerenderMinimap();
+  },
+  /* Статический слой карты рисуем один раз в offscreen-канвас */
+  prerenderWorld(){
+    const c=document.createElement('canvas');
+    c.width=WORLD_W; c.height=WORLD_H;
+    const x=c.getContext('2d');
+    x.fillStyle='#0b0e11'; x.fillRect(0,0,WORLD_W,WORLD_H);
+    for(let ty=0;ty<MAP_H;ty++) for(let tx=0;tx<MAP_W;tx++){
+      const v=grid[ty][tx], px=tx*TILE, py=ty*TILE;
+      if(v===0){
+        // песчаный пол с лёгкой шахматной вариацией
+        x.fillStyle=(tx+ty)%2===0?'#b39868':'#ac9161';
+        x.fillRect(px,py,TILE,TILE);
+        x.fillStyle='rgba(0,0,0,0.05)';
+        if((tx*7+ty*13)%5===0) x.fillRect(px+8,py+8,TILE-16,TILE-16);
+      } else if(v===1){
+        x.fillStyle='#4a4038';
+        x.fillRect(px,py,TILE,TILE);
+        x.fillStyle='#564a40';
+        x.fillRect(px+2,py+2,TILE-4,TILE-4);
+      } else {
+        // ящик
+        x.fillStyle=(tx+ty)%2===0?'#b39868':'#ac9161';
+        x.fillRect(px,py,TILE,TILE);
+        x.fillStyle='#8a6d3b'; x.fillRect(px+4,py+4,TILE-8,TILE-8);
+        x.strokeStyle='#6d5528'; x.lineWidth=3;
+        x.strokeRect(px+6,py+6,TILE-12,TILE-12);
+        x.beginPath(); x.moveTo(px+6,py+6); x.lineTo(px+TILE-6,py+TILE-6);
+        x.moveTo(px+TILE-6,py+6); x.lineTo(px+6,py+TILE-6); x.stroke();
+      }
+    }
+    this.worldCanvas=c;
+  },
+  prerenderMinimap(){
+    const s=4;
+    const c=document.createElement('canvas');
+    c.width=MAP_W*s; c.height=MAP_H*s;
+    const x=c.getContext('2d');
+    for(let ty=0;ty<MAP_H;ty++) for(let tx=0;tx<MAP_W;tx++){
+      const v=grid[ty][tx];
+      x.fillStyle = v===0?'#2c3540':(v===2?'#57606f':'#12161c');
+      x.fillRect(tx*s,ty*s,s,s);
+    }
+    this.minimapCanvas=c;
+  },
+  drawCharacter(ctx, ch, isPlayer){
+    const S=Game.settings;
+    const r = ch.crouch?11:14;
+    let drawAng=ch.angle;
+    if(isPlayer && S.assist.misc.antiaim) drawAng += Math.sin(G.time*47)*1.7; // визуальный джиттер анти-эйма
+    ctx.save();
+    ctx.translate(ch.x,ch.y);
+    // тень
+    ctx.fillStyle='rgba(0,0,0,0.25)';
+    ctx.beginPath(); ctx.arc(2,3,r,0,6.28); ctx.fill();
+    ctx.rotate(drawAng);
+    // оружие
+    const wcol = isPlayer ? S.assist.skins.weapon : '#20262e';
+    ctx.fillStyle=wcol;
+    const g = isPlayer ? ch.gun : ch.gun;
+    const wl = g && g.key==='awp' ? 30 : (g&&g.key==='knife'?12:22);
+    ctx.fillRect(r-4, -2.5, wl, 5);
+    // тело
+    const bodyCol = isPlayer ? S.assist.skins.player : (ch.tier>=2?'#c0392b':'#e07b39');
+    ctx.fillStyle=bodyCol;
+    ctx.beginPath(); ctx.arc(0,0,r,0,6.28); ctx.fill();
+    // паттерн скина игрока
+    if(isPlayer && S.assist.skins.pattern==='stripes'){
+      ctx.strokeStyle='rgba(255,255,255,0.35)'; ctx.lineWidth=3;
+      ctx.beginPath(); ctx.moveTo(-r*.6,-r*.6); ctx.lineTo(r*.6,r*.6);
+      ctx.moveTo(-r*.9,0); ctx.lineTo(r*.9,0); ctx.stroke();
+    } else if(isPlayer && S.assist.skins.pattern==='dots'){
+      ctx.fillStyle='rgba(255,255,255,0.35)';
+      for(const [dx,dy] of [[-5,-4],[5,-2],[-2,5]]){ ctx.beginPath(); ctx.arc(dx,dy,2.5,0,6.28); ctx.fill(); }
+    }
+    // "голова"
+    ctx.fillStyle='rgba(0,0,0,0.35)';
+    ctx.beginPath(); ctx.arc(3,0,r*0.45,0,6.28); ctx.fill();
+    ctx.restore();
+    // индикатор ослепления бота
+    if(!isPlayer && ch.blind>0){
+      ctx.fillStyle='#fff';
+      ctx.font='10px monospace'; ctx.textAlign='center';
+      ctx.fillText('✶', ch.x, ch.y-r-6);
+    }
+  },
+  frame(){
+    const ctx=this.ctx, S=Game.settings, p=G.player;
+    ctx.fillStyle='#0b0e11';
+    ctx.fillRect(0,0,this.W,this.H);
+    if(!p){ return; }
+
+    /* --- камера --- */
+    const cam=Game.cam;
+    ctx.save();
+    ctx.translate(this.W/2, this.H/2);
+    ctx.scale(cam.zoom,cam.zoom);
+    ctx.translate(-cam.x,-cam.y);
+
+    // статический мир
+    ctx.drawImage(this.worldCanvas,0,0);
+
+    // кровавые декали и пробоины
+    ctx.fillStyle='rgba(20,20,25,0.8)';
+    for(const h of G.holes){ ctx.beginPath(); ctx.arc(h.x,h.y,2.4,0,6.28); ctx.fill(); }
+    ctx.fillStyle='rgba(120,20,20,0.5)';
+    for(const d of G.decals){ ctx.beginPath(); ctx.arc(d.x,d.y,d.r,0,6.28); ctx.fill(); }
+
+    // дропы оружия
+    for(const d of G.drops){
+      ctx.save(); ctx.translate(d.x,d.y); ctx.rotate(d.ang);
+      ctx.fillStyle='#2b323c'; ctx.fillRect(-12,-3,24,6);
+      ctx.fillStyle='#1a1f26'; ctx.fillRect(2,-2,10,4);
+      ctx.restore();
+      if(S.assist.visuals.drops){
+        ctx.strokeStyle='#ffd166'; ctx.lineWidth=1.5;
+        ctx.strokeRect(d.x-15,d.y-10,30,20);
+        ctx.fillStyle='#ffd166'; ctx.font='10px monospace'; ctx.textAlign='center';
+        ctx.fillText(WEAPONS[d.key].name, d.x, d.y-14);
+      } else if(dist2(p.x,p.y,d.x,d.y)<120*120){
+        ctx.fillStyle='rgba(255,255,255,0.75)'; ctx.font='10px monospace'; ctx.textAlign='center';
+        ctx.fillText('[E] '+WEAPONS[d.key].name, d.x, d.y-14);
+      }
+    }
+
+    // гранаты в полёте
+    for(const gr of G.grenades){
+      ctx.fillStyle = gr.type==='he'?'#3d9970':(gr.type==='smoke'?'#7f8c8d':'#f1f2f6');
+      ctx.beginPath(); ctx.arc(gr.x,gr.y,5,0,6.28); ctx.fill();
+    }
+
+    // персонажи
+    for(const b of G.bots) if(!b.dead) this.drawCharacter(ctx,b,false);
+    if(!p.dead) this.drawCharacter(ctx,p,true);
+
+    // трассеры
+    for(const t of G.tracers){
+      ctx.globalAlpha = 1-t.age/t.life;
+      ctx.strokeStyle='#ffe9a8'; ctx.lineWidth=1.5;
+      ctx.beginPath(); ctx.moveTo(t.x0,t.y0); ctx.lineTo(t.x1,t.y1); ctx.stroke();
+      ctx.globalAlpha=1;
+    }
+
+    Particles.draw(ctx);
+
+    // геймплейные круги дыма поверх (плотное ядро)
+    for(const s of G.smokes){
+      const a = clamp(s.life/2,0,1)*0.55;
+      ctx.globalAlpha=a;
+      ctx.fillStyle='#9aa4ad';
+      ctx.beginPath(); ctx.arc(s.x,s.y,s.r,0,6.28); ctx.fill();
+      ctx.globalAlpha=1;
+    }
+
+    /* --- ESP: боты сквозь стены --- */
+    if(S.assist.visuals.esp){
+      ctx.strokeStyle=S.assist.visuals.espColor; ctx.lineWidth=1.5;
+      ctx.fillStyle=S.assist.visuals.espColor;
+      ctx.font='10px monospace'; ctx.textAlign='center';
+      for(const b of G.bots){
+        if(b.dead) continue;
+        ctx.strokeRect(b.x-16,b.y-16,32,32);
+        let ty=b.y-22;
+        if(S.assist.visuals.espDist){ ctx.fillText(Math.round(dist(p.x,p.y,b.x,b.y)/50)+'m', b.x, ty); ty-=11; }
+        ctx.fillText(b.name, b.x, ty);
+        if(S.assist.visuals.espHp){
+          ctx.fillStyle='rgba(0,0,0,0.5)'; ctx.fillRect(b.x-16,b.y+19,32,4);
+          ctx.fillStyle='#7ed957'; ctx.fillRect(b.x-16,b.y+19,32*clamp(b.hp/100,0,1),4);
+          ctx.fillStyle=S.assist.visuals.espColor;
+        }
+      }
+    }
+    ctx.restore();
+
+    /* ================== HUD (экранные координаты) ================== */
+    this.drawHUD(ctx);
+
+    // вспышка урона (виньетка)
+    if(G.dmgFlash>0){
+      ctx.fillStyle='rgba(255,30,30,'+(G.dmgFlash*0.45)+')';
+      ctx.fillRect(0,0,this.W,this.H);
+    }
+    // флешка
+    if(G.flashAlpha>0){
+      ctx.fillStyle='rgba(255,255,255,'+clamp(G.flashAlpha,0,1)+')';
+      ctx.fillRect(0,0,this.W,this.H);
+    }
+  },
+  drawHUD(ctx){
+    const p=G.player, S=Game.settings;
+    ctx.textAlign='left';
+
+    /* прицел (кастомизируемый) */
+    if(G.state==='combat' || G.state==='buy'){
+      const mx=Input.mouseX, my=Input.mouseY;
+      const cs=S.crosshair;
+      const gap=cs.gap + G.recoil*10 + (Input.rmb?0:3);
+      ctx.strokeStyle=cs.color; ctx.lineWidth=2;
+      ctx.beginPath();
+      ctx.moveTo(mx-gap-cs.size,my); ctx.lineTo(mx-gap,my);
+      ctx.moveTo(mx+gap,my); ctx.lineTo(mx+gap+cs.size,my);
+      ctx.moveTo(mx,my-gap-cs.size); ctx.lineTo(mx,my-gap);
+      ctx.moveTo(mx,my+gap); ctx.lineTo(mx,my+gap+cs.size);
+      ctx.stroke();
+      if(cs.dot){ ctx.fillStyle=cs.color; ctx.fillRect(mx-1,my-1,2,2); }
+    }
+    if(G.state!=='combat' && G.state!=='buy') return;
+
+    /* нижняя панель: HP, броня, деньги, патроны */
+    const y0=this.H-58;
+    ctx.fillStyle='rgba(10,13,17,0.72)';
+    ctx.fillRect(0,y0-14,this.W,72);
+    // HP
+    ctx.fillStyle=p.hp>30?'#7ed957':'#ff4d4d';
+    ctx.font='bold 26px monospace';
+    ctx.fillText('✚ '+Math.max(0,Math.ceil(p.hp)), 24, y0+18);
+    // броня
+    ctx.fillStyle='#4aa3df';
+    ctx.fillText('▣ '+Math.ceil(p.armor)+(p.helmet?'+':''), 170, y0+18);
+    // деньги
+    ctx.fillStyle='#7ed957';
+    ctx.font='bold 22px monospace';
+    ctx.fillText('$ '+p.money, 320, y0+16);
+    // оружие и патроны
+    ctx.textAlign='right';
+    ctx.fillStyle='#e8eef4';
+    ctx.font='bold 26px monospace';
+    if(p.curSlot==='grenade'){
+      ctx.fillText(GRENADES[p.gnadeSel].name+' × '+p.grenades[p.gnadeSel], this.W-24, y0+18);
+    } else if(p.gun){
+      const g=p.gun, w=WEAPONS[g.key];
+      const ammoStr = g.key==='knife' ? '—' : (g.reloading>0 ? '⟳' : g.ammo+' / '+g.reserve);
+      ctx.fillText(w.name+'   '+ammoStr, this.W-24, y0+18);
+    }
+    // слоты
+    ctx.font='12px monospace';
+    ctx.fillStyle='#8aa0b5';
+    const slotStr = [
+      (p.slots.primary?('1:'+WEAPONS[p.slots.primary.key].name):'1:—'),
+      '2:'+WEAPONS[p.slots.pistol.key].name, '3:Нож',
+      '4:Гранаты('+(p.grenades.he+p.grenades.smoke+p.grenades.flash)+')'
+    ].join('   ');
+    ctx.fillText(slotStr, this.W-24, y0+38);
+    ctx.textAlign='left';
+
+    /* верх: таймер, раунд, жизни */
+    ctx.textAlign='center';
+    ctx.fillStyle='rgba(10,13,17,0.72)';
+    ctx.fillRect(this.W/2-130,8,260,54);
+    ctx.fillStyle='#f5a623';
+    ctx.font='bold 24px monospace';
+    const t = G.state==='buy' ? Math.ceil(G.buyTimer) : Math.max(0,Math.ceil(G.roundTimer));
+    const mm=Math.floor(t/60), sec=(''+(t%60)).padStart(2,'0');
+    ctx.fillText(G.state==='buy'?('ЗАКУПКА '+t):(mm+':'+sec), this.W/2, 32);
+    ctx.font='12px monospace';
+    ctx.fillStyle='#9fb3c8';
+    const alive=G.bots.filter(b=>!b.dead).length;
+    ctx.fillText('Раунд '+G.round+' · '+BOT_TIERS[G.botTier].label+' · Ботов: '+alive+' · Жизни: '+'♥'.repeat(G.lives), this.W/2, 52);
+
+    /* килфид (справа сверху) */
+    ctx.textAlign='right';
+    ctx.font='13px monospace';
+    let ky=26;
+    for(const k of G.killfeed){
+      const age=G.time-k.time;
+      if(age>6) continue;
+      ctx.globalAlpha=clamp(1-(age-4.5)/1.5,0,1);
+      ctx.fillStyle='rgba(10,13,17,0.6)';
+      const tw=ctx.measureText(k.text).width;
+      ctx.fillRect(this.W-tw-30, ky-13, tw+16, 19);
+      ctx.fillStyle='#ffb3b3';
+      ctx.fillText(k.text, this.W-22, ky);
+      ctx.globalAlpha=1;
+      ky+=23;
+    }
+
+    /* миникарта (слева сверху) */
+    const ms=4, mw=MAP_W*ms, mh=MAP_H*ms, mX=14, mY=14;
+    ctx.globalAlpha=0.88;
+    ctx.drawImage(this.minimapCanvas,mX,mY);
+    ctx.globalAlpha=1;
+    ctx.strokeStyle='#2a3340'; ctx.strokeRect(mX-1,mY-1,mw+2,mh+2);
+    const mmx=x=>mX+x/WORLD_W*mw, mmy=y=>mY+y/WORLD_H*mh;
+    // боты: при радар-хаке — все; иначе только видимые
+    for(const b of G.bots){
+      if(b.dead) continue;
+      const show = S.assist.visuals.radar || hasLOS(p.x,p.y,b.x,b.y,true) || (G.time-b.lastHitTime<2);
+      if(!show) continue;
+      ctx.fillStyle='#ff4d4d';
+      ctx.beginPath(); ctx.arc(mmx(b.x),mmy(b.y),2.5,0,6.28); ctx.fill();
+    }
+    if(!p.dead){
+      ctx.fillStyle='#7ed957';
+      ctx.save();
+      ctx.translate(mmx(p.x),mmy(p.y));
+      ctx.rotate(p.angle);
+      ctx.beginPath(); ctx.moveTo(5,0); ctx.lineTo(-3,-3); ctx.lineTo(-3,3); ctx.closePath(); ctx.fill();
+      ctx.restore();
+    }
+    ctx.textAlign='left';
+  },
+};
+
+/* ################################################################
+   #  SECTION 11: GAME — машина состояний и игровой цикл
+   #  MainMenu → BuyPhase → Combat → RoundEnd → GameOver
+   ################################################################ */
+const G = {}; // весь изменяемый мир (сущности, таймеры раунда)
+
+const Game = {
+  settings: null,
+  state: 'menu',
+  cam: {x:PLAYER_SPAWN.x, y:PLAYER_SPAWN.y, zoom:1},
+  acc: 0, lastT: 0,
+
+  loadSettings(){
+    let saved=null;
+    try { saved=JSON.parse(localStorage.getItem('dustprotocol_settings')); } catch(e){}
+    this.settings=deepMerge(DEFAULT_SETTINGS, saved||{});
+  },
+  saveSettings(){
+    try { localStorage.setItem('dustprotocol_settings', JSON.stringify(this.settings)); } catch(e){}
+  },
+
+  /* ---------- переходы состояний ---------- */
+  startMatch(){
+    G.player=new Player();
+    G.round=1; G.lives=PLAYER_LIVES; G.totalKills=0; G.roundsWon=0;
+    this.resetWorld();
+    this.startBuyPhase();
+  },
+  resetWorld(){
+    G.bots=[]; G.grenades=[]; G.smokes=[]; G.tracers=[]; G.holes=[];
+    G.drops=[]; G.decals=[]; G.killfeed=[];
+    G.time=G.time||0; G.recoil=0; G.flashAlpha=0; G.dmgFlash=0;
+    G.roundKills=0;
+    Particles.list.length=0;
+  },
+  startBuyPhase(){
+    this.state='buy'; G.state='buy';
+    this.resetWorld();
+    G.buyTimer=BUY_TIME;
+    G.botTier=Math.min(BOT_TIERS.length-1, Math.floor((G.round-1)/3));
+    G.player.resetForRound(G.lostLastRound);
+    G.lostLastRound=false;
+    this.spawnBots();
+    UI.buyCat=0;
+    UI.showOverlay('buyMenu');
+    UI.renderBuy();
+    this.cam.x=G.player.x; this.cam.y=G.player.y;
+  },
+  spawnBots(){
+    const n=Math.min(8, 2+G.round);
+    const spawns=BOT_SPAWNS.slice();
+    // перемешиваем и отбрасываем точки рядом со спавном игрока
+    for(let i=spawns.length-1;i>0;i--){ const j=randi(0,i); [spawns[i],spawns[j]]=[spawns[j],spawns[i]]; }
+    let idx=0;
+    for(const s of spawns){
+      if(idx>=n) break;
+      const wx=s[0]*TILE+TILE/2, wy=s[1]*TILE+TILE/2;
+      if(dist2(wx,wy,PLAYER_SPAWN.x,PLAYER_SPAWN.y)<600*600) continue;
+      G.bots.push(new Bot(s[0],s[1],G.botTier,idx));
+      idx++;
+    }
+  },
+  startCombat(){
+    if(this.state!=='buy') return;
+    this.state='combat'; G.state='combat';
+    G.roundTimer=ROUND_TIME;
+    UI.showOverlay(null);
+    document.getElementById('buyMenu').classList.add('hidden');
+  },
+  endRound(win){
+    if(this.state!=='combat') return;
+    this.state='roundend'; G.state='roundend';
+    const kills=G.roundKills;
+    const reward=win?WIN_REWARD:LOSS_REWARD;
+    G.player.money=Math.min(MAX_MONEY,G.player.money+reward);
+    const rows=[
+      ['Результат', win?'ПОБЕДА':'ПОРАЖЕНИЕ'],
+      ['Убито ботов', kills+' (+$'+kills*KILL_REWARD+')'],
+      ['Награда за раунд', '+$'+reward],
+      ['Баланс', '$'+G.player.money],
+    ];
+    if(win){ G.round++; G.roundsWon++; }
+    else { G.lives--; G.lostLastRound=true; rows.push(['Осталось жизней', '♥'.repeat(Math.max(0,G.lives))||'0']); }
+    if(!win && G.lives<=0){ this.gameOver(); return; }
+    const title=document.getElementById('reTitle');
+    title.textContent=win?'РАУНД ВЫИГРАН':'РАУНД ПРОИГРАН';
+    title.className='big-result '+(win?'win':'lose');
+    rows.push(['Следующий раунд', G.round+' · '+BOT_TIERS[Math.min(3,Math.floor((G.round-1)/3))].label]);
+    document.getElementById('reStats').innerHTML=rows.map(r=>'<tr><td>'+r[0]+'</td><td>'+r[1]+'</td></tr>').join('');
+    UI.showOverlay('roundEnd');
+  },
+  gameOver(){
+    this.state='gameover'; G.state='gameover';
+    const rows=[
+      ['Дошёл до раунда', G.round],
+      ['Раундов выиграно', G.roundsWon],
+      ['Всего убийств', G.totalKills],
+      ['Финальный баланс', '$'+G.player.money],
+    ];
+    document.getElementById('goStats').innerHTML=rows.map(r=>'<tr><td>'+r[0]+'</td><td>'+r[1]+'</td></tr>').join('');
+    UI.showOverlay('gameOver');
+  },
+
+  /* ---------- ввод верхнего уровня ---------- */
+  onKeyDown(code, e){
+    if(code==='Insert'){ UI.toggleAssist(); return; }
+    if(code==='Escape'){
+      document.getElementById('assistMenu').classList.add('hidden');
+      if(this.state==='buy') document.getElementById('buyMenu').classList.add('hidden');
+      return;
+    }
+    if(this.state==='buy'){
+      const buyVisible=!document.getElementById('buyMenu').classList.contains('hidden');
+      if(code==='KeyB'){ document.getElementById('buyMenu').classList.toggle('hidden'); if(!buyVisible) UI.renderBuy(); return; }
+      if(buyVisible && /^Digit[1-5]$/.test(code)){ UI.buyCat=+code.slice(5)-1; UI.renderBuy(); return; }
+      if(code==='Enter'){ this.startCombat(); return; }
+    }
+    if(this.state!=='combat') return;
+    const p=G.player;
+    if(p.dead) return;
+    switch(code){
+      case 'Digit1': p.selectSlot('primary'); break;
+      case 'Digit2': p.selectSlot('pistol'); break;
+      case 'Digit3': p.selectSlot('melee'); break;
+      case 'Digit4': p.selectSlot('grenade'); break;
+      case 'KeyG': {
+        const keys=['he','smoke','flash'];
+        const have=keys.filter(k=>p.grenades[k]>0);
+        if(have.length){
+          const i=have.indexOf(p.gnadeSel);
+          p.gnadeSel=have[(i+1)%have.length];
+          p.curSlot='grenade';
+        }
+        break;
+      }
+      case 'KeyE': this.tryPickup(); break;
+    }
+  },
+  tryPickup(){
+    const p=G.player;
+    let best=null, bestD=48*48;
+    for(const d of G.drops){
+      const dd=dist2(p.x,p.y,d.x,d.y);
+      if(dd<bestD){ bestD=dd; best=d; }
+    }
+    if(!best) return;
+    const w=WEAPONS[best.key];
+    const slot=w.slot==='pistol'?'pistol':'primary';
+    // выбрасываем текущее оружие слота на землю
+    const cur=p.slots[slot];
+    if(cur && cur.key!=='usp')
+      G.drops.push({x:p.x+rand(-6,6),y:p.y+rand(-6,6),key:cur.key,ammo:cur.ammo,ang:rand(0,6.28)});
+    p.slots[slot]=makeGun(best.key);
+    p.slots[slot].ammo=best.ammo;
+    p.curSlot=slot;
+    G.drops.splice(G.drops.indexOf(best),1);
+    AudioSys.reload(p.x,p.y);
+  },
+
+  screenToWorld(sx,sy){
+    return {
+      x:(sx-Render.W/2)/this.cam.zoom+this.cam.x,
+      y:(sy-Render.H/2)/this.cam.zoom+this.cam.y,
+    };
+  },
+
+  /* ---------- симуляция с фиксированным шагом ---------- */
+  update(dt){
+    G.time+=dt;
+    // затухания эффектов
+    G.recoil=Math.max(0,G.recoil-dt*3);
+    G.flashAlpha=Math.max(0,G.flashAlpha-dt*0.55);
+    G.dmgFlash=Math.max(0,G.dmgFlash-dt*1.6);
+    for(let i=G.tracers.length-1;i>=0;i--){ const t=G.tracers[i]; t.age+=dt; if(t.age>=t.life) G.tracers.splice(i,1); }
+    Particles.update(dt);
+
+    if(this.state==='buy'){
+      G.buyTimer-=dt;
+      const bt=document.getElementById('buyTimer');
+      if(bt) bt.textContent=Math.max(0,Math.ceil(G.buyTimer));
+      if(G.buyTimer<=0) this.startCombat();
+      return;
+    }
+    if(this.state!=='combat') return;
+
+    const p=G.player;
+    p.update(dt);
+    for(const b of G.bots) b.update(dt);
+
+    // гранаты
+    for(let i=G.grenades.length-1;i>=0;i--){
+      const gr=G.grenades[i];
+      gr.update(dt);
+      if(gr.dead) G.grenades.splice(i,1);
+    }
+    // дым: рост, затем истечение
+    for(let i=G.smokes.length-1;i>=0;i--){
+      const s=G.smokes[i];
+      if(s.r<s.maxR) s.r=Math.min(s.maxR,s.r+dt*300);
+      s.life-=dt;
+      if(Math.random()<0.35) Particles.smokePuff(s.x,s.y,s.r);
+      if(s.life<=0) G.smokes.splice(i,1);
+    }
+    // следы крови от убитых (декали)
+    for(const b of G.bots){
+      if(b.dead && !b.decaled){
+        b.decaled=true;
+        G.decals.push({x:b.x,y:b.y,r:rand(9,14)});
+        if(G.decals.length>40) G.decals.shift();
+      }
+    }
+
+    // камера: следует за игроком со сдвигом к прицелу
+    const world=this.screenToWorld(Input.mouseX,Input.mouseY);
+    const lookX=p.x+(world.x-p.x)*0.18, lookY=p.y+(world.y-p.y)*0.18;
+    this.cam.x=lerp(this.cam.x,lookX,1-Math.exp(-7*dt));
+    this.cam.y=lerp(this.cam.y,lookY,1-Math.exp(-7*dt));
+    const wantZoom=(Input.rmb && p.gun && p.gun.key==='awp')?0.82:1;
+    this.cam.zoom=lerp(this.cam.zoom,wantZoom,1-Math.exp(-6*dt));
+
+    /* ---------- условия конца раунда ---------- */
+    G.roundTimer-=dt;
+    if(p.dead){
+      if(!G.deathDelay) G.deathDelay=1.2;
+      G.deathDelay-=dt;
+      if(G.deathDelay<=0){ G.deathDelay=0; this.endRound(false); }
+      return;
+    }
+    if(G.bots.length>0 && G.bots.every(b=>b.dead)){
+      if(!G.winDelay) G.winDelay=1.0;
+      G.winDelay-=dt;
+      if(G.winDelay<=0){ G.winDelay=0; this.endRound(true); }
+      return;
+    }
+    if(G.roundTimer<=0) this.endRound(false);
+  },
+
+  /* ---------- главный цикл: rAF + аккумулятор ---------- */
+  loop(ts){
+    const t=ts/1000;
+    let frame=t-(this.lastT||t);
+    this.lastT=t;
+    if(frame>0.1) frame=0.1; // защита от скачков (вкладка в фоне)
+    this.acc+=frame;
+    while(this.acc>=STEP){
+      this.update(STEP);
+      this.acc-=STEP;
+    }
+    Render.frame();
+    requestAnimationFrame(ts2=>this.loop(ts2));
+  },
+
+  init(){
+    buildMap();
+    this.loadSettings();
+    Render.init();
+    Input.init(Render.canvas);
+    UI.init();
+    G.state='menu';
+    G.time=0;
+    // фоновая заставка: пустая карта за главным меню
+    G.player=null; G.bots=[]; G.smokes=[]; G.tracers=[]; G.holes=[];
+    G.drops=[]; G.decals=[]; G.killfeed=[]; G.grenades=[];
+    G.recoil=0; G.flashAlpha=0; G.dmgFlash=0; G.round=1; G.lives=PLAYER_LIVES; G.botTier=0;
+    requestAnimationFrame(ts=>this.loop(ts));
+  },
+};
+
+/* UI.showOverlay(null) — скрыть все оверлеи */
+const _origShow=UI.showOverlay.bind(UI);
+UI.showOverlay=function(id){
+  for(const o of ['mainMenu','buyMenu','roundEnd','gameOver'])
+    document.getElementById(o).classList.toggle('hidden', o!==id);
+};
+
+window.addEventListener('load', ()=>Game.init());
+
+</script>
+</body>
+</html>
