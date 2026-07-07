@@ -158,9 +158,10 @@ select { background:#1c232c; color:#d7e3ef; border:1px solid #2a3340; border-rad
       <div><b>B</b> закупка (в фазе)</div>
       <div><b>G</b> сменить гранату</div>
       <div><b>Insert</b> чит-меню</div>
-      <div><b>X</b> fake duck</div>
-      <div><b>V</b> auto peek</div>
-      <div><b>C</b> форс min damage</div>
+      <div><b>M</b> обзор карты</div>
+      <div><b>X / V / C</b> fake duck / auto peek / min dmg</div>
+      <div><b>F / T</b> тоггл rage / anti-aim</div>
+      <div style="color:#556575;">все клавиши биндятся в MISC → Keybinds</div>
     </div>
     <div class="row" style="justify-content:center;">
       <label style="flex:none;">Режим</label>
@@ -202,7 +203,7 @@ select { background:#1c232c; color:#d7e3ef; border:1px solid #2a3340; border-rad
   <div class="panel">
     <div class="buy-head">
       <h2 style="margin:0;">ЗАКУПКА СНАРЯЖЕНИЯ</h2>
-      <div><span id="buyTimer">15</span>с &nbsp; <span id="buyMoney">$800</span></div>
+      <div><span id="buyMoney">$800</span></div>
     </div>
     <div class="row" style="font-size:12px; gap:8px; flex-wrap:wrap; margin-bottom:8px;">
       <label style="flex:none;">Режим</label>
@@ -379,6 +380,16 @@ select { background:#1c232c; color:#d7e3ef; border:1px solid #2a3340; border-rad
             <div class="gs-row"><input type="checkbox" id="miscHs" data-path="misc.hitsound"><label for="miscHs">Hit sound</label></div>
             <div class="gs-row"><input type="checkbox" id="miscKs" data-path="misc.killsound"><label for="miscKs">Kill sound</label></div>
           </div>
+          <div class="gs-group"><div class="gs-title">Keybinds</div>
+            <div class="gs-row"><label>Меню чита</label><button class="gs-btn gs-bind" data-bind="menu">—</button></div>
+            <div class="gs-row"><label>Обзор карты</label><button class="gs-btn gs-bind" data-bind="map">—</button></div>
+            <div class="gs-row"><label>Fake duck <span class="gs-sub">(держать)</span></label><button class="gs-btn gs-bind" data-bind="fakeduck">—</button></div>
+            <div class="gs-row"><label>Auto peek <span class="gs-sub">(держать)</span></label><button class="gs-btn gs-bind" data-bind="autopeek">—</button></div>
+            <div class="gs-row"><label>Min damage <span class="gs-sub">(держать)</span></label><button class="gs-btn gs-bind" data-bind="mindmg">—</button></div>
+            <div class="gs-row"><label>Rage вкл/выкл</label><button class="gs-btn gs-bind" data-bind="rage">—</button></div>
+            <div class="gs-row"><label>Anti-aim вкл/выкл</label><button class="gs-btn gs-bind" data-bind="aa">—</button></div>
+            <div class="gs-note">Клик — нажмите новую клавишу. Esc — отмена.</div>
+          </div>
         </div>
         <div class="gs-col">
           <div class="gs-group"><div class="gs-title">Crosshair</div>
@@ -508,6 +519,7 @@ const BOT_NAMES = ['Phoenix','Viper','Sarge','Ghost','Havoc','Rex','Blitz','Cobr
 
 const DEFAULT_SETTINGS = {
   game: { hvh:true, sens:1, mode:'clear', enemies:4, mates:2, diff:0 },
+  binds: { menu:'Insert', map:'KeyM', fakeduck:'KeyX', autopeek:'KeyV', mindmg:'KeyC', rage:'KeyF', aa:'KeyT' },
   crosshair: { size:8, gap:3, color:'#00ff66', dot:false, circle:false },
   rage:  { on:false, silent:true, fov:180, hitchance:60, mindmg:10, autofire:true, autowall:true, doubletap:false, resolver:true, priority:'fov', backtrack:200, autostop:true, hitbox:'auto', safepoint:false },
   aa:    { on:false, yaw:'jitter', spin:60, desync:60, hideshots:false },
@@ -632,6 +644,13 @@ const Input = {
   keys: {}, mouseX: 0, mouseY: 0, lmb: false, rmb: false, lmbClick: false,
   init(canvas){
     window.addEventListener('keydown', e=>{
+      if(UI.binding){
+        e.preventDefault();
+        if(e.code!=='Escape'){ Game.settings.binds[UI.binding.key]=e.code; Game.saveSettings(); }
+        UI.binding=null;
+        UI.refreshBinds();
+        return;
+      }
       if(e.code==='Tab' || e.code==='F1') e.preventDefault();
       this.keys[e.code]=true;
       Game.onKeyDown(e.code, e);
@@ -658,79 +677,79 @@ const Input = {
    #  SECTION 4: MAP — de_dust2 (top-down, CT-сторона сверху)
    #  0 = пол, 1 = стена, 2 = ящик/укрытие
    ################################################################ */
-const MAP_W = 52, MAP_H = 60;
+const MAP_W = 60, MAP_H = 56;
 const WORLD_W = MAP_W*TILE, WORLD_H = MAP_H*TILE;
 let grid = [];
 
-/* Вырезаемые зоны [x, y, w, h] — узнаваемая планировка dust2 */
+/* ============ de_dust2: планировка с радара CS:GO ============
+   Север (верх) — CT: B-плент слева, CT spawn по центру, A-плент справа.
+   Соединения: туннели (верх/низ), мид с дверями и окном CT,
+   катвок → шорт → A, лонг с дверями и питом, suicide из T в мид. */
 const CARVES = [
-  [3,3,12,12],    // B site (плита, задняя площадка)
-  [15,6,6,3],     // B doors → CT mid (коридор B ↔ CT)
-  [21,3,10,8],    // CT spawn
-  [24,11,3,1],    // mid doors (проём с деревянными створками)
-  [31,5,7,4],     // A ramp / гусь (CT → A)
-  [38,3,11,12],   // A site (плита, дефолт)
-  [33,12,5,5],    // A short (лестница на плиту)
-  [28,16,9,3],    // catwalk (мид → шорт)
-  [23,12,6,32],   // MID (вся кишка сверху вниз)
-  [7,15,4,12],    // верхние туннели (от B вниз)
-  [7,25,10,3],    // изгиб туннелей на восток
-  [13,28,4,10],   // нижние туннели / T ramp
-  [10,38,26,12],  // T spawn (большая южная площадка)
-  [36,44,8,4],    // выход из T на long (нижний long)
-  [42,41,2,3],    // long doors (узкие двери)
-  [42,15,7,26],   // LONG A (восточный коридор)
-  [39,15,3,3],    // pit (яма слева от верха long)
+  [3,3,14,12],    // B site (плита, задняя площадка)
+  [17,7,5,3],     // B doors: B ↔ CT mid
+  [22,4,6,8],     // CT mid (двор перед мид-дверями)
+  [23,12,3,1],    // проём mid doors
+  [28,3,12,8],    // CT spawn
+  [40,5,4,4],     // CT ramp → A
+  [44,3,13,13],   // A site (гусь, дефолт, машина)
+  [34,8,10,3],    // A short (верх, выход на плент и рампу)
+  [34,10,3,7],    // A short (лестница вниз к катвоку)
+  [27,16,7,3],    // catwalk
+  [22,13,5,26],   // MID
+  [24,38,6,6],    // suicide: выход мида к T
+  [12,44,30,10],  // T spawn
+  [42,44,2,3],    // T → нижний лонг
+  [44,43,13,7],   // outside long (нижний лонг)
+  [49,42,3,1],    // проём long doors
+  [48,16,6,26],   // LONG A
+  [44,16,4,4],    // pit
+  [6,15,3,12],    // верхние туннели (от B вниз)
+  [6,25,9,3],     // поворот туннелей на восток
+  [12,28,3,16],   // нижние туннели → T
 ];
 const CRATES = [
-  [6,6],[7,6],[6,7],[12,4],[4,12],[9,9],[10,9],   // ящики B
-  [43,6],[44,6],[43,7],[39,4],                    // дефолт-плита и угол A
-  [45,15],[46,15],                                // машина на верху long
-  [45,25],[45,26],                                // синий контейнер на long
-  [24,18],                                        // xbox в миде
-  [27,30],                                        // ящик в нижнем миде
-  [14,41],[15,41],[30,44],[19,47],                // ящики T spawn
-  [9,22],                                         // бочки в туннелях
-  [34,7],                                         // ящик на гусе
-  [36,12],                                        // ящик на шорте
-  [28,5],                                         // ящик CT
-  [38,46],                                        // ящик на нижнем long
-  [40,10],[46,9],                                 // углы для пиков на A
-  [11,11],                                        // ящик на B (ниндзя-спот)
-  [24,44],                                        // ящик на выходе из мида в T
-  [43,30],                                        // укрытие на long
-  [30,17],                                        // ящик на катвоке
+  [6,5],[7,5],[6,6],[13,4],[4,12],[11,8],[12,9],            // ящики и машина B
+  [33,4],[37,8],                                             // CT spawn
+  [45,4],[46,4],[50,7],[51,7],[50,8],[55,3],[54,12],[47,11], // гусь / дефолт / углы A
+  [49,17],[50,17],                                           // машина на верху long
+  [51,24],[51,25],                                           // синий контейнер long
+  [53,30],                                                   // бочки long
+  [46,45],[54,47],                                           // нижний long
+  [26,17],                                                   // xbox у входа на катвок
+  [25,32],                                                   // ящик в нижнем миде
+  [16,47],[17,47],[30,50],[38,45],[24,52],                   // T spawn
+  [7,20],[13,33],                                            // бочки в туннелях
 ];
-/* Деревянные двери (тайл 3): блокируют проход и обзор, легко простреливаются.
-   Окна/решётки (тайл 4): видно и стреляется насквозь, пройти нельзя — ван-веи */
+/* Деревянные двери: блокируют обзор, простреливаются. Окна: ван-веи */
 const WOODS = [
-  [24,11],[26,11],   // створки mid doors (классический AWP-прострел)
-  [42,42],           // long doors
-  [17,6],[17,8],     // двери B ↔ CT
+  [23,12],[25,12],   // створки mid doors (проход по центру, x24)
+  [19,7],[19,9],     // двери B ↔ CT mid (проход по y8)
+  [49,42],[51,42],   // long doors (проход по x50)
 ];
 const WINDOWS = [
-  [27,11],[28,11],   // окно CT ↔ верх мида (ван-вей для AWP)
+  [26,12],           // окно CT над мидом — классический ван-вей AWP
 ];
-const PLAYER_SPAWN = { x: 22.5*TILE, y: 46.5*TILE };  // T spawn
+const PLAYER_SPAWN = { x: 26.5*TILE, y: 50.5*TILE };  // T spawn
 const BOT_SPAWNS = [
-  [5,5],[8,8],[12,5],          // B site
-  [23,5],[27,8],[30,4],        // CT
-  [40,5],[44,8],[47,4],        // A site
-  [25,14],[25,24],             // mid
-  [32,17],[35,14],             // catwalk / short
-  [45,20],[45,35],             // long
-  [8,18],[8,24],[14,26],       // туннели
-  [43,45],[40,16],             // нижний long / pit
+  [5,5],[9,7],[14,5],        // B
+  [30,5],[35,7],[38,4],      // CT
+  [46,6],[52,5],[54,10],     // A
+  [24,15],[24,30],           // mid
+  [30,17],[35,11],           // катвок / шорт
+  [50,20],[51,35],           // long
+  [7,18],[13,30],[8,26],     // туннели
+  [50,46],[45,17],           // нижний long / pit
 ];
-const POIS = [[8,8],[25,6],[43,8],[25,13],[25,19],[25,40],[22,45],[8,20],[14,30],[43,44],[45,30],[40,16],[32,17],[35,13],[33,6],[17,7]];
+const POIS = [[9,8],[33,6],[50,9],[24,20],[24,35],[50,28],[26,49],[7,22],[13,36],[30,17],[35,12],[45,17],[50,46],[19,8]];
 /* Спавны врагов в режиме бомбы: сторона CT и пленты */
-const CT_SPAWNS = [[23,5],[27,8],[30,4],[40,5],[44,8],[47,4],[5,5],[8,8],[12,5],[25,14],[32,17],[45,20]];
+const CT_SPAWNS = [[30,5],[35,7],[38,4],[46,6],[52,5],[54,10],[24,15],[30,17],[50,20],[45,17],[5,5],[9,7]];
 /* Спавны тиммейтов: рядом с игроком на T */
-const MATE_SPAWNS = [[18,45],[26,45],[20,48],[28,47]];
-/* Пленты для бомбы (тайловые прямоугольники) */
+const MATE_SPAWNS = [[22,49],[30,49],[25,52],[32,51]];
+/* Пленты для бомбы */
 const BOMBSITES = {
-  A: { x0:38, y0:3, x1:48, y1:14 },
-  B: { x0:3,  y0:3, x1:14, y1:14 },
+  A: { x0:44, y0:3, x1:56, y1:15 },
+  B: { x0:3,  y0:3, x1:16, y1:14 },
 };
 function siteAt(x,y){
   const tx=Math.floor(x/TILE), ty=Math.floor(y/TILE);
@@ -740,32 +759,32 @@ function siteAt(x,y){
   }
   return null;
 }
-/* Кемп-споты: позиция + куда смотреть; site — оборона плента в режиме бомбы */
+/* Кемп-споты: позиция + куда смотреть; site — оборона плента */
 const CAMP_SPOTS = [
-  {x:27,y:10, lx:26,ly:16},            // окно CT: ван-вей на верх мида
-  {x:25,y:9,  lx:25,ly:16},            // за mid doors
-  {x:24,y:19, lx:25,ly:12},            // за xbox, взгляд на двери
-  {x:40,y:16, lx:45,ly:17, site:'A'},  // pit, взгляд на long
-  {x:47,y:16, lx:43,ly:38, site:'A'},  // за машиной, вниз по long
-  {x:44,y:4,  lx:36,ly:13, site:'A'},  // A-плита, взгляд на short
-  {x:39,y:10, lx:44,ly:15, site:'A'},  // угол A, выход с long
-  {x:5,y:4,   lx:8,ly:14, site:'B'},   // B-плита, вход из туннелей
-  {x:12,y:10, lx:5,ly:12, site:'B'},   // угол B
-  {x:4,y:13,  lx:8,ly:5,  site:'B'},   // ниндзя за ящиком
-  {x:16,y:7,  lx:20,ly:7},             // B doors, взгляд в CT
-  {x:35,y:16, lx:29,ly:17},            // шорт, взгляд на катвок
-  {x:45,y:33, lx:43,ly:42},            // long, взгляд на doors
-  {x:8,y:24,  lx:8,ly:16},             // туннели, глубокий кемп
-  {x:31,y:44, lx:24,ly:44},            // угол T spawn
+  {x:26,y:11, lx:25,ly:20},            // за окном CT — ван-вей на мид
+  {x:24,y:10, lx:24,ly:20},            // за mid doors
+  {x:25,y:19, lx:24,ly:13},            // мид за xbox, взгляд на двери
+  {x:45,y:17, lx:50,ly:20, site:'A'},  // pit → long
+  {x:49,y:18, lx:50,ly:38, site:'A'},  // за машиной, вниз по long
+  {x:50,y:6,  lx:36,ly:9,  site:'A'},  // дефолт → short
+  {x:45,y:12, lx:49,ly:16, site:'A'},  // под питом, верх long
+  {x:6,y:4,   lx:7,ly:15,  site:'B'},  // B-плита → выход из туннелей
+  {x:15,y:11, lx:6,ly:12,  site:'B'},  // угол B
+  {x:4,y:13,  lx:12,ly:5,  site:'B'},  // ниндзя за ящиком
+  {x:18,y:8,  lx:22,ly:8},             // B doors со стороны CT
+  {x:35,y:14, lx:29,ly:17},            // шорт → катвок
+  {x:51,y:39, lx:50,ly:44},            // long у дверей
+  {x:7,y:24,  lx:7,ly:16},             // глубокие туннели
+  {x:31,y:45, lx:27,ly:40},            // T spawn → выход мида
 ];
 /* подписи зон на полу (как на радаре) */
 const MAP_LABELS = [
-  {t:'B',x:8,y:9,s:130},{t:'CT SPAWN',x:26,y:7,s:34},{t:'A',x:43,y:9,s:130},
-  {t:'MID',x:26,y:28,s:44},{t:'LONG',x:45.5,y:31,s:36},{t:'TUNNELS',x:9,y:21,s:20},
-  {t:'T SPAWN',x:23,y:44,s:44},{t:'SHORT',x:35.5,y:14,s:16},{t:'CAT',x:32,y:17.7,s:14},
-  {t:'PIT',x:40.5,y:16.6,s:13},{t:'DOORS',x:43,y:42.6,s:11},{t:'RAMP',x:34,y:6.6,s:14},
+  {t:'B',x:9,y:9,s:120},{t:'CT SPAWN',x:33.5,y:6.5,s:28},{t:'A',x:50,y:9,s:120},
+  {t:'MID',x:24.5,y:25,s:40},{t:'LONG',x:51,y:30,s:30},{t:'TUNNELS',x:7.6,y:21,s:14},
+  {t:'T SPAWN',x:26,y:49,s:40},{t:'SHORT',x:35.5,y:12.5,s:13},{t:'CAT',x:30,y:17.6,s:12},
+  {t:'PIT',x:45.9,y:18,s:13},{t:'DOORS',x:50.5,y:44,s:12},{t:'RAMP',x:41.9,y:6.9,s:13},
+  {t:'SUICIDE',x:26.9,y:41,s:11},{t:'B DOORS',x:19,y:6.2,s:9},
 ];
-
 function buildMap(){
   grid = Array.from({length:MAP_H}, ()=>Array(MAP_W).fill(1));
   for(const [x,y,w,h] of CARVES)
@@ -1247,7 +1266,7 @@ class Player {
   update(dt){
     if(this.dead) return;
     const S = Game.settings;
-    this.fakeduck = !!Input.keys['KeyX'];
+    this.fakeduck = !!Input.keys[S.binds.fakeduck];
     this.crouch = !!Input.keys['ControlLeft'] || !!Input.keys['ControlRight'] || this.fakeduck;
     this.walk = !!Input.keys['ShiftLeft'] || !!Input.keys['ShiftRight'];
     if(this.onShotT>0) this.onShotT-=dt;
@@ -1270,7 +1289,7 @@ class Player {
     this.vx = lerp(this.vx, txv, 1-Math.exp(-10*dt));
     this.vy = lerp(this.vy, tyv, 1-Math.exp(-10*dt));
     /* auto peek (удерживать V): запоминаем точку, после выстрела возвращаемся */
-    const vHeld = !!Input.keys['KeyV'];
+    const vHeld = !!Input.keys[Game.settings.binds.autopeek];
     if(vHeld && !this.peekAnchor) this.peekAnchor={x:this.x, y:this.y};
     if(!vHeld){ this.peekAnchor=null; this.peekReturning=false; }
     if(this.peekAnchor && G.time-this.lastShotT<0.06) this.peekReturning=true;
@@ -1341,12 +1360,14 @@ class Player {
     if(!S.rage.on && S.legit.on && G.state==='combat'){
       // легит: мягкое доведение до видимой модели в узком FOV
       let best=null, bs=Infinity;
+      const useReal = S.rage.resolver;   // резолвер общий: легит тоже целится в реальный хитбокс
       for(const b of enemyBots()){
         if(b.dead) continue;
-        const a=angTo(this.x,this.y,b.drawX,b.drawY);
+        const tx2=useReal?b.x:b.drawX, ty2=useReal?b.y:b.drawY;
+        const a=angTo(this.x,this.y,tx2,ty2);
         const off=Math.abs(angDiff(this.mouseAngle,a));
         if(off>deg(S.legit.fov)/2) continue;
-        if(!hasLOS(this.x,this.y,b.drawX,b.drawY,true)) continue;
+        if(!hasLOS(this.x,this.y,tx2,ty2,true)) continue;
         if(off<bs){ bs=off; best=a; }
       }
       if(best!==null) aimA = lerpAngle(this.mouseAngle, best, clamp((101-S.legit.smooth)/100,0.04,1));
@@ -1402,12 +1423,14 @@ class Player {
     return clamp(angR/half, 0, 1);
   }
   crosshairOverBot(){
+    const useReal = Game.settings.rage.resolver;   // с резолвером триггер проверяет реальный хитбокс
     for(const b of enemyBots()){
       if(b.dead) continue;
-      const d = dist(this.x,this.y,b.drawX,b.drawY);
+      const bx=useReal?b.x:b.drawX, by=useReal?b.y:b.drawY;
+      const d = dist(this.x,this.y,bx,by);
       const sp = segPointDist(this.x,this.y,
-        this.x+Math.cos(this.aimAngle)*d, this.y+Math.sin(this.aimAngle)*d, b.drawX, b.drawY);
-      if(sp.d<15 && hasLOS(this.x,this.y,b.drawX,b.drawY,false)) return b;
+        this.x+Math.cos(this.aimAngle)*d, this.y+Math.sin(this.aimAngle)*d, bx, by);
+      if(sp.d<15 && hasLOS(this.x,this.y,bx,by,false)) return b;
     }
     return null;
   }
@@ -1427,6 +1450,7 @@ class Player {
     /* ---------- RAGE AIMBOT ---------- */
     if(S.rage.on){
       const tgt = pickRageTarget(this, S.rage, g);
+      G.rageLock = (tgt && !S.rage.silent) ? {x:tgt.ax, y:tgt.ay, t:G.time} : null;
       if(tgt){
         const aimA = angTo(this.x,this.y,tgt.ax,tgt.ay);
         if(!S.rage.silent) this.aimAngle = aimA;   // не-silent жёстко доворачивает
@@ -1527,7 +1551,7 @@ function pickRageTarget(p, rage, gun){
     if(cast.stop < dReal-16) continue;
     let dmg = w.dmg * multAtDist(cast, dReal);
     if(dReal > w.range) dmg *= Math.max(0.35, 1-(dReal-w.range)/1200);
-    const minD = Input.keys['KeyC'] ? 1 : rage.mindmg;  // C: форс минимального урона
+    const minD = Input.keys[Game.settings.binds.mindmg] ? 1 : rage.mindmg;  // бинд: форс минимального урона
     if(dmg < minD) continue;
     let sc;
     if(rage.priority==='near') sc=dReal;
@@ -2004,7 +2028,14 @@ const UI = {
     { name:'4 Гранаты', items:[{t:'g',k:'he'},{t:'g',k:'smoke'},{t:'g',k:'flash'}] },
     { name:'5 Снаряжение', items:[{t:'a',k:'armor'},{t:'a',k:'helmet'}] },
   ],
+  binding: null,
   el(id){ return document.getElementById(id); },
+  bindLabel(code){ return (code||'—').replace('Key','').replace('Digit','').replace('Arrow',''); },
+  refreshBinds(){
+    document.querySelectorAll('.gs-bind').forEach(btn=>{
+      btn.textContent=this.bindLabel(Game.settings.binds[btn.dataset.bind]);
+    });
+  },
   showOverlay(id){
     for(const o of ['mainMenu','buyMenu','roundEnd','gameOver'])
       this.el(o).classList.toggle('hidden', o!==id);
@@ -2112,16 +2143,27 @@ const UI = {
               Game.settings=deepMerge(DEFAULT_SETTINGS, JSON.parse(raw));
               Game.saveSettings();
               this.refreshInputs();
+              this.refreshBinds();
               pushLog('Config "'+btn.dataset.slot+'" loaded', ACCENT);
             }
           } catch(e){}
         }
       };
     });
+    // биндер клавиш: клик — ждём следующую клавишу
+    document.querySelectorAll('.gs-bind').forEach(btn=>{
+      btn.onclick=()=>{
+        document.querySelectorAll('.gs-bind').forEach(b=>{ if(b!==btn) b.classList.remove('gs-listen'); });
+        btn.textContent='...';
+        UI.binding={ key:btn.dataset.bind, btn };
+      };
+    });
+    this.refreshBinds();
     this.el('gsReset').onclick=()=>{
       Game.settings=deepMerge(DEFAULT_SETTINGS,{});
       Game.saveSettings();
       this.refreshInputs();
+      this.refreshBinds();
       pushLog('Config reset to defaults', '#ffd166');
     };
   },
@@ -2566,7 +2608,12 @@ const Render = {
 
     /* прицел + hitmarker */
     if(G.state==='combat' || G.state==='buy'){
-      const mx=Input.mouseX, my=Input.mouseY;
+      let mx=Input.mouseX, my=Input.mouseY;
+      // не-silent rage: перекрестие снапается на цель (как реальный доворот вью)
+      if(S.rage.on && !S.rage.silent && G.rageLock && G.time-G.rageLock.t<0.1){
+        const lk=this.worldToScreen(G.rageLock.x,G.rageLock.y);
+        mx=lk.x; my=lk.y;
+      }
       const cs=S.crosshair;
       const gap=cs.gap + G.recoil*10 + (Input.rmb?0:3);
       ctx.strokeStyle=cs.color; ctx.lineWidth=2;
@@ -2637,7 +2684,7 @@ const Render = {
       if(S.legit.trigger) binds.push(['triggerbot','on']);
       if(p.fakeduck) binds.push(['fake duck','holding']);
       if(p.peekAnchor) binds.push(['auto peek','holding']);
-      if(Input.keys['KeyC'] && S.rage.on) binds.push(['min dmg','holding']);
+      if(Input.keys[S.binds.mindmg] && S.rage.on) binds.push(['min dmg','holding']);
       if(binds.length){
         ctx.font='10px Tahoma';
         const bw=134, x0=this.W-bw-10, y0=10+wmH;
@@ -2696,7 +2743,7 @@ const Render = {
     ctx.fillStyle='#f5a623';
     ctx.font='bold 24px monospace';
     let timerTxt;
-    if(G.state==='buy') timerTxt='ЗАКУПКА '+Math.ceil(G.buyTimer);
+    if(G.state==='buy') timerTxt='ЗАКУПКА';
     else if(G.mode==='bomb' && G.bomb && G.bomb.state==='planted'){
       const bt=Math.max(0,Math.ceil(G.bomb.timer));
       timerTxt='C4  0:'+(''+bt).padStart(2,'0')+'  ['+G.bomb.site+']';
@@ -2766,6 +2813,47 @@ const Render = {
         ctx.globalAlpha=1;
         ly-=17;
       }
+    }
+
+    /* полноэкранный обзор карты */
+    if(G.showMap){
+      ctx.fillStyle='rgba(5,7,10,0.88)';
+      ctx.fillRect(0,0,this.W,this.H);
+      const mmc=this.minimapCanvas;
+      const k=Math.min((this.H-110)/mmc.height,(this.W-160)/mmc.width);
+      const ox2=(this.W-mmc.width*k)/2, oy2=(this.H-mmc.height*k)/2-10;
+      ctx.imageSmoothingEnabled=false;
+      ctx.drawImage(mmc, ox2, oy2, mmc.width*k, mmc.height*k);
+      ctx.imageSmoothingEnabled=true;
+      const ovx=v=>ox2+v/TILE*8*k, ovy=v=>oy2+v/TILE*8*k;
+      if(G.mode==='bomb' && G.bomb && G.bomb.state==='planted'){
+        ctx.fillStyle = Math.sin(G.time*10)>0 ? '#ff4d4d' : '#ffb14d';
+        ctx.fillRect(ovx(G.bomb.x)-4, ovy(G.bomb.y)-4, 8, 8);
+      }
+      ctx.fillStyle='#3ad67a';
+      for(const b of G.bots){
+        if(b.dead||b.team!=='T') continue;
+        ctx.beginPath(); ctx.arc(ovx(b.x),ovy(b.y),4,0,6.28); ctx.fill();
+      }
+      for(const b of G.bots){
+        if(b.dead||b.team!=='CT') continue;
+        let show = S.vis.radar || (G.time-b.lastHitTime<2) || hasLOS(p.x,p.y,b.x,b.y,true);
+        if(!show) for(const m of G.bots){ if(!m.dead && m.team==='T' && hasLOS(m.x,m.y,b.x,b.y,true)){ show=true; break; } }
+        if(!show) continue;
+        ctx.fillStyle='#ff4d4d';
+        ctx.beginPath(); ctx.arc(ovx(b.x),ovy(b.y),4,0,6.28); ctx.fill();
+      }
+      if(!p.dead){
+        ctx.save();
+        ctx.translate(ovx(p.x),ovy(p.y));
+        ctx.rotate(p.angle);
+        ctx.fillStyle='#fff';
+        ctx.beginPath(); ctx.moveTo(9,0); ctx.lineTo(-5,-6); ctx.lineTo(-3,0); ctx.lineTo(-5,6); ctx.closePath(); ctx.fill();
+        ctx.restore();
+      }
+      ctx.fillStyle='#9fb3c8'; ctx.font='13px Tahoma'; ctx.textAlign='center';
+      ctx.fillText('['+UI.bindLabel(Game.settings.binds.map)+'] — закрыть обзор карты', this.W/2, oy2+mmc.height*k+24);
+      ctx.textAlign='left';
     }
 
     /* радар в стиле CS: тёмный квадрат, центр на игроке */
@@ -2841,13 +2929,12 @@ const Game = {
     G.bots=[]; G.grenades=[]; G.smokes=[]; G.tracers=[]; G.holes=[];
     G.drops=[]; G.decals=[]; G.killfeed=[]; G.soundPings=[];
     G.time=G.time||0; G.recoil=0; G.flashAlpha=0; G.dmgFlash=0; G.hitmarkerT=0;
-    G.roundKills=0;
+    G.roundKills=0; G.rageLock=null; G.showMap=false;
     Particles.list.length=0;
   },
   startBuyPhase(){
     this.state='buy'; G.state='buy';
     this.resetWorld();
-    G.buyTimer=BUY_TIME;
     G.mode = this.settings.game.mode || 'clear';
     G.bomb = null;
     G.botTier=Math.min(BOT_TIERS.length-1, (+this.settings.game.diff||0) + Math.floor((G.round-1)/3));
@@ -2907,6 +2994,7 @@ const Game = {
   },
   endRound(win, reason){
     if(this.state!=='combat') return;
+    G.showMap=false;
     this.state='roundend'; G.state='roundend';
     const kills=G.roundKills;
     const reward=win?WIN_REWARD:LOSS_REWARD;
@@ -2940,7 +3028,21 @@ const Game = {
   },
 
   onKeyDown(code, e){
-    if(code==='Insert'){ UI.toggleGS(); return; }
+    const B=this.settings.binds;
+    if(code===B.menu){ UI.toggleGS(); return; }
+    if(code===B.map && (this.state==='combat'||this.state==='buy')){ G.showMap=!G.showMap; return; }
+    if(code===B.rage){
+      this.settings.rage.on=!this.settings.rage.on;
+      this.saveSettings(); UI.refreshInputs();
+      pushLog('rage bot '+(this.settings.rage.on?'enabled':'disabled'), ACCENT);
+      return;
+    }
+    if(code===B.aa){
+      this.settings.aa.on=!this.settings.aa.on;
+      this.saveSettings(); UI.refreshInputs();
+      pushLog('anti-aim '+(this.settings.aa.on?'enabled':'disabled'), ACCENT);
+      return;
+    }
     if(code==='Escape'){
       document.getElementById('gsWrap').classList.add('hidden');
       if(this.state==='buy') document.getElementById('buyMenu').classList.add('hidden');
@@ -3011,13 +3113,7 @@ const Game = {
     for(let i=G.soundPings.length-1;i>=0;i--){ const s=G.soundPings[i]; s.age+=dt; if(s.age>1.2) G.soundPings.splice(i,1); }
     Particles.update(dt);
 
-    if(this.state==='buy'){
-      G.buyTimer-=dt;
-      const bt=document.getElementById('buyTimer');
-      if(bt) bt.textContent=Math.max(0,Math.ceil(G.buyTimer));
-      if(G.buyTimer<=0) this.startCombat();
-      return;
-    }
+    if(this.state==='buy') return;   // закупка без лимита времени: старт по кнопке/Enter
     if(this.state!=='combat') return;
 
     const p=G.player;
