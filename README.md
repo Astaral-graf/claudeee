@@ -15,19 +15,30 @@
 
 ## Чит-меню (Insert) — в стиле gamesense/skeet
 Тёмное перетаскиваемое окно с радужной полосой, вертикальными вкладками и групбоксами:
-- **RAGE** — Aimbot (silent, FOV, hit chance, min damage, autofire, target selection), Auto wall (пробитие стен), Resolver, Double tap
-- **ANTI-AIM** — yaw (backward/jitter/spin), spin speed, desync amount; фейковая модель рисуется пунктиром
+- **RAGE** — Aimbot (silent, FOV, hit chance, min damage, autofire, target selection), Auto wall (пробитие стен), Resolver, Double tap, **Backtrack** (стрельба по истории хитбоксов), Auto stop, Hitbox (auto/head/body safe), Safe point
+- **ANTI-AIM** — yaw (backward/jitter/spin), spin speed, desync amount, **Hide shots** (on-shot AA); фейковая модель рисуется пунктиром
 - **LEGIT** — плавный aimbot (FOV/smooth), RCS, триггербот с задержкой реакции
-- **VISUALS** — ESP (corner/full box, name, HP, weapon, distance, glow, resolved-хитбокс), radar hack, sound ESP, offscreen arrows, weapon drops
-- **MISC** — watermark, keybind list, event log, hitmarker/hit sound/kill sound, настройка прицела
+- **VISUALS** — ESP (corner/full box, name, HP, weapon, distance, glow, resolved-хитбокс), radar hack, sound ESP, offscreen arrows, weapon drops, **damage numbers**, **grenade prediction** (траектория и радиус), backtrack-точки
+- **MISC** — watermark с **анимированным clantag**, динамический keybind list, event log, hitmarker/hit sound/kill sound, прицел + spread circle, auto pistol, **auto buy**
 - **SKINS** — цвет/паттерн модели игрока и оружия
 - **CONFIG** — 3 слота пресетов (alpha/beta/gamma) + reset; всё автосохраняется в localStorage
 
-## Карта — de_dust2
-Узнаваемая планировка: B-site, CT spawn, A-site с дефолт-плитой, mid + mid doors, catwalk/short, long A с дверями и pit, туннели с изгибом, T-spawn. Подписи зон на полу как на радаре. A* навигация ботов по тайловой сетке.
+## Бинды (как в ските)
+- **X** (держать) — fake duck: хитбокс приседа при полной видимой модели
+- **V** (держать) — auto peek: точка возврата, после выстрела затягивает обратно за укрытие
+- **C** (держать) — форс minimum damage = 1
+
+## Карта — de_dust2 под HvH
+Узнаваемая планировка: B-site, CT spawn, A-site с дефолт-плитой, mid + mid doors, catwalk/short, long A с дверями и pit, туннели с изгибом, T-spawn. Подписи зон на полу как на радаре. A* навигация ботов.
+
+**Прострелы и ван-веи:**
+- Деревянные двери (mid doors, long doors, двери B↔CT) простреливаются любым оружием — классический AWP-банг через mid doors работает
+- Окно CT↔верх мида: видно и стреляется насквозь, пройти нельзя — ван-вей для AWP
+- У каждого оружия своя пробивная способность (AWP пробивает ящики и тонкие стены), урон падает по прочности поверхности
+- **Боты тоже простреливают**: потеряв вас из виду за дверью/ящиком, банят по свежей позиции
 
 ## Остальное
-- 8 видов оружия + 3 гранаты, экономика и меню закупки (клавиши 1–5)
+- 8 видов оружия + 3 гранаты, меню закупки (клавиши 1–5); в HVH-режиме — $16000 каждый раунд, как на HvH-серверах
 - Раундовая структура: закупка → бой → итоги → рост сложности; 3 жизни
 - Пробитие стен (auto wall) со штрафом урона по прочности поверхности
 - Синтезированный звук (Web Audio API), частицы, hitmarker, kill/hit sounds
