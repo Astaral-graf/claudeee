@@ -125,6 +125,7 @@ select { background:#1c232c; color:#d7e3ef; border:1px solid #2a3340; border-rad
 }
 .gs-btn:hover { background:#262626; border-color:#9bd62b; color:#fff; }
 .gs-note { color:#5e5e5e; font-size:10px; margin-top:6px; line-height:1.5; }
+.gs-off { opacity:.35; pointer-events:none; }
 
 /* ---- итоги раунда / game over ---- */
 .big-result { font-size:34px; font-weight:800; margin-bottom:8px; letter-spacing:2px; }
@@ -162,6 +163,28 @@ select { background:#1c232c; color:#d7e3ef; border:1px solid #2a3340; border-rad
       <div><b>C</b> форс min damage</div>
     </div>
     <div class="row" style="justify-content:center;">
+      <label style="flex:none;">Режим</label>
+      <select data-path="game.mode">
+        <option value="clear">Зачистка</option>
+        <option value="bomb">Закладка бомбы</option>
+      </select>
+      <label style="flex:none;">Сложность</label>
+      <select data-path="game.diff">
+        <option value="0">Новобранец</option>
+        <option value="1">Боец</option>
+        <option value="2">Ветеран</option>
+        <option value="3">Элита</option>
+      </select>
+    </div>
+    <div class="row" style="justify-content:center;">
+      <label style="flex:none;">Врагов</label>
+      <input type="range" min="1" max="8" step="1" data-path="game.enemies" style="width:110px;">
+      <span class="val" data-show="game.enemies"></span>
+      <label style="flex:none;">Тимейтов</label>
+      <input type="range" min="0" max="4" step="1" data-path="game.mates" style="width:90px;">
+      <span class="val" data-show="game.mates"></span>
+    </div>
+    <div class="row" style="justify-content:center;">
       <label style="flex:none;">HVH-режим (боты с aimbot / anti-aim / wallhack)</label>
       <input type="checkbox" data-path="game.hvh">
     </div>
@@ -180,6 +203,20 @@ select { background:#1c232c; color:#d7e3ef; border:1px solid #2a3340; border-rad
     <div class="buy-head">
       <h2 style="margin:0;">ЗАКУПКА СНАРЯЖЕНИЯ</h2>
       <div><span id="buyTimer">15</span>с &nbsp; <span id="buyMoney">$800</span></div>
+    </div>
+    <div class="row" style="font-size:12px; gap:8px; flex-wrap:wrap; margin-bottom:8px;">
+      <label style="flex:none;">Режим</label>
+      <select data-path="game.mode">
+        <option value="clear">Зачистка</option>
+        <option value="bomb">Закладка бомбы</option>
+      </select>
+      <label style="flex:none;">Врагов</label>
+      <input type="range" min="1" max="8" step="1" data-path="game.enemies" style="width:90px;">
+      <span class="val" data-show="game.enemies"></span>
+      <label style="flex:none;">Тимейтов</label>
+      <input type="range" min="0" max="4" step="1" data-path="game.mates" style="width:80px;">
+      <span class="val" data-show="game.mates"></span>
+      <span class="hint" style="margin:0;">— применится к этому раунду</span>
     </div>
     <div class="buy-tabs" id="buyTabs"></div>
     <div class="buy-grid" id="buyGrid"></div>
@@ -212,12 +249,12 @@ select { background:#1c232c; color:#d7e3ef; border:1px solid #2a3340; border-rad
         <div class="gs-col">
           <div class="gs-group"><div class="gs-title">Aimbot</div>
             <div class="gs-row"><input type="checkbox" id="rageOn" data-path="rage.on"><label for="rageOn">Enabled</label></div>
-            <div class="gs-row"><input type="checkbox" id="rageSilent" data-path="rage.silent"><label for="rageSilent">Silent aim</label></div>
-            <div class="gs-row"><label>Field of view</label><input type="range" min="1" max="180" step="1" data-path="rage.fov"><span class="val" data-show="rage.fov"></span></div>
-            <div class="gs-row"><label>Hit chance</label><input type="range" min="0" max="100" step="1" data-path="rage.hitchance"><span class="val" data-show="rage.hitchance"></span></div>
-            <div class="gs-row"><label>Minimum damage</label><input type="range" min="1" max="110" step="1" data-path="rage.mindmg"><span class="val" data-show="rage.mindmg"></span></div>
-            <div class="gs-row"><input type="checkbox" id="rageAuto" data-path="rage.autofire"><label for="rageAuto">Automatic fire</label></div>
-            <div class="gs-row"><label>Target selection</label>
+            <div class="gs-row" data-req="rage.on"><input type="checkbox" id="rageSilent" data-path="rage.silent"><label for="rageSilent">Silent aim</label></div>
+            <div class="gs-row" data-req="rage.on"><label>Field of view</label><input type="range" min="1" max="180" step="1" data-path="rage.fov"><span class="val" data-show="rage.fov"></span></div>
+            <div class="gs-row" data-req="rage.on"><label>Hit chance</label><input type="range" min="0" max="100" step="1" data-path="rage.hitchance"><span class="val" data-show="rage.hitchance"></span></div>
+            <div class="gs-row" data-req="rage.on"><label>Minimum damage</label><input type="range" min="1" max="110" step="1" data-path="rage.mindmg"><span class="val" data-show="rage.mindmg"></span></div>
+            <div class="gs-row" data-req="rage.on"><input type="checkbox" id="rageAuto" data-path="rage.autofire"><label for="rageAuto">Automatic fire</label></div>
+            <div class="gs-row" data-req="rage.on"><label>Target selection</label>
               <select data-path="rage.priority">
                 <option value="fov">Crosshair</option>
                 <option value="near">Distance</option>
@@ -228,12 +265,12 @@ select { background:#1c232c; color:#d7e3ef; border:1px solid #2a3340; border-rad
         </div>
         <div class="gs-col">
           <div class="gs-group"><div class="gs-title">Accuracy</div>
-            <div class="gs-row"><input type="checkbox" id="rageAW" data-path="rage.autowall"><label for="rageAW">Auto wall <span class="gs-sub">(пробитие стен)</span></label></div>
-            <div class="gs-row"><input type="checkbox" id="rageRes" data-path="rage.resolver"><label for="rageRes">Resolver <span class="gs-sub">(вскрытие AA ботов)</span></label></div>
-            <div class="gs-row"><input type="checkbox" id="rageAS" data-path="rage.autostop"><label for="rageAS">Auto stop <span class="gs-sub">(тормоз для точности)</span></label></div>
-            <div class="gs-row"><input type="checkbox" id="rageSP" data-path="rage.safepoint"><label for="rageSP">Safe point <span class="gs-sub">(только вскрытые цели)</span></label></div>
+            <div class="gs-row" data-req="rage.on"><input type="checkbox" id="rageAW" data-path="rage.autowall"><label for="rageAW">Auto wall <span class="gs-sub">(пробитие стен)</span></label></div>
+            <div class="gs-row" data-req="rage.on"><input type="checkbox" id="rageRes" data-path="rage.resolver"><label for="rageRes">Resolver <span class="gs-sub">(вскрытие AA ботов)</span></label></div>
+            <div class="gs-row" data-req="rage.on"><input type="checkbox" id="rageAS" data-path="rage.autostop"><label for="rageAS">Auto stop <span class="gs-sub">(тормоз для точности)</span></label></div>
+            <div class="gs-row" data-req="rage.on"><input type="checkbox" id="rageSP" data-path="rage.safepoint"><label for="rageSP">Safe point <span class="gs-sub">(только вскрытые цели)</span></label></div>
             <div class="gs-row"><label>Backtrack (ms)</label><input type="range" min="0" max="400" step="20" data-path="rage.backtrack"><span class="val" data-show="rage.backtrack"></span></div>
-            <div class="gs-row"><label>Hitbox</label>
+            <div class="gs-row" data-req="rage.on"><label>Hitbox</label>
               <select data-path="rage.hitbox">
                 <option value="auto">Auto</option>
                 <option value="head">Head</option>
@@ -243,7 +280,7 @@ select { background:#1c232c; color:#d7e3ef; border:1px solid #2a3340; border-rad
             <div class="gs-note">Удерживайте <b>C</b> — форс minimum damage = 1 (прострел через что угодно).</div>
           </div>
           <div class="gs-group"><div class="gs-title">Exploits</div>
-            <div class="gs-row"><input type="checkbox" id="rageDT" data-path="rage.doubletap"><label for="rageDT">Double tap</label></div>
+            <div class="gs-row" data-req="rage.on"><input type="checkbox" id="rageDT" data-path="rage.doubletap"><label for="rageDT">Double tap</label></div>
             <div class="gs-note">Double tap мгновенно досылает второй патрон после каждого выстрела.</div>
           </div>
           <div class="gs-note">Без резолвера aimbot целится в видимую (фейковую) модель бота — в HVH боты стоят в desync и пули уходят мимо реального хитбокса.</div>
@@ -254,16 +291,16 @@ select { background:#1c232c; color:#d7e3ef; border:1px solid #2a3340; border-rad
         <div class="gs-col">
           <div class="gs-group"><div class="gs-title">Anti-aimbot angles</div>
             <div class="gs-row"><input type="checkbox" id="aaOn" data-path="aa.on"><label for="aaOn">Enabled</label></div>
-            <div class="gs-row"><label>Yaw base</label>
+            <div class="gs-row" data-req="aa.on"><label>Yaw base</label>
               <select data-path="aa.yaw">
                 <option value="backward">Backward</option>
                 <option value="jitter">Jitter</option>
                 <option value="spin">Spin</option>
               </select>
             </div>
-            <div class="gs-row"><label>Spin speed</label><input type="range" min="10" max="200" step="1" data-path="aa.spin"><span class="val" data-show="aa.spin"></span></div>
-            <div class="gs-row"><label>Desync amount</label><input type="range" min="0" max="100" step="1" data-path="aa.desync"><span class="val" data-show="aa.desync"></span></div>
-            <div class="gs-row"><input type="checkbox" id="aaHS" data-path="aa.hideshots"><label for="aaHS">Hide shots <span class="gs-sub">(on-shot AA)</span></label></div>
+            <div class="gs-row" data-req="aa.yaw=spin"><label>Spin speed</label><input type="range" min="10" max="200" step="1" data-path="aa.spin"><span class="val" data-show="aa.spin"></span></div>
+            <div class="gs-row" data-req="aa.on"><label>Desync amount</label><input type="range" min="0" max="100" step="1" data-path="aa.desync"><span class="val" data-show="aa.desync"></span></div>
+            <div class="gs-row" data-req="aa.on"><input type="checkbox" id="aaHS" data-path="aa.hideshots"><label for="aaHS">Hide shots <span class="gs-sub">(on-shot AA)</span></label></div>
           </div>
         </div>
         <div class="gs-col">
@@ -282,15 +319,15 @@ select { background:#1c232c; color:#d7e3ef; border:1px solid #2a3340; border-rad
         <div class="gs-col">
           <div class="gs-group"><div class="gs-title">Aimbot</div>
             <div class="gs-row"><input type="checkbox" id="legitOn" data-path="legit.on"><label for="legitOn">Enabled <span class="gs-sub">(при выключенном rage)</span></label></div>
-            <div class="gs-row"><label>Field of view</label><input type="range" min="1" max="60" step="1" data-path="legit.fov"><span class="val" data-show="legit.fov"></span></div>
-            <div class="gs-row"><label>Smooth</label><input type="range" min="0" max="100" step="1" data-path="legit.smooth"><span class="val" data-show="legit.smooth"></span></div>
-            <div class="gs-row"><input type="checkbox" id="legitRcs" data-path="legit.rcs"><label for="legitRcs">Recoil control system</label></div>
+            <div class="gs-row" data-req="legit.on"><label>Field of view</label><input type="range" min="1" max="60" step="1" data-path="legit.fov"><span class="val" data-show="legit.fov"></span></div>
+            <div class="gs-row" data-req="legit.on"><label>Smooth</label><input type="range" min="0" max="100" step="1" data-path="legit.smooth"><span class="val" data-show="legit.smooth"></span></div>
+            <div class="gs-row" data-req="legit.on"><input type="checkbox" id="legitRcs" data-path="legit.rcs"><label for="legitRcs">Recoil control system</label></div>
           </div>
         </div>
         <div class="gs-col">
           <div class="gs-group"><div class="gs-title">Triggerbot</div>
             <div class="gs-row"><input type="checkbox" id="legitTrig" data-path="legit.trigger"><label for="legitTrig">Enabled</label></div>
-            <div class="gs-row"><label>Reaction delay (ms)</label><input type="range" min="0" max="300" step="5" data-path="legit.triggerDelay"><span class="val" data-show="legit.triggerDelay"></span></div>
+            <div class="gs-row" data-req="legit.trigger"><label>Reaction delay (ms)</label><input type="range" min="0" max="300" step="5" data-path="legit.triggerDelay"><span class="val" data-show="legit.triggerDelay"></span></div>
           </div>
         </div>
       </div>
@@ -299,19 +336,19 @@ select { background:#1c232c; color:#d7e3ef; border:1px solid #2a3340; border-rad
         <div class="gs-col">
           <div class="gs-group"><div class="gs-title">Player ESP</div>
             <div class="gs-row"><input type="checkbox" id="visEsp" data-path="vis.esp"><label for="visEsp">Enabled</label></div>
-            <div class="gs-row"><label>Box type</label>
+            <div class="gs-row" data-req="vis.esp"><label>Box type</label>
               <select data-path="vis.box">
                 <option value="corner">Corner box</option>
                 <option value="full">Full box</option>
               </select>
             </div>
-            <div class="gs-row"><label>Color</label><input type="color" data-path="vis.color"></div>
-            <div class="gs-row"><input type="checkbox" id="visName" data-path="vis.name"><label for="visName">Name</label></div>
-            <div class="gs-row"><input type="checkbox" id="visHp" data-path="vis.hp"><label for="visHp">Health bar</label></div>
-            <div class="gs-row"><input type="checkbox" id="visWep" data-path="vis.weapon"><label for="visWep">Weapon</label></div>
-            <div class="gs-row"><input type="checkbox" id="visDist" data-path="vis.dist"><label for="visDist">Distance</label></div>
-            <div class="gs-row"><input type="checkbox" id="visGlow" data-path="vis.glow"><label for="visGlow">Glow</label></div>
-            <div class="gs-row"><input type="checkbox" id="visRes" data-path="vis.resolved"><label for="visRes">Resolved hitbox <span class="gs-sub">(реальная позиция)</span></label></div>
+            <div class="gs-row" data-req="vis.esp"><label>Color</label><input type="color" data-path="vis.color"></div>
+            <div class="gs-row" data-req="vis.esp"><input type="checkbox" id="visName" data-path="vis.name"><label for="visName">Name</label></div>
+            <div class="gs-row" data-req="vis.esp"><input type="checkbox" id="visHp" data-path="vis.hp"><label for="visHp">Health bar</label></div>
+            <div class="gs-row" data-req="vis.esp"><input type="checkbox" id="visWep" data-path="vis.weapon"><label for="visWep">Weapon</label></div>
+            <div class="gs-row" data-req="vis.esp"><input type="checkbox" id="visDist" data-path="vis.dist"><label for="visDist">Distance</label></div>
+            <div class="gs-row" data-req="vis.esp"><input type="checkbox" id="visGlow" data-path="vis.glow"><label for="visGlow">Glow</label></div>
+            <div class="gs-row" data-req="vis.esp"><input type="checkbox" id="visRes" data-path="vis.resolved"><label for="visRes">Resolved hitbox <span class="gs-sub">(реальная позиция)</span></label></div>
           </div>
         </div>
         <div class="gs-col">
@@ -324,7 +361,7 @@ select { background:#1c232c; color:#d7e3ef; border:1px solid #2a3340; border-rad
           <div class="gs-group"><div class="gs-title">Effects</div>
             <div class="gs-row"><input type="checkbox" id="visDmg" data-path="vis.dmgnum"><label for="visDmg">Damage numbers</label></div>
             <div class="gs-row"><input type="checkbox" id="visNade" data-path="vis.nadepred"><label for="visNade">Grenade prediction</label></div>
-            <div class="gs-row"><input type="checkbox" id="visTrail" data-path="vis.trail"><label for="visTrail">Backtrack dots</label></div>
+            <div class="gs-row" data-req="rage.backtrack"><input type="checkbox" id="visTrail" data-path="vis.trail"><label for="visTrail">Backtrack dots</label></div>
           </div>
         </div>
       </div>
@@ -417,7 +454,7 @@ select { background:#1c232c; color:#d7e3ef; border:1px solid #2a3340; border-rad
 /* ################################################################
    #  SECTION 0: CONFIG — оружие, боты, экономика, HVH-константы
    ################################################################ */
-const TILE = 64;
+const TILE = 48;
 const STEP = 1/60;
 const BUY_TIME = 15;
 const ROUND_TIME = 120;
@@ -463,10 +500,14 @@ const BOT_TIERS = [
   { label:'Элита',      reaction:0.18, aimErr:2.4, viewDist:900, fov:130, speed:200, aggro:0.85, burst:[5,9], pause:[0.15,0.35],hitchance:82, resolver:0.72, dt:true  },
 ];
 const BOT_DESYNC_MAG = 26;      // px смещения фейк-позиции ботов в HVH
+/* Режим закладки бомбы */
+const PLANT_TIME = 3.2;         // сек установки
+const DEFUSE_TIME = 7;          // сек снятия ботом
+const C4_TIMER = 40;            // сек до взрыва
 const BOT_NAMES = ['Phoenix','Viper','Sarge','Ghost','Havoc','Rex','Blitz','Cobra','Titan','Wasp','Onyx','Drake','Storm','Falcon','Bishop','Ivan'];
 
 const DEFAULT_SETTINGS = {
-  game: { hvh:true, sens:1 },
+  game: { hvh:true, sens:1, mode:'clear', enemies:4, mates:2, diff:0 },
   crosshair: { size:8, gap:3, color:'#00ff66', dot:false, circle:false },
   rage:  { on:false, silent:true, fov:180, hitchance:60, mindmg:10, autofire:true, autowall:true, doubletap:false, resolver:true, priority:'fov', backtrack:200, autostop:true, hitbox:'auto', safepoint:false },
   aa:    { on:false, yaw:'jitter', spin:60, desync:60, hideshots:false },
@@ -682,6 +723,41 @@ const BOT_SPAWNS = [
   [43,45],[40,16],             // нижний long / pit
 ];
 const POIS = [[8,8],[25,6],[43,8],[25,13],[25,19],[25,40],[22,45],[8,20],[14,30],[43,44],[45,30],[40,16],[32,17],[35,13],[33,6],[17,7]];
+/* Спавны врагов в режиме бомбы: сторона CT и пленты */
+const CT_SPAWNS = [[23,5],[27,8],[30,4],[40,5],[44,8],[47,4],[5,5],[8,8],[12,5],[25,14],[32,17],[45,20]];
+/* Спавны тиммейтов: рядом с игроком на T */
+const MATE_SPAWNS = [[18,45],[26,45],[20,48],[28,47]];
+/* Пленты для бомбы (тайловые прямоугольники) */
+const BOMBSITES = {
+  A: { x0:38, y0:3, x1:48, y1:14 },
+  B: { x0:3,  y0:3, x1:14, y1:14 },
+};
+function siteAt(x,y){
+  const tx=Math.floor(x/TILE), ty=Math.floor(y/TILE);
+  for(const k in BOMBSITES){
+    const s=BOMBSITES[k];
+    if(tx>=s.x0&&tx<=s.x1&&ty>=s.y0&&ty<=s.y1) return k;
+  }
+  return null;
+}
+/* Кемп-споты: позиция + куда смотреть; site — оборона плента в режиме бомбы */
+const CAMP_SPOTS = [
+  {x:27,y:10, lx:26,ly:16},            // окно CT: ван-вей на верх мида
+  {x:25,y:9,  lx:25,ly:16},            // за mid doors
+  {x:24,y:19, lx:25,ly:12},            // за xbox, взгляд на двери
+  {x:40,y:16, lx:45,ly:17, site:'A'},  // pit, взгляд на long
+  {x:47,y:16, lx:43,ly:38, site:'A'},  // за машиной, вниз по long
+  {x:44,y:4,  lx:36,ly:13, site:'A'},  // A-плита, взгляд на short
+  {x:39,y:10, lx:44,ly:15, site:'A'},  // угол A, выход с long
+  {x:5,y:4,   lx:8,ly:14, site:'B'},   // B-плита, вход из туннелей
+  {x:12,y:10, lx:5,ly:12, site:'B'},   // угол B
+  {x:4,y:13,  lx:8,ly:5,  site:'B'},   // ниндзя за ящиком
+  {x:16,y:7,  lx:20,ly:7},             // B doors, взгляд в CT
+  {x:35,y:16, lx:29,ly:17},            // шорт, взгляд на катвок
+  {x:45,y:33, lx:43,ly:42},            // long, взгляд на doors
+  {x:8,y:24,  lx:8,ly:16},             // туннели, глубокий кемп
+  {x:31,y:44, lx:24,ly:44},            // угол T spawn
+];
 /* подписи зон на полу (как на радаре) */
 const MAP_LABELS = [
   {t:'B',x:8,y:9,s:130},{t:'CT SPAWN',x:26,y:7,s:34},{t:'A',x:43,y:9,s:130},
@@ -941,6 +1017,31 @@ function makeGun(key){
   return { key, ammo: w.mag, reserve: w.reserve, reloading: 0, cooldown: 0 };
 }
 
+/* Команды: враги сущности (для игрока и T-ботов это CT, для CT — игрок и T) */
+function enemiesOf(ent){
+  const t = (ent===G.player || ent.team==='T') ? 'T' : 'CT';
+  if(t==='T') return G.bots.filter(b=>b.team==='CT' && !b.dead);
+  const out = G.bots.filter(b=>b.team==='T' && !b.dead);
+  if(G.player && !G.player.dead) out.push(G.player);
+  return out;
+}
+function enemyBots(){ return G.bots.filter(b=>b.team==='CT'); }
+
+/* Тайл-укрытие рядом: без прямой видимости от врага */
+function findCoverTile(ent, enemy){
+  const bx=Math.floor(ent.x/TILE), by=Math.floor(ent.y/TILE);
+  let best=null, bd=Infinity;
+  for(let dy=-3;dy<=3;dy++) for(let dx=-3;dx<=3;dx++){
+    const tx=bx+dx, ty=by+dy;
+    if(tx<1||ty<1||tx>=MAP_W-1||ty>=MAP_H-1||grid[ty][tx]!==0) continue;
+    const cx=tx*TILE+TILE/2, cy=ty*TILE+TILE/2;
+    if(hasLOS(cx,cy,enemy.x,enemy.y,true)) continue;
+    const d=dist2(ent.x,ent.y,cx,cy);
+    if(d<bd){ bd=d; best={x:tx,y:ty}; }
+  }
+  return best;
+}
+
 /* лог событий в стиле скитовской консоли */
 function pushLog(text, color){
   G.hitlog.unshift({ text, color: color||'#c8c8c8', time: G.time });
@@ -1012,13 +1113,14 @@ function fireHitscan(shooter, angle, wkey, opts){
       if(shooter.crouch) spreadDeg *= 0.7;
       const spd = Math.hypot(shooter.vx,shooter.vy);
       spreadDeg *= 1 + spd/300;
+      spreadDeg *= 1 + G.recoil*1.2;   // отдача реально влияет на разброс (RCS её гасит)
     }
     const a = angle + deg(rand(-spreadDeg,spreadDeg))*0.5;
     const maxD = wkey==='knife' ? w.range : 2400;
     const cast = castBullet(shooter.x, shooter.y, a, maxD, pen);
     // поиск ближайшего персонажа на луче (по РЕАЛЬНЫМ хитбоксам)
     let best = null, bestD = cast.stop, bestPos = null;
-    const targets = shooter===G.player ? G.bots : [G.player];
+    const targets = enemiesOf(shooter);
     const btMs = (shooter===G.player) ? Game.settings.rage.backtrack : 0;
     for(const t of targets){
       if(t.dead) continue;
@@ -1067,7 +1169,7 @@ function fireHitscan(shooter, angle, wkey, opts){
   AudioSys.shot(wkey, shooter.x, shooter.y);
   if(wkey!=='knife'){
     emitNoise(shooter.x, shooter.y, 780, shooter);
-    if(shooter.isBot && Game.settings.vis.soundesp)
+    if(shooter.isBot && shooter.team==='CT' && Game.settings.vis.soundesp)
       G.soundPings.push({x:shooter.x, y:shooter.y, age:0});
   }
   const mx = shooter.x+Math.cos(angle)*24, my = shooter.y+Math.sin(angle)*24;
@@ -1076,12 +1178,12 @@ function fireHitscan(shooter, angle, wkey, opts){
 }
 
 function emitNoise(x,y,radius,source){
-  if(source!==G.player) return;
+  const srcTeam = (source===G.player || source.team==='T') ? 'T' : 'CT';
   for(const b of G.bots){
-    if(b.dead) continue;
+    if(b.dead || b.team===srcTeam) continue;
     if(dist2(b.x,b.y,x,y) < radius*radius){
       b.lastKnown = {x,y};
-      if(b.state==='patrol' || b.state==='search') b.setState('alert');
+      if(b.state==='patrol' || b.state==='search' || b.state==='hold'){ b.plan=null; b.setState('alert'); }
     }
   }
 }
@@ -1115,6 +1217,8 @@ class Player {
     this.peekReturning = false;
     this.lastShotT = -9;
     this.onShotT = 0;         // окно hide shots (усиленный desync)
+    this.team = 'T';
+    this.planting = false;    // идёт установка бомбы
   }
   get gun(){
     if(this.curSlot==='grenade') return null;
@@ -1193,6 +1297,28 @@ class Player {
       }
     }
 
+    /* --- установка бомбы: удержание E на пленте --- */
+    this.planting=false;
+    if(G.mode==='bomb' && G.bomb && G.bomb.state==='carried' && G.state==='combat'){
+      const site=siteAt(this.x,this.y);
+      if(site && Input.keys['KeyE']){
+        this.planting=true;
+        this.vx=0; this.vy=0;
+        G.bomb.plantP+=dt;
+        if(G.bomb.plantP>=PLANT_TIME){
+          G.bomb.state='planted'; G.bomb.x=this.x; G.bomb.y=this.y;
+          G.bomb.site=site; G.bomb.timer=C4_TIMER; G.bomb.beepAcc=0;
+          pushLog('Бомба установлена на '+site, '#ffd166');
+          AudioSys.tone(0.4, 900, 600, .2, 'square');
+          emitNoise(this.x,this.y,4000,this);
+          for(const b of G.bots) if(b.team==='CT' && !b.dead){
+            b.lastKnown={x:this.x,y:this.y};
+            if(b.state!=='combat'){ b.plan=null; b.setState('alert'); }
+          }
+        }
+      } else G.bomb.plantP=0;
+    }
+
     /* --- anti-aim: обновление фейковой позиции (desync) --- */
     if(S.aa.on){
       this.aaTimer-=dt;
@@ -1215,7 +1341,7 @@ class Player {
     if(!S.rage.on && S.legit.on && G.state==='combat'){
       // легит: мягкое доведение до видимой модели в узком FOV
       let best=null, bs=Infinity;
-      for(const b of G.bots){
+      for(const b of enemyBots()){
         if(b.dead) continue;
         const a=angTo(this.x,this.y,b.drawX,b.drawY);
         const off=Math.abs(angDiff(this.mouseAngle,a));
@@ -1269,13 +1395,14 @@ class Player {
     if(this.crouch) s *= 0.7;
     const spd = Math.hypot(this.vx,this.vy);
     s *= 1 + spd/300;
+    s *= 1 + G.recoil*1.2;
     if(s<=0.05) return 1;
     const half = deg(s)/2;
     const angR = Math.atan2(13, Math.max(1,d));
     return clamp(angR/half, 0, 1);
   }
   crosshairOverBot(){
-    for(const b of G.bots){
+    for(const b of enemyBots()){
       if(b.dead) continue;
       const d = dist(this.x,this.y,b.drawX,b.drawY);
       const sp = segPointDist(this.x,this.y,
@@ -1285,6 +1412,7 @@ class Player {
     return null;
   }
   updateFire(dt, g, S){
+    if(this.planting){ Input.consumeClick(); return; }
     const w = WEAPONS[g.key];
     const clicked = Input.consumeClick();
     if(g.key==='knife'){
@@ -1384,7 +1512,7 @@ class Player {
 function pickRageTarget(p, rage, gun){
   const w = WEAPONS[gun.key];
   let best=null, score=Infinity;
-  for(const b of G.bots){
+  for(const b of enemyBots()){
     if(b.dead) continue;
     const resolved = rage.resolver || !b.desyncOn;
     if(rage.safepoint && !resolved) continue;   // safe point: только вскрытые цели
@@ -1476,14 +1604,15 @@ class Grenade {
    #  wallhack, snap-aim c hit chance, desync/spinbot, resolver, DT
    ################################################################ */
 class Bot {
-  constructor(tileX,tileY,tier,idx,hvh){
+  constructor(tileX,tileY,tier,idx,hvh,team){
+    this.team=team||'CT';
     this.x=tileX*TILE+TILE/2; this.y=tileY*TILE+TILE/2;
     this.vx=0; this.vy=0; this.angle=rand(0,6.28);
     this.tier=tier; this.cfg=BOT_TIERS[tier];
     this.hvh=!!hvh;
     this.hp=100; this.armor = tier>=2?50:(Math.random()<.4?50:0); this.helmet=tier>=3;
     this.dead=false; this.crouch=false; this.isBot=true;
-    this.name='Bot_'+BOT_NAMES[idx%BOT_NAMES.length];
+    this.name=(this.team==='T'?'T_':'CT_')+BOT_NAMES[idx%BOT_NAMES.length];
     this.state='patrol';
     this.stateTime=0;
     this.path=null; this.pathIdx=0; this.repathTimer=0;
@@ -1505,10 +1634,16 @@ class Bot {
     this.trail=[];            // история позиций для backtrack игрока
     this.lastSeenT=-99;       // когда последний раз видел игрока (для прострелов)
     this.wbTimer=rand(0.5,1.5);
+    /* поведение: план (патруль/кемп), укрытие, разминирование */
+    this.plan=null; this.holdSpot=null; this.holdT=8;
+    this.decideT=rand(1,3);
+    this.coverTile=null; this.coverBias=false;
+    this.defusing=false;
+    this.enemy=null;
   }
   get drawX(){ return this.desyncOn ? this.fakeX : this.x; }
   get drawY(){ return this.desyncOn ? this.fakeY : this.y; }
-  get hitR(){ return 14; }
+  get hitR(){ return this.crouch ? 11 : 14; }
   /* видимый угол модели: в HVH — спинбот */
   get visAngle(){ return this.hvh ? (G.time*9 + this.spinPhase) : this.angle; }
   pickWeapon(){
@@ -1530,11 +1665,29 @@ class Bot {
     if(this.state===s) return;
     this.state=s; this.stateTime=0;
     this.path=null; this.repathTimer=0;
+    this.crouch=false;
     if(s==='patrol') this.reactTimer=0;
   }
-  canSeePlayer(){
-    const p=G.player;
-    if(p.dead || this.blind>0) return false;
+  /* выбор плана: занять кемп-спот (ван-вей/угол) или патрулировать */
+  choosePlan(){
+    let campC = 0.65 - this.cfg.aggro*0.35;
+    let pool = CAMP_SPOTS;
+    if(G.mode==='bomb' && this.team==='CT' && (!G.bomb || G.bomb.state==='carried')){
+      campC = 0.85;                                   // CT обороняют пленты
+      const sp = CAMP_SPOTS.filter(s=>s.site);
+      if(sp.length) pool = sp;
+    }
+    if(Math.random()<campC){
+      this.holdSpot = pool[randi(0,pool.length-1)];
+      this.holdT = rand(6,14);
+      this.plan = 'hold';
+    } else {
+      this.plan = 'patrol';
+      this.patrolTarget = null;
+    }
+  }
+  canSeeEnemy(p){
+    if(!p || p.dead || this.blind>0) return false;
     const d=dist(this.x,this.y,p.x,p.y);
     let vd = this.hvh ? 1100 : this.cfg.viewDist;
     if(p.crouch) vd*=0.85;
@@ -1545,6 +1698,15 @@ class Bot {
       if(Math.abs(angDiff(this.angle,a)) > deg(this.cfg.fov)/2 && d>90) return false;
     }
     return hasLOS(this.x,this.y,p.x,p.y,true);
+  }
+  /* ближайший живой враг (для CT это игрок и тиммейты) */
+  pickEnemy(){
+    let best=null, bd=Infinity;
+    for(const e of enemiesOf(this)){
+      const d=dist2(this.x,this.y,e.x,e.y);
+      if(d<bd){ bd=d; best=e; }
+    }
+    return best;
   }
   moveAlongPath(tx,ty,speedMul,dt){
     this.repathTimer-=dt;
@@ -1577,7 +1739,7 @@ class Bot {
     /* история хитбоксов (окно backtrack 0.5с) */
     this.trail.push({x:this.x, y:this.y, t:G.time});
     while(this.trail.length && G.time-this.trail[0].t>0.5) this.trail.shift();
-    const p=G.player;
+    const p = this.enemy = this.pickEnemy();
 
     /* HVH: обновление собственного desync-фейка */
     if(this.desyncOn){
@@ -1589,7 +1751,7 @@ class Bot {
       this.fakeX=fx; this.fakeY=fy;
     }
 
-    const sees=this.canSeePlayer();
+    const sees = p ? this.canSeeEnemy(p) : false;
     if(sees){
       this.reactTimer+=dt;
       this.lastKnown={x:p.x,y:p.y};
@@ -1597,21 +1759,78 @@ class Bot {
     } else {
       this.reactTimer=Math.max(0,this.reactTimer-dt*2);
     }
-    /* HVH-wallhack: бот всегда знает, где игрок, и давит на него */
-    if(this.hvh && !p.dead){
+    /* HVH-wallhack: бот знает, где враг, но решает — пушить или сесть в засаду */
+    if(this.hvh && p && !p.dead){
       this.lastKnown={x:p.x,y:p.y};
       const reactNeed=this.cfg.reaction*0.5;
-      if(sees && this.reactTimer>=reactNeed && this.state!=='combat' && this.state!=='flee') this.setState('combat');
-      else if(!sees && (this.state==='patrol'||this.state==='search') && this.stateTime>rand(0.5,2)) this.setState('alert');
+      if(sees && this.reactTimer>=reactNeed && this.state!=='combat' && this.state!=='flee'){ this.plan=null; this.setState('combat'); }
+      else if(!sees && (this.state==='patrol'||this.state==='search')){
+        this.decideT-=dt;
+        if(this.decideT<=0){
+          this.decideT=rand(2.5,5);
+          if(Math.random()<this.cfg.aggro){ this.plan=null; this.setState('alert'); }  // агрессивный пуш
+          else {
+            // засада: занять спот неподалёку от врага и держать угол
+            let best=null,bd=Infinity;
+            for(const s of CAMP_SPOTS){
+              const d=dist2((s.x+0.5)*TILE,(s.y+0.5)*TILE,p.x,p.y);
+              if(d>(TILE*4)*(TILE*4) && d<bd){ bd=d; best=s; }
+            }
+            if(best){ this.plan='hold'; this.holdSpot=best; this.holdT=rand(6,12); if(this.state==='search') this.setState('patrol'); }
+          }
+        }
+      }
+    }
+
+    /* режим бомбы: CT бежит снимать установленную бомбу */
+    this.defusing=false;
+    if(G.mode==='bomb' && this.team==='CT' && G.bomb && G.bomb.state==='planted'){
+      const nearBomb = dist2(this.x,this.y,G.bomb.x,G.bomb.y) < 42*42;
+      if(nearBomb && !sees){
+        this.defusing=true;
+        this.vx=0; this.vy=0;
+        this.angle=lerpAngle(this.angle, angTo(this.x,this.y,G.bomb.x,G.bomb.y), 8*dt);
+        G.bomb.defP+=dt;
+        if(G.time-this.lastHitTime<0.6) G.bomb.defP=Math.max(0,G.bomb.defP-dt*3); // урон сбивает снятие
+        if(G.bomb.defP>=DEFUSE_TIME){
+          G.bomb.state='defused';
+          pushLog(this.name+' обезвредил бомбу', '#ff7a7a');
+          Game.endRound(false,'Бомбу обезвредили');
+        }
+        return;
+      }
+      if(!sees && this.state!=='combat' && this.state!=='alert'){
+        this.plan=null;
+        this.lastKnown={x:G.bomb.x,y:G.bomb.y};
+        this.setState('alert');
+      }
     }
 
     switch(this.state){
       case 'patrol': {
-        if(sees && this.reactTimer>=this.cfg.reaction){ this.setState('combat'); break; }
-        if(!this.patrolTarget || this.moveAlongPath(this.patrolTarget.x,this.patrolTarget.y,0.55,dt)){
-          const poi=POIS[randi(0,POIS.length-1)];
-          this.patrolTarget={x:poi[0],y:poi[1]};
+        if(sees && this.reactTimer>=this.cfg.reaction){ this.plan=null; this.setState('combat'); break; }
+        if(!this.plan) this.choosePlan();
+        if(this.plan==='hold' && this.holdSpot){
+          if(this.moveAlongPath(this.holdSpot.x,this.holdSpot.y,0.6,dt)) this.setState('hold');
+        } else {
+          if(!this.patrolTarget || this.moveAlongPath(this.patrolTarget.x,this.patrolTarget.y,0.55,dt)){
+            const poi=POIS[randi(0,POIS.length-1)];
+            this.patrolTarget={x:poi[0],y:poi[1]};
+            if(Math.random()<0.5) this.plan=null;   // шанс пересмотреть план
+          }
         }
+        break;
+      }
+      case 'hold': {
+        /* кемп: присед, держим угол на точку обзора, лёгкое сканирование */
+        this.crouch=true;
+        this.vx*=Math.pow(0.001,dt); this.vy*=Math.pow(0.001,dt);
+        if(this.holdSpot){
+          const fa=angTo(this.x,this.y,(this.holdSpot.lx+0.5)*TILE,(this.holdSpot.ly+0.5)*TILE);
+          this.angle=lerpAngle(this.angle, fa+Math.sin(this.stateTime*0.8)*0.14, 5*dt);
+        }
+        if(sees && this.reactTimer>=this.cfg.reaction*0.5){ this.plan=null; this.setState('combat'); break; }
+        if(this.stateTime>this.holdT){ this.plan=null; this.setState('patrol'); }
         break;
       }
       case 'alert': {
@@ -1624,7 +1843,7 @@ class Bot {
         break;
       }
       case 'combat': {
-        if(p.dead){ this.setState('patrol'); break; }
+        if(!p || p.dead){ this.setState('patrol'); break; }
         if(this.hp<30 && Math.random()<(1-this.cfg.aggro)*0.02){ this.setState('flee'); break; }
         if(!sees){
           if(this.stateTime>0.8) this.setState(this.hvh?'alert':'search');
@@ -1643,6 +1862,15 @@ class Bot {
         if(d>ideal+80) mvA=perfect;
         else if(d<ideal-120 && Math.random()<(1-this.cfg.aggro)) mvA=perfect+Math.PI;
         else mvA=perfect+Math.PI/2*this.strafeDir;
+        /* укрытие: при перезарядке или паузе очереди прячемся за стену */
+        const gunNow=this.gun;
+        if(gunNow.reloading>0 || (this.burstPause>0 && this.coverBias)){
+          if(!this.coverTile) this.coverTile=findCoverTile(this,p);
+          if(this.coverTile){
+            const ccx=this.coverTile.x*TILE+TILE/2, ccy=this.coverTile.y*TILE+TILE/2;
+            if(dist2(this.x,this.y,ccx,ccy)>16*16) mvA=angTo(this.x,this.y,ccx,ccy);
+          }
+        } else this.coverTile=null;
         const sp=this.cfg.speed*0.85;
         this.vx=lerp(this.vx,Math.cos(mvA)*sp,1-Math.exp(-6*dt));
         this.vy=lerp(this.vy,Math.sin(mvA)*sp,1-Math.exp(-6*dt));
@@ -1688,7 +1916,7 @@ class Bot {
               fireHitscan(this,aimA+deg(rand(-1,1)),g.key);
               g.cooldown=1/w.rate+0.18;
             }
-            if(this.burstLeft<=0) this.burstPause=rand(this.cfg.pause[0],this.cfg.pause[1]);
+            if(this.burstLeft<=0){ this.burstPause=rand(this.cfg.pause[0],this.cfg.pause[1]); this.coverBias=Math.random()<0.6; }
           }
         }
         break;
@@ -1710,6 +1938,7 @@ class Bot {
         break;
       }
       case 'flee': {
+        if(!p){ this.setState('patrol'); break; }
         if(!this.fleeTarget){
           let best=null,bestScore=-1;
           for(let i=0;i<14;i++){
@@ -1724,15 +1953,15 @@ class Bot {
         const done=this.moveAlongPath(this.fleeTarget.x,this.fleeTarget.y,1.0,dt);
         if(done || this.stateTime>6){
           this.fleeTarget=null;
-          this.setState(this.canSeePlayer()?'combat':'patrol');
+          this.setState(this.canSeeEnemy(p)?'combat':'patrol');
         }
-        if(this.canSeePlayer() && dist(this.x,this.y,p.x,p.y)<260) this.setState('combat');
+        if(this.canSeeEnemy(p) && dist(this.x,this.y,p.x,p.y)<260) this.setState('combat');
         break;
       }
     }
 
     /* HVH: прострелы — бот банит через двери/ящики по свежей позиции */
-    if(this.hvh && this.tier>=1 && !sees && !p.dead && G.time-this.lastSeenT<2){
+    if(this.hvh && this.tier>=1 && !sees && p && !p.dead && G.time-this.lastSeenT<2){
       this.wbTimer-=dt;
       if(this.wbTimer<=0){
         this.wbTimer=rand(0.7,1.6);
@@ -1794,9 +2023,19 @@ const UI = {
       const val=getPath(Game.settings, inp.dataset.path);
       if(inp.type==='checkbox') inp.checked=!!val;
       else inp.value=val;
-      const showEl=document.querySelector('[data-show="'+inp.dataset.path+'"]');
-      if(showEl) showEl.textContent=val;
+      document.querySelectorAll('[data-show="'+inp.dataset.path+'"]').forEach(se=>se.textContent=val);
       this.styleRange(inp);
+    });
+    this.refreshDeps();
+  },
+  /* гашение зависимых опций: data-req="path" или data-req="path=value" */
+  refreshDeps(){
+    document.querySelectorAll('[data-req]').forEach(el=>{
+      const ex=el.dataset.req;
+      let ok;
+      if(ex.includes('=')){ const kv=ex.split('='); ok = String(getPath(Game.settings,kv[0]))===kv[1]; }
+      else ok = !!getPath(Game.settings,ex);
+      el.classList.toggle('gs-off', !ok);
     });
   },
   init(){
@@ -1838,15 +2077,15 @@ const UI = {
     // универсальный биндинг [data-path] ↔ настройки
     document.querySelectorAll('[data-path]').forEach(inp=>{
       const path=inp.dataset.path;
-      const showEl=document.querySelector('[data-show="'+path+'"]');
       const apply=()=>{
         let v;
         if(inp.type==='checkbox') v=inp.checked;
         else if(inp.type==='range') v=+inp.value;
         else v=inp.value;
         setPath(Game.settings, path, v);
-        if(showEl) showEl.textContent=v;
+        document.querySelectorAll('[data-show="'+path+'"]').forEach(se=>se.textContent=v);
         this.styleRange(inp);
+        this.refreshDeps();
         Game.saveSettings();
         // одинаковые пути в разных местах (game.hvh в меню и в gs) — синхронизируем
         document.querySelectorAll('[data-path="'+path+'"]').forEach(other=>{
@@ -2040,22 +2279,31 @@ const Render = {
     /* подписи зон, как на радаре CS */
     x.textAlign='center'; x.textBaseline='middle';
     for(const L of MAP_LABELS){
-      x.font='bold '+L.s+'px Arial';
+      x.font='bold '+Math.round(L.s*TILE/64)+'px Arial';
       x.fillStyle='rgba(60,42,20,0.20)';
       x.fillText(L.t, L.x*TILE, L.y*TILE);
     }
     this.worldCanvas=c;
   },
   prerenderMinimap(){
-    const s=3;
+    /* радар как в CS: светлые проходимые зоны на тёмном фоне + буквы плентов */
+    const s=8;
     const c=document.createElement('canvas');
     c.width=MAP_W*s; c.height=MAP_H*s;
     const x=c.getContext('2d');
     for(let ty=0;ty<MAP_H;ty++) for(let tx=0;tx<MAP_W;tx++){
       const v=grid[ty][tx];
-      x.fillStyle = v===0?'#2c3540':(v===2?'#57606f':(v===3?'#8a6d3b':(v===4?'#4aa3df':'#12161c')));
+      if(v===0) x.fillStyle='rgba(200,210,220,0.30)';
+      else if(v===2) x.fillStyle='rgba(230,235,240,0.45)';
+      else if(v===3) x.fillStyle='rgba(170,126,63,0.85)';
+      else if(v===4) x.fillStyle='rgba(120,190,255,0.75)';
+      else continue;
       x.fillRect(tx*s,ty*s,s,s);
     }
+    x.font='bold 42px Arial'; x.textAlign='center'; x.textBaseline='middle';
+    x.fillStyle='rgba(232,163,61,0.9)';
+    x.fillText('A', (BOMBSITES.A.x0+BOMBSITES.A.x1)/2*s, (BOMBSITES.A.y0+BOMBSITES.A.y1)/2*s);
+    x.fillText('B', (BOMBSITES.B.x0+BOMBSITES.B.x1)/2*s, (BOMBSITES.B.y0+BOMBSITES.B.y1)/2*s);
     this.minimapCanvas=c;
   },
   /* персонаж: dx/dy — где рисуем (для ботов это фейк-позиция), ang — видимый угол */
@@ -2072,7 +2320,7 @@ const Render = {
     const g = ch.gun;
     const wl = g && g.key==='awp' ? 30 : (g&&g.key==='knife'?12:22);
     ctx.fillRect(r-4, -2.5, wl, 5);
-    const bodyCol = isPlayer ? S.skins.player : (ch.tier>=2?'#c0392b':'#e07b39');
+    const bodyCol = isPlayer ? S.skins.player : (ch.team==='T' ? '#2e9e5b' : (ch.tier>=2?'#c0392b':'#e07b39'));
     ctx.fillStyle=bodyCol;
     ctx.beginPath(); ctx.arc(0,0,r,0,6.28); ctx.fill();
     if(isPlayer && S.skins.pattern==='stripes'){
@@ -2164,7 +2412,7 @@ const Render = {
     if(S.rage.backtrack>0 && S.vis.trail){
       ctx.fillStyle='rgba(155,214,43,0.35)';
       for(const b of G.bots){
-        if(b.dead||!b.trail) continue;
+        if(b.dead||b.team!=='CT'||!b.trail) continue;
         for(let i=0;i<b.trail.length;i+=5){
           const s=b.trail[i];
           if(G.time-s.t>S.rage.backtrack/1000) continue;
@@ -2173,8 +2421,30 @@ const Render = {
       }
     }
 
+    // C4 на земле
+    if(G.mode==='bomb' && G.bomb && G.bomb.state==='planted'){
+      ctx.fillStyle='#20262e';
+      ctx.fillRect(G.bomb.x-8,G.bomb.y-5,16,10);
+      if(Math.sin(G.time*10)>0){ ctx.fillStyle='#ff3b30'; ctx.fillRect(G.bomb.x+3,G.bomb.y-3,3,3); }
+    }
+
     // боты: модель рисуется в ФЕЙК-позиции (desync), спинбот-вращение
     for(const b of G.bots) if(!b.dead) this.drawCharacter(ctx,b,false,b.drawX,b.drawY,b.visAngle);
+    // метки союзников (имя + хп) и полоса разминирования
+    ctx.font='9px Tahoma'; ctx.textAlign='center';
+    for(const b of G.bots){
+      if(b.dead) continue;
+      if(b.team==='T'){
+        ctx.fillStyle='rgba(58,214,122,0.95)';
+        ctx.fillText(b.name, b.drawX, b.drawY-20);
+        ctx.fillStyle='rgba(0,0,0,0.5)'; ctx.fillRect(b.drawX-14,b.drawY-17,28,3);
+        ctx.fillStyle='#3ad67a'; ctx.fillRect(b.drawX-14,b.drawY-17,28*clamp(b.hp/100,0,1),3);
+      }
+      if(b.defusing && G.bomb){
+        ctx.fillStyle='rgba(0,0,0,0.6)'; ctx.fillRect(b.drawX-16,b.drawY-26,32,5);
+        ctx.fillStyle='#4aa3df'; ctx.fillRect(b.drawX-16,b.drawY-26,32*clamp(G.bomb.defP/DEFUSE_TIME,0,1),5);
+      }
+    }
 
     // игрок: реальная модель + пунктирный ghost фейка (ваша AA)
     if(!p.dead){
@@ -2222,7 +2492,7 @@ const Render = {
     if(S.vis.esp){
       ctx.font='10px Tahoma'; ctx.textAlign='center';
       for(const b of G.bots){
-        if(b.dead) continue;
+        if(b.dead || b.team!=='CT') continue;
         const bx=b.drawX, by=b.drawY;
         if(S.vis.glow){
           ctx.save();
@@ -2279,7 +2549,7 @@ const Render = {
     /* offscreen arrows: стрелки на ботов за экраном */
     if(S.vis.oof && (G.state==='combat')){
       for(const b of G.bots){
-        if(b.dead) continue;
+        if(b.dead || b.team!=='CT') continue;
         const sp=this.worldToScreen(b.drawX,b.drawY);
         if(sp.x>-10&&sp.x<this.W+10&&sp.y>-10&&sp.y<this.H+10) continue;
         const cx=this.W/2, cy=this.H/2;
@@ -2316,6 +2586,7 @@ const Render = {
         if(Input.rmb) s*=(cw.adsSpread!==undefined?cw.adsSpread:0.45);
         if(p.crouch) s*=0.7;
         s*=1+Math.hypot(p.vx,p.vy)/300;
+        s*=1+G.recoil*1.2;
         const rr=Math.tan(deg(s)/2)*dW*Game.cam.zoom;
         ctx.globalAlpha=0.45;
         ctx.beginPath(); ctx.arc(mx,my,Math.max(3,rr),0,6.28); ctx.stroke();
@@ -2414,7 +2685,7 @@ const Render = {
       (p.slots.primary?('1:'+WEAPONS[p.slots.primary.key].name):'1:—'),
       '2:'+WEAPONS[p.slots.pistol.key].name, '3:Нож',
       '4:Гранаты('+(p.grenades.he+p.grenades.smoke+p.grenades.flash)+')'
-    ].join('   ');
+    ].join('   ') + (G.mode==='bomb'&&G.bomb&&G.bomb.state==='carried' ? '   [C4]' : '');
     ctx.fillText(slotStr, this.W-24, y0+38);
     ctx.textAlign='left';
 
@@ -2424,14 +2695,42 @@ const Render = {
     ctx.fillRect(this.W/2-150,8,300,54);
     ctx.fillStyle='#f5a623';
     ctx.font='bold 24px monospace';
-    const t = G.state==='buy' ? Math.ceil(G.buyTimer) : Math.max(0,Math.ceil(G.roundTimer));
-    const mm=Math.floor(t/60), sec=(''+(t%60)).padStart(2,'0');
-    ctx.fillText(G.state==='buy'?('ЗАКУПКА '+t):(mm+':'+sec), this.W/2, 32);
+    let timerTxt;
+    if(G.state==='buy') timerTxt='ЗАКУПКА '+Math.ceil(G.buyTimer);
+    else if(G.mode==='bomb' && G.bomb && G.bomb.state==='planted'){
+      const bt=Math.max(0,Math.ceil(G.bomb.timer));
+      timerTxt='C4  0:'+(''+bt).padStart(2,'0')+'  ['+G.bomb.site+']';
+      ctx.fillStyle = Math.sin(G.time*8)>0 ? '#ff4d4d' : '#ffb14d';
+    } else {
+      const t=Math.max(0,Math.ceil(G.roundTimer));
+      timerTxt=Math.floor(t/60)+':'+(''+(t%60)).padStart(2,'0');
+    }
+    ctx.fillText(timerTxt, this.W/2, 32);
     ctx.font='12px monospace';
     ctx.fillStyle='#9fb3c8';
-    const alive=G.bots.filter(b=>!b.dead).length;
-    const mode=Game.settings.game.hvh?' · HVH':'';
-    ctx.fillText('Раунд '+G.round+' · '+BOT_TIERS[G.botTier].label+mode+' · Ботов: '+alive+' · Жизни: '+'♥'.repeat(G.lives), this.W/2, 52);
+    const aliveE=G.bots.filter(b=>!b.dead&&b.team==='CT').length;
+    const aliveM=G.bots.filter(b=>!b.dead&&b.team==='T').length;
+    const modeStr=(G.mode==='bomb'?' · БОМБА':'')+(Game.settings.game.hvh?' · HVH':'');
+    ctx.fillText('Раунд '+G.round+' · '+BOT_TIERS[G.botTier].label+modeStr+' · Враги: '+aliveE+' · Союзники: '+aliveM+' · Жизни: '+'♥'.repeat(G.lives), this.W/2, 52);
+    /* режим бомбы: подсказки и полосы прогресса */
+    if(G.mode==='bomb' && G.bomb && G.state==='combat'){
+      if(G.bomb.state==='carried' && siteAt(p.x,p.y) && !p.planting){
+        ctx.fillStyle='#ffd166'; ctx.font='13px Tahoma';
+        ctx.fillText('Удерживайте E — установить бомбу', this.W/2, this.H/2+56);
+      }
+      if(p.planting){
+        const w0=240, x0=this.W/2-w0/2, y0=this.H/2+70;
+        ctx.fillStyle='rgba(10,13,17,0.8)'; ctx.fillRect(x0,y0,w0,22);
+        ctx.fillStyle='#ffb14d'; ctx.fillRect(x0+2,y0+2,(w0-4)*clamp(G.bomb.plantP/PLANT_TIME,0,1),18);
+        ctx.fillStyle='#fff'; ctx.font='12px Tahoma'; ctx.fillText('УСТАНОВКА БОМБЫ...', this.W/2, y0+15);
+      }
+      if(G.bomb.state==='planted' && G.bomb.defP>0){
+        const w0=240, x0=this.W/2-w0/2, y0=76;
+        ctx.fillStyle='rgba(10,13,17,0.8)'; ctx.fillRect(x0,y0,w0,22);
+        ctx.fillStyle='#ff4d4d'; ctx.fillRect(x0+2,y0+2,(w0-4)*clamp(G.bomb.defP/DEFUSE_TIME,0,1),18);
+        ctx.fillStyle='#fff'; ctx.font='12px Tahoma'; ctx.fillText('БОМБУ ОБЕЗВРЕЖИВАЮТ!', this.W/2, y0+15);
+      }
+    }
 
     /* килфид */
     ctx.textAlign='right';
@@ -2469,28 +2768,44 @@ const Render = {
       }
     }
 
-    /* миникарта */
-    const ms=3, mw=MAP_W*ms, mh=MAP_H*ms, mX=14, mY=14;
-    ctx.globalAlpha=0.88;
-    ctx.drawImage(this.minimapCanvas,mX,mY);
-    ctx.globalAlpha=1;
-    ctx.strokeStyle='#2a3340'; ctx.strokeRect(mX-1,mY-1,mw+2,mh+2);
-    const mmx=x=>mX+x/WORLD_W*mw, mmy=y=>mY+y/WORLD_H*mh;
+    /* радар в стиле CS: тёмный квадрат, центр на игроке */
+    const RSZ=200, mX=14, mY=14, rms=8;
+    ctx.save();
+    ctx.fillStyle='rgba(8,10,14,0.68)';
+    ctx.fillRect(mX,mY,RSZ,RSZ);
+    ctx.beginPath(); ctx.rect(mX,mY,RSZ,RSZ); ctx.clip();
+    const ox=mX+RSZ/2-p.x/TILE*rms, oy=mY+RSZ/2-p.y/TILE*rms;
+    ctx.drawImage(this.minimapCanvas, ox, oy);
+    const rrx=v=>ox+v/TILE*rms, rry=v=>oy+v/TILE*rms;
+    // бомба
+    if(G.mode==='bomb' && G.bomb && G.bomb.state==='planted'){
+      ctx.fillStyle = Math.sin(G.time*10)>0 ? '#ff4d4d' : '#ffb14d';
+      ctx.fillRect(rrx(G.bomb.x)-3, rry(G.bomb.y)-3, 6, 6);
+    }
+    // союзники
+    ctx.fillStyle='#3ad67a';
     for(const b of G.bots){
-      if(b.dead) continue;
-      const show = S.vis.radar || hasLOS(p.x,p.y,b.x,b.y,true) || (G.time-b.lastHitTime<2);
+      if(b.dead||b.team!=='T') continue;
+      ctx.beginPath(); ctx.arc(rrx(b.x),rry(b.y),3,0,6.28); ctx.fill();
+    }
+    // враги: radar hack / инфа команды / недавний контакт
+    for(const b of G.bots){
+      if(b.dead||b.team!=='CT') continue;
+      let show = S.vis.radar || (G.time-b.lastHitTime<2) || hasLOS(p.x,p.y,b.x,b.y,true);
+      if(!show) for(const m of G.bots){ if(!m.dead && m.team==='T' && hasLOS(m.x,m.y,b.x,b.y,true)){ show=true; break; } }
       if(!show) continue;
       ctx.fillStyle='#ff4d4d';
-      ctx.beginPath(); ctx.arc(mmx(b.x),mmy(b.y),2.5,0,6.28); ctx.fill();
+      ctx.beginPath(); ctx.arc(rrx(b.x),rry(b.y),3,0,6.28); ctx.fill();
     }
-    if(!p.dead){
-      ctx.fillStyle='#7ed957';
-      ctx.save();
-      ctx.translate(mmx(p.x),mmy(p.y));
-      ctx.rotate(p.angle);
-      ctx.beginPath(); ctx.moveTo(5,0); ctx.lineTo(-3,-3); ctx.lineTo(-3,3); ctx.closePath(); ctx.fill();
-      ctx.restore();
-    }
+    // игрок: белая стрелка в центре
+    ctx.save();
+    ctx.translate(mX+RSZ/2, mY+RSZ/2);
+    ctx.rotate(p.angle);
+    ctx.fillStyle='#fff';
+    ctx.beginPath(); ctx.moveTo(7,0); ctx.lineTo(-4,-4.5); ctx.lineTo(-2,0); ctx.lineTo(-4,4.5); ctx.closePath(); ctx.fill();
+    ctx.restore();
+    ctx.restore();
+    ctx.strokeStyle='rgba(255,255,255,0.18)'; ctx.strokeRect(mX+0.5,mY+0.5,RSZ,RSZ);
     ctx.textAlign='left';
   },
 };
@@ -2504,7 +2819,7 @@ const G = {};
 const Game = {
   settings: null,
   state: 'menu',
-  cam: {x:PLAYER_SPAWN.x, y:PLAYER_SPAWN.y, zoom:1},
+  cam: {x:PLAYER_SPAWN.x, y:PLAYER_SPAWN.y, zoom:1.2},
   acc: 0, lastT: 0,
 
   loadSettings(){
@@ -2533,28 +2848,38 @@ const Game = {
     this.state='buy'; G.state='buy';
     this.resetWorld();
     G.buyTimer=BUY_TIME;
-    G.botTier=Math.min(BOT_TIERS.length-1, Math.floor((G.round-1)/3));
+    G.mode = this.settings.game.mode || 'clear';
+    G.bomb = null;
+    G.botTier=Math.min(BOT_TIERS.length-1, (+this.settings.game.diff||0) + Math.floor((G.round-1)/3));
     G.player.resetForRound(G.lostLastRound);
     G.lostLastRound=false;
     if(this.settings.game.hvh) G.player.money = MAX_MONEY;  // HVH-сервер: всегда фулл-бай
     if(this.settings.misc.autobuy) this.autoBuy();
-    this.spawnBots();
     UI.buyCat=0;
     UI.showOverlay('buyMenu');
     UI.renderBuy();
     this.cam.x=G.player.x; this.cam.y=G.player.y;
   },
   spawnBots(){
-    const n=Math.min(8, 2+G.round);
-    const spawns=BOT_SPAWNS.slice();
-    for(let i=spawns.length-1;i>0;i--){ const j=randi(0,i); const tmp=spawns[i]; spawns[i]=spawns[j]; spawns[j]=tmp; }
+    G.bots=[];
+    const S=this.settings, hvh=S.game.hvh;
+    const nE=clamp(Math.round(+S.game.enemies)||4,1,8);
+    const nM=clamp(Math.round(+S.game.mates)||0,0,4);
+    // враги (CT): в режиме бомбы — со стороны CT и плентов
+    const pool=(G.mode==='bomb'?CT_SPAWNS:BOT_SPAWNS).slice();
+    for(let i=pool.length-1;i>0;i--){ const j=randi(0,i); const tmp=pool[i]; pool[i]=pool[j]; pool[j]=tmp; }
     let idx=0;
-    for(const s of spawns){
-      if(idx>=n) break;
+    for(const s of pool){
+      if(idx>=nE) break;
       const wx=s[0]*TILE+TILE/2, wy=s[1]*TILE+TILE/2;
-      if(dist2(wx,wy,PLAYER_SPAWN.x,PLAYER_SPAWN.y)<600*600) continue;
-      G.bots.push(new Bot(s[0],s[1],G.botTier,idx,this.settings.game.hvh));
+      if(dist2(wx,wy,PLAYER_SPAWN.x,PLAYER_SPAWN.y)<500*500) continue;
+      G.bots.push(new Bot(s[0],s[1],G.botTier,idx,hvh,'CT'));
       idx++;
+    }
+    // тиммейты: рядом со спавном игрока
+    for(let m=0;m<nM;m++){
+      const s=MATE_SPAWNS[m%MATE_SPAWNS.length];
+      G.bots.push(new Bot(s[0],s[1],G.botTier,idx+m,hvh,'T'));
     }
   },
   /* авто-закупка лучшего доступного лоадаута */
@@ -2576,16 +2901,18 @@ const Game = {
     if(this.state!=='buy') return;
     this.state='combat'; G.state='combat';
     G.roundTimer=ROUND_TIME;
+    this.spawnBots();   // спавн здесь: настройки матча из закупки применяются сразу
+    G.bomb = G.mode==='bomb' ? {state:'carried', x:0, y:0, timer:C4_TIMER, plantP:0, defP:0, site:null, beepAcc:0} : null;
     UI.showOverlay(null);
   },
-  endRound(win){
+  endRound(win, reason){
     if(this.state!=='combat') return;
     this.state='roundend'; G.state='roundend';
     const kills=G.roundKills;
     const reward=win?WIN_REWARD:LOSS_REWARD;
     G.player.money=Math.min(MAX_MONEY,G.player.money+reward);
     const rows=[
-      ['Результат', win?'ПОБЕДА':'ПОРАЖЕНИЕ'],
+      ['Результат', (win?'ПОБЕДА':'ПОРАЖЕНИЕ')+(reason?' — '+reason:'')],
       ['Убито ботов', kills+' (+$'+kills*KILL_REWARD+')'],
       ['Награда за раунд', '+$'+reward],
       ['Баланс', '$'+G.player.money],
@@ -2648,6 +2975,7 @@ const Game = {
   },
   tryPickup(){
     const p=G.player;
+    if(G.mode==='bomb' && G.bomb && G.bomb.state==='carried' && siteAt(p.x,p.y)) return; // E на пленте = установка
     let best=null, bestD=48*48;
     for(const d of G.drops){
       const dd=dist2(p.x,p.y,d.x,d.y);
@@ -2716,27 +3044,57 @@ const Game = {
       }
     }
 
+    /* ---------- режим закладки бомбы ---------- */
+    if(G.mode==='bomb' && G.bomb){
+      const bomb=G.bomb;
+      if(bomb.state==='planted'){
+        if(!G.bots.some(b=>!b.dead && b.team==='CT' && b.defusing)) bomb.defP=0;
+        bomb.timer-=dt;
+        bomb.beepAcc-=dt;
+        if(bomb.beepAcc<=0){
+          bomb.beepAcc=clamp(bomb.timer/C4_TIMER,0.12,1)*0.9;
+          AudioSys.tone(0.12+0.22*AudioSys.atten(bomb.x,bomb.y), 1450, 1450, .06, 'sine');
+        }
+        if(bomb.timer<=0){
+          bomb.state='exploded';
+          AudioSys.explosion(bomb.x,bomb.y);
+          Particles.explosion(bomb.x,bomb.y);
+          Particles.explosion(bomb.x+rand(-40,40),bomb.y+rand(-40,40));
+          const R=520;
+          for(const t of [G.player,...G.bots]){
+            if(t.dead) continue;
+            const dd=dist(bomb.x,bomb.y,t.x,t.y);
+            if(dd<R) applyDamage(t, lerp(320,40,dd/R), false, G.player, 'c4');
+          }
+          this.endRound(true,'Бомба взорвалась');
+          return;
+        }
+      }
+    }
+
     const world=this.screenToWorld(Input.mouseX,Input.mouseY);
     const lookX=p.x+(world.x-p.x)*0.18, lookY=p.y+(world.y-p.y)*0.18;
     this.cam.x=lerp(this.cam.x,lookX,1-Math.exp(-7*dt));
     this.cam.y=lerp(this.cam.y,lookY,1-Math.exp(-7*dt));
-    const wantZoom=(Input.rmb && p.gun && p.gun.key==='awp')?0.82:1;
+    const wantZoom=(Input.rmb && p.gun && p.gun.key==='awp')?0.95:1.2;
     this.cam.zoom=lerp(this.cam.zoom,wantZoom,1-Math.exp(-6*dt));
 
     G.roundTimer-=dt;
     if(p.dead){
       if(!G.deathDelay) G.deathDelay=1.2;
       G.deathDelay-=dt;
-      if(G.deathDelay<=0){ G.deathDelay=0; this.endRound(false); }
+      if(G.deathDelay<=0){ G.deathDelay=0; this.endRound(false,'Вы погибли'); }
       return;
     }
-    if(G.bots.length>0 && G.bots.every(b=>b.dead)){
+    const cts=G.bots.filter(b=>b.team==='CT');
+    if(cts.length>0 && cts.every(b=>b.dead)){
       if(!G.winDelay) G.winDelay=1.0;
       G.winDelay-=dt;
-      if(G.winDelay<=0){ G.winDelay=0; this.endRound(true); }
+      if(G.winDelay<=0){ G.winDelay=0; this.endRound(true,'Все враги устранены'); }
       return;
     }
-    if(G.roundTimer<=0) this.endRound(false);
+    if(G.roundTimer<=0 && !(G.mode==='bomb' && G.bomb && G.bomb.state==='planted'))
+      this.endRound(false, G.mode==='bomb' ? 'Время вышло — бомба не установлена' : 'Время вышло');
   },
 
   loop(ts){
@@ -2766,6 +3124,7 @@ const Game = {
     G.drops=[]; G.decals=[]; G.killfeed=[]; G.grenades=[]; G.soundPings=[]; G.hitlog=[];
     G.recoil=0; G.flashAlpha=0; G.dmgFlash=0; G.hitmarkerT=0;
     G.round=1; G.lives=PLAYER_LIVES; G.botTier=0;
+    G.mode='clear'; G.bomb=null;
     requestAnimationFrame(ts=>this.loop(ts));
   },
 };
