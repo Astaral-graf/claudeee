@@ -25,7 +25,7 @@
 ## Чит-меню (Insert) — в стиле gamesense/skeet
 Тёмное перетаскиваемое окно с радужной полосой, вертикальными вкладками и групбоксами:
 - **RAGE** — Aimbot (silent, FOV, hit chance, min damage, autofire, target selection), Auto wall (пробитие стен), Resolver, Double tap, **Backtrack** (стрельба по истории хитбоксов), Auto stop, Hitbox (auto/head/body safe), Safe point
-- **ANTI-AIM** — yaw (backward/jitter/spin), spin speed, desync amount, **Hide shots** (on-shot AA); фейковая модель рисуется пунктиром
+- **ANTI-AIM** — yaw (backward/static/jitter/spin), **yaw offset**, **jitter amount**, **side** (left/right/switch), **at targets**, spin speed, desync amount, **Hide shots** (on-shot AA), **Fake lag** с настройкой choked ticks — боты видят полупрозрачного двойника с задержкой; фейковая модель рисуется пунктиром
 - **LEGIT** — плавный aimbot (FOV/smooth), RCS, триггербот с задержкой реакции
 - **VISUALS** — ESP (corner/full box, name, HP, weapon, distance, glow, resolved-хитбокс), radar hack, sound ESP, offscreen arrows, weapon drops, **damage numbers**, **grenade prediction** (траектория и радиус), backtrack-точки
 - **MISC** — watermark с **анимированным clantag**, динамический keybind list, event log, hitmarker/hit sound/kill sound, прицел + spread circle, auto pistol, **auto buy**
@@ -54,7 +54,9 @@
 - 10 видов оружия (включая **SSG 08** и автоснайпу **SCAR-20**) + 3 гранаты, меню закупки без таймера (клавиши 1–5)
 - Обычная экономика и в HVH: пистолетный раунд → закуп; у ботов свой бюджет по раундам и HVH-мета (скаут на эко, AWP/автоснайпа на фулл-бае)
 - Резолвер общий для rage и legit: триггербот и легит-аим тоже вскрывают desync ботов; без silent aim прицел видимо снапается на цель
-- Раундовая структура: закупка → бой → итоги → рост сложности; 3 жизни
+- Раундовая система как в CS: счёт T:CT, матч до 8 побед; смерть не завершает раунд, пока живы тимейты или тикает бомба (спектатор за командой)
+- Урон оружия по таблицам CS:GO (USP 35, Deagle 53, AK 36, M4 33, SSG 88, AWP 115, SCAR-20 80, Nova 26×8)
+- Double tap с зарядкой 3.5с и шансом осечки — у игрока и у ботов одинаково; у ботов авто-вол и равный шанс хедшота
 - Пробитие стен (auto wall) со штрафом урона по прочности поверхности
 - Синтезированный звук (Web Audio API), частицы, hitmarker, kill/hit sounds
 - Стабильные 60 FPS, фиксированный шаг симуляции
