@@ -485,6 +485,8 @@ const WEAPONS = {
   ak47:   { name:'AK-47',    slot:'primary',dmg:34,  hs:4.0, rate:10,  spread:4.4, range:1200, price:2700, mag:30, reserve:90, reload:2.5, move:0.92, auto:true,  pellets:1 },
   m4:     { name:'M4A4',     slot:'primary',dmg:30,  hs:3.6, rate:11,  spread:3.7, range:1200, price:3100, mag:30, reserve:90, reload:2.4, move:0.94, auto:true,  pellets:1 },
   awp:    { name:'AWP',      slot:'primary',dmg:110, hs:2.0, rate:0.85,spread:9.0, range:2200, price:4750, mag:5,  reserve:15, reload:3.2, move:0.82, auto:false, pellets:1, adsSpread:0.35 },
+  ssg:    { name:'SSG 08',   slot:'primary',dmg:74,  hs:2.6, rate:1.25,spread:7.5, range:2000, price:1700, mag:10, reserve:30, reload:2.7, move:1.03, auto:false, pellets:1, adsSpread:0.28 },
+  scar20: { name:'SCAR-20',  slot:'primary',dmg:70,  hs:2.0, rate:3.6, spread:6.5, range:2000, price:5000, mag:20, reserve:40, reload:2.9, move:0.84, auto:true,  pellets:1, adsSpread:0.5 },
   nova:   { name:'Nova',     slot:'primary',dmg:9,   hs:2.5, rate:1.1, spread:11,  range:420,  price:1050, mag:8,  reserve:32, reload:2.8, move:0.96, auto:false, pellets:8 },
 };
 const GRENADES = {
@@ -499,7 +501,7 @@ const GEAR = {
 
 /* Пробивная способность (бюджет пробития): дерево = 0.5, ящик = 1, бетон = 2.
    Любое оружие бьёт двери; AWP пробивает ящики и тонкие стены */
-const PEN = { knife:0, usp:0.5, deagle:1, mp7:0.5, ak47:1, m4:1, awp:2, nova:0 };
+const PEN = { knife:0, usp:0.5, deagle:1, mp7:0.5, ak47:1, m4:1, awp:2, nova:0, ssg:1.5, scar20:2 };
 for(const k in WEAPONS) WEAPONS[k].pen = PEN[k]||0;
 
 /* Уровни ботов. Легаси-поля — для честного режима;
@@ -669,6 +671,11 @@ const Input = {
       if(e.button===2) this.rmb=false;
     });
     canvas.addEventListener('contextmenu', e=>e.preventDefault());
+    // зум камеры колесом
+    canvas.addEventListener('wheel', e=>{
+      e.preventDefault();
+      Game.userZoom = clamp(Game.userZoom * (e.deltaY<0 ? 1.12 : 0.89), 0.55, 2.4);
+    }, {passive:false});
   },
   consumeClick(){ const c=this.lmbClick; this.lmbClick=false; return c; },
 };
@@ -1634,7 +1641,11 @@ class Bot {
     this.vx=0; this.vy=0; this.angle=rand(0,6.28);
     this.tier=tier; this.cfg=BOT_TIERS[tier];
     this.hvh=!!hvh;
-    this.hp=100; this.armor = tier>=2?50:(Math.random()<.4?50:0); this.helmet=tier>=3;
+    this.hp=100;
+    /* экономика ботов: бюджет растёт с раундами — с пистолеток до фулл-баев */
+    this.budget = Math.min(MAX_MONEY, 800 + (G.round-1)*3000 + tier*400);
+    this.armor = this.budget>=2000 ? 100 : (Math.random()<.3?50:0);
+    this.helmet = this.budget>=6000 || tier>=3;
     this.dead=false; this.crouch=false; this.isBot=true;
     this.name=(this.team==='T'?'T_':'CT_')+BOT_NAMES[idx%BOT_NAMES.length];
     this.state='patrol';
@@ -1671,19 +1682,26 @@ class Bot {
   /* видимый угол модели: в HVH — спинбот */
   get visAngle(){ return this.hvh ? (G.time*9 + this.spinPhase) : this.angle; }
   pickWeapon(){
-    const pools = this.hvh ? [
-      ['deagle','mp7','usp','nova'],
-      ['deagle','ak47','awp','mp7'],
-      ['awp','ak47','awp','m4'],
-      ['awp','awp','ak47','awp'],
-    ] : [
+    const roll=a=>a[randi(0,a.length-1)];
+    if(this.hvh){
+      /* HVH-мета: скаут на эко, AWP/автоснайпа на фулл-бае */
+      const b=this.budget;
+      if(b>=5000) return roll(['awp','awp','awp','scar20','scar20','ak47','ssg']);
+      if(b>=4750) return roll(['awp','awp','ak47','ssg']);
+      if(b>=2700) return roll(['ak47','ak47','ssg','m4']);
+      if(b>=1700) return roll(['ssg','ssg','mp7','deagle']);
+      if(b>=1500) return roll(['mp7','deagle','nova']);
+      if(b>=700)  return roll(['deagle','usp']);
+      return 'usp';
+    }
+    const pools=[
       ['usp','usp','mp7','nova'],
       ['mp7','nova','deagle','ak47'],
-      ['ak47','m4','mp7','awp'],
+      ['ak47','m4','mp7','ssg'],
       ['ak47','m4','awp','awp'],
     ];
-    const p=pools[this.tier];
-    return p[randi(0,p.length-1)];
+    const ok=pools[this.tier].filter(k=>WEAPONS[k].price<=this.budget);
+    return ok.length ? roll(ok) : 'usp';
   }
   setState(s){
     if(this.state===s) return;
@@ -1694,7 +1712,7 @@ class Bot {
   }
   /* выбор плана: занять кемп-спот (ван-вей/угол) или патрулировать */
   choosePlan(){
-    let campC = 0.65 - this.cfg.aggro*0.35;
+    let campC = 0.78 - this.cfg.aggro*0.28;
     let pool = CAMP_SPOTS;
     if(G.mode==='bomb' && this.team==='CT' && (!G.bomb || G.bomb.state==='carried')){
       campC = 0.85;                                   // CT обороняют пленты
@@ -1703,7 +1721,7 @@ class Bot {
     }
     if(Math.random()<campC){
       this.holdSpot = pool[randi(0,pool.length-1)];
-      this.holdT = rand(6,14);
+      this.holdT = rand(10,22);
       this.plan = 'hold';
     } else {
       this.plan = 'patrol';
@@ -1788,11 +1806,11 @@ class Bot {
       this.lastKnown={x:p.x,y:p.y};
       const reactNeed=this.cfg.reaction*0.5;
       if(sees && this.reactTimer>=reactNeed && this.state!=='combat' && this.state!=='flee'){ this.plan=null; this.setState('combat'); }
-      else if(!sees && (this.state==='patrol'||this.state==='search')){
+      else if(!sees && (this.state==='patrol'||this.state==='search'||(this.state==='alert'&&this.stateTime>3.5))){
         this.decideT-=dt;
         if(this.decideT<=0){
           this.decideT=rand(2.5,5);
-          if(Math.random()<this.cfg.aggro){ this.plan=null; this.setState('alert'); }  // агрессивный пуш
+          if(Math.random()<this.cfg.aggro*0.5){ this.plan=null; this.setState('alert'); }  // пуш редко — чаще засада
           else {
             // засада: занять спот неподалёку от врага и держать угол
             let best=null,bd=Infinity;
@@ -1800,7 +1818,7 @@ class Bot {
               const d=dist2((s.x+0.5)*TILE,(s.y+0.5)*TILE,p.x,p.y);
               if(d>(TILE*4)*(TILE*4) && d<bd){ bd=d; best=s; }
             }
-            if(best){ this.plan='hold'; this.holdSpot=best; this.holdT=rand(6,12); if(this.state==='search') this.setState('patrol'); }
+            if(best){ this.plan='hold'; this.holdSpot=best; this.holdT=rand(8,16); if(this.state!=='patrol') this.setState('patrol'); }
           }
         }
       }
@@ -1846,14 +1864,19 @@ class Bot {
         break;
       }
       case 'hold': {
-        /* кемп: присед, держим угол на точку обзора, лёгкое сканирование */
+        /* кемп: присед, держим угол; HVH-кемпер пре-эймит врага через стену */
         this.crouch=true;
         this.vx*=Math.pow(0.001,dt); this.vy*=Math.pow(0.001,dt);
         if(this.holdSpot){
-          const fa=angTo(this.x,this.y,(this.holdSpot.lx+0.5)*TILE,(this.holdSpot.ly+0.5)*TILE);
+          let fa;
+          if(this.hvh && p && !p.dead && dist2(this.x,this.y,p.x,p.y)<700*700)
+            fa=angTo(this.x,this.y,p.x,p.y);   // wallhack pre-aim
+          else
+            fa=angTo(this.x,this.y,(this.holdSpot.lx+0.5)*TILE,(this.holdSpot.ly+0.5)*TILE);
           this.angle=lerpAngle(this.angle, fa+Math.sin(this.stateTime*0.8)*0.14, 5*dt);
         }
-        if(sees && this.reactTimer>=this.cfg.reaction*0.5){ this.plan=null; this.setState('combat'); break; }
+        // кемпер уже наведён — реагирует быстрее обычного
+        if(sees && this.reactTimer>=this.cfg.reaction*0.35){ this.plan=null; this.setState('combat'); break; }
         if(this.stateTime>this.holdT){ this.plan=null; this.setState('patrol'); }
         break;
       }
@@ -1870,7 +1893,16 @@ class Bot {
         if(!p || p.dead){ this.setState('patrol'); break; }
         if(this.hp<30 && Math.random()<(1-this.cfg.aggro)*0.02){ this.setState('flee'); break; }
         if(!sees){
-          if(this.stateTime>0.8) this.setState(this.hvh?'alert':'search');
+          if(this.stateTime>0.8){
+            // ждём ре-пик: чаще держим угол на последней позиции, чем бежим
+            if(this.lastKnown && Math.random() > this.cfg.aggro*0.6){
+              this.holdSpot={ x:Math.floor(this.x/TILE), y:Math.floor(this.y/TILE),
+                              lx:Math.floor(this.lastKnown.x/TILE), ly:Math.floor(this.lastKnown.y/TILE) };
+              this.holdT=rand(4,9);
+              this.plan='hold';
+              this.setState('hold');
+            } else this.setState(this.hvh?'alert':'search');
+          }
           break;
         }
         const d=dist(this.x,this.y,p.x,p.y);
@@ -1879,7 +1911,7 @@ class Bot {
 
         /* движение в бою */
         const wRange=WEAPONS[this.gun.key].range;
-        const ideal=this.gun.key==='awp'? 620 : (this.gun.key==='nova'? 200 : Math.min(430,wRange*0.55));
+        const ideal=(this.gun.key==='awp'||this.gun.key==='ssg'||this.gun.key==='scar20')? 620 : (this.gun.key==='nova'? 200 : Math.min(430,wRange*0.55));
         this.strafeTimer-=dt;
         if(this.strafeTimer<=0){ this.strafeDir*=-1; this.strafeTimer=rand(.5,1.4); }
         let mvA;
@@ -2024,7 +2056,7 @@ const UI = {
   buyCats: [
     { name:'1 Пистолеты', items:[{t:'w',k:'deagle'}] },
     { name:'2 ПП / Дробовик', items:[{t:'w',k:'mp7'},{t:'w',k:'nova'}] },
-    { name:'3 Винтовки', items:[{t:'w',k:'ak47'},{t:'w',k:'m4'},{t:'w',k:'awp'}] },
+    { name:'3 Винтовки', items:[{t:'w',k:'ak47'},{t:'w',k:'m4'},{t:'w',k:'ssg'},{t:'w',k:'awp'},{t:'w',k:'scar20'}] },
     { name:'4 Гранаты', items:[{t:'g',k:'he'},{t:'g',k:'smoke'},{t:'g',k:'flash'}] },
     { name:'5 Снаряжение', items:[{t:'a',k:'armor'},{t:'a',k:'helmet'}] },
   ],
@@ -2360,7 +2392,8 @@ const Render = {
     const wcol = isPlayer ? S.skins.weapon : '#20262e';
     ctx.fillStyle=wcol;
     const g = ch.gun;
-    const wl = g && g.key==='awp' ? 30 : (g&&g.key==='knife'?12:22);
+    const snip = g && (g.key==='awp'||g.key==='ssg'||g.key==='scar20');
+    const wl = snip ? 30 : (g&&g.key==='knife'?12:22);
     ctx.fillRect(r-4, -2.5, wl, 5);
     const bodyCol = isPlayer ? S.skins.player : (ch.team==='T' ? '#2e9e5b' : (ch.tier>=2?'#c0392b':'#e07b39'));
     ctx.fillStyle=bodyCol;
@@ -2908,6 +2941,7 @@ const Game = {
   settings: null,
   state: 'menu',
   cam: {x:PLAYER_SPAWN.x, y:PLAYER_SPAWN.y, zoom:1.2},
+  userZoom: 1.2,
   acc: 0, lastT: 0,
 
   loadSettings(){
@@ -2940,7 +2974,6 @@ const Game = {
     G.botTier=Math.min(BOT_TIERS.length-1, (+this.settings.game.diff||0) + Math.floor((G.round-1)/3));
     G.player.resetForRound(G.lostLastRound);
     G.lostLastRound=false;
-    if(this.settings.game.hvh) G.player.money = MAX_MONEY;  // HVH-сервер: всегда фулл-бай
     if(this.settings.misc.autobuy) this.autoBuy();
     UI.buyCat=0;
     UI.showOverlay('buyMenu');
@@ -2973,7 +3006,7 @@ const Game = {
   autoBuy(){
     const p=G.player;
     if(p.money>=GEAR.helmet.price && !(p.armor>=100&&p.helmet)){ p.armor=100; p.helmet=true; p.money-=GEAR.helmet.price; }
-    const wantPrimary=['awp','ak47','m4','mp7','nova'];
+    const wantPrimary=['awp','scar20','ak47','m4','ssg','mp7','nova'];
     if(!p.slots.primary){
       for(const k of wantPrimary){
         if(p.money>=WEAPONS[k].price){ p.slots.primary=makeGun(k); p.money-=WEAPONS[k].price; break; }
@@ -3172,7 +3205,8 @@ const Game = {
     const lookX=p.x+(world.x-p.x)*0.18, lookY=p.y+(world.y-p.y)*0.18;
     this.cam.x=lerp(this.cam.x,lookX,1-Math.exp(-7*dt));
     this.cam.y=lerp(this.cam.y,lookY,1-Math.exp(-7*dt));
-    const wantZoom=(Input.rmb && p.gun && p.gun.key==='awp')?0.95:1.2;
+    let wantZoom=this.userZoom;
+    if(Input.rmb && p.gun && (p.gun.key==='awp'||p.gun.key==='ssg'||p.gun.key==='scar20')) wantZoom*=0.8;
     this.cam.zoom=lerp(this.cam.zoom,wantZoom,1-Math.exp(-6*dt));
 
     G.roundTimer-=dt;
