@@ -134,6 +134,68 @@ select { background:#1c232c; color:#d7e3ef; border:1px solid #2a3340; border-rad
 .stats-table { width:100%; font-size:14px; color:#9fb3c8; margin:14px 0 20px; border-collapse:collapse; }
 .stats-table td { padding:5px 2px; border-bottom:1px solid #1e2630; }
 .stats-table td:last-child { text-align:right; color:#d7e3ef; font-weight:600; }
+
+/* ============================================================
+   ТЕМА CS:GO PANORAMA: тёмные панели, зелёная кнопка PLAY,
+   строгие прямоугольники, капс
+   ============================================================ */
+.overlay { background: linear-gradient(160deg, rgba(10,14,19,.94), rgba(16,22,30,.94)); backdrop-filter: blur(4px); }
+.panel {
+  background: linear-gradient(180deg, #151c25, #10161d);
+  border: 1px solid #2c3946; border-radius: 3px;
+  box-shadow: 0 24px 80px rgba(0,0,0,.7);
+}
+h1 { color:#fff; font-style: italic; letter-spacing: 2px; text-shadow: 3px 3px 0 rgba(139,197,63,.35); }
+h2 { color:#c8d6e5; text-transform: uppercase; letter-spacing: 1.5px; font-size: 16px; }
+.sub { color:#5f7085; text-transform: uppercase; font-size: 11px; letter-spacing: 2px; }
+button.btn {
+  background: #8bc53f; color: #0f1620; border-radius: 2px;
+  text-transform: uppercase; letter-spacing: 1.5px; font-size: 15px;
+}
+button.btn:hover { background: #a4dd55; transform: none; }
+button.btn.secondary { background: #232e3b; color: #c8d6e5; border: 1px solid #3745556; border: 1px solid #374555; }
+button.btn.secondary:hover { background: #2e3c4c; }
+button.btn.small { padding: 8px 14px; font-size: 12px; }
+.buy-tab { border-radius: 2px; text-transform: uppercase; font-size: 11px; letter-spacing: .5px; background:#1a222c; border-color:#2c3946; }
+.buy-tab.active { background: #8bc53f; color: #0f1620; border-color: #8bc53f; }
+.buy-item { border-radius: 2px; background:#161e27; border-color:#2c3946; }
+.buy-item:hover { border-color:#8bc53f; background:#1c2733; }
+.buy-item .w-price { color:#8bc53f; }
+#buyMoney { color:#8bc53f; }
+.win  { color:#8bc53f; text-shadow: 0 0 22px rgba(139,197,63,.4); }
+select { background:#161e27; border-color:#2c3946; border-radius:2px; }
+.row input[type=range] { accent-color:#8bc53f; }
+.row input[type=checkbox] { accent-color:#8bc53f; }
+.val { color:#8bc53f; }
+
+/* ---- главное меню panorama ---- */
+.menu-layout { display:flex; gap:28px; text-align:left; }
+.nav-col { display:flex; flex-direction:column; gap:10px; min-width:230px; }
+.nav-col .btn { padding:16px 24px; text-align:left; font-size:17px; }
+.setup-card { flex:1; background:#121922; border:1px solid #2c3946; border-radius:3px; padding:16px 20px; }
+.setup-card .card-title { font-size:11px; letter-spacing:2px; color:#8bc53f; text-transform:uppercase; margin-bottom:10px; }
+.controls-mini { margin-top:14px; font-size:11px; color:#5f7085; line-height:1.8; columns:2; }
+.controls-mini b { color:#9fb3c8; }
+
+/* ---- редактор карт ---- */
+body.editing #game { cursor: crosshair; }
+#editorUI { position:fixed; left:0; top:0; bottom:0; z-index:25; pointer-events:none; display:flex; align-items:center; }
+.ed-panel {
+  pointer-events:auto; margin-left:12px; width:190px;
+  background:#121922ee; border:1px solid #2c3946; border-radius:3px; padding:14px;
+  font-family:'Segoe UI',Arial,sans-serif;
+}
+.ed-title { font-size:12px; letter-spacing:2px; color:#8bc53f; text-transform:uppercase; margin-bottom:10px; }
+.ed-tools { display:flex; flex-direction:column; gap:4px; margin-bottom:12px; }
+.ed-tool {
+  background:#1a222c; border:1px solid #2c3946; color:#c8d6e5; border-radius:2px;
+  padding:6px 10px; font-size:12px; text-align:left; cursor:pointer;
+}
+.ed-tool:hover { border-color:#8bc53f; }
+.ed-tool.active { background:#8bc53f; color:#0f1620; font-weight:700; border-color:#8bc53f; }
+.ed-actions { display:flex; flex-wrap:wrap; gap:6px; margin-bottom:10px; }
+.ed-hint { font-size:10px; color:#5f7085; line-height:1.6; }
+#edMsg { font-size:11px; color:#8bc53f; min-height:16px; margin-bottom:6px; }
 </style>
 </head>
 <body>
@@ -142,59 +204,104 @@ select { background:#1c232c; color:#d7e3ef; border:1px solid #2a3340; border-rad
 
 <!-- ===================== ГЛАВНОЕ МЕНЮ ===================== -->
 <div id="mainMenu" class="overlay">
-  <div class="panel" style="text-align:center;">
+  <div class="panel" style="min-width:820px; max-width:900px;">
     <h1>DUST PROTOCOL</h1>
-    <div class="sub">HVH-издание · top-down шутер по мотивам de_dust2 · боты тоже с читами</div>
-    <div class="controls-list" style="text-align:left;">
-      <div><b>WASD</b> движение</div>
-      <div><b>Мышь</b> прицел</div>
-      <div><b>ЛКМ</b> огонь</div>
-      <div><b>ПКМ</b> прицеливание</div>
-      <div><b>Shift</b> тихий шаг</div>
-      <div><b>Ctrl</b> присед</div>
-      <div><b>R</b> перезарядка</div>
-      <div><b>1/2/3/4</b> слоты оружия</div>
-      <div><b>E</b> подобрать оружие</div>
-      <div><b>B</b> закупка (в фазе)</div>
-      <div><b>G</b> сменить гранату</div>
-      <div><b>Insert</b> чит-меню</div>
-      <div><b>M</b> обзор карты</div>
-      <div><b>X / V / C</b> fake duck / auto peek / min dmg</div>
-      <div><b>F / T</b> тоггл rage / anti-aim</div>
-      <div style="color:#556575;">все клавиши биндятся в MISC → Keybinds</div>
+    <div class="sub" style="margin-bottom:20px;">HVH · de_dust2 · counter-strike style</div>
+    <div class="menu-layout">
+      <div class="nav-col">
+        <button class="btn" id="btnStart">▶ Играть</button>
+        <button class="btn secondary" id="btnEditor">🛠 Редактор карт</button>
+        <div class="controls-mini">
+          <div><b>WASD</b> движение</div>
+          <div><b>ЛКМ/ПКМ</b> огонь/прицел</div>
+          <div><b>Shift/Ctrl</b> шаг/присед</div>
+          <div><b>R · E · B · G</b> перезарядка · подбор · закупка · граната</div>
+          <div><b>M</b> обзор карты</div>
+          <div><b>X / V / C</b> fake duck / auto peek / min dmg</div>
+          <div><b>F / T</b> тоггл rage / AA</div>
+          <div><b>Insert</b> чит-меню</div>
+          <div style="color:#43536a;">клавиши биндятся: CONFIG → Keybinds</div>
+        </div>
+      </div>
+      <div class="setup-card">
+        <div class="card-title">Настройка матча</div>
+        <div class="row">
+          <label>Карта</label>
+          <select data-path="game.map">
+            <option value="dust2">de_dust2</option>
+            <option value="custom">Своя карта (редактор)</option>
+          </select>
+        </div>
+        <div class="row">
+          <label>Режим</label>
+          <select data-path="game.mode">
+            <option value="clear">Зачистка</option>
+            <option value="bomb">Закладка бомбы</option>
+          </select>
+        </div>
+        <div class="row">
+          <label>Сложность</label>
+          <select data-path="game.diff">
+            <option value="0">Новобранец</option>
+            <option value="1">Боец</option>
+            <option value="2">Ветеран</option>
+            <option value="3">Элита</option>
+          </select>
+        </div>
+        <div class="row">
+          <label>Врагов</label>
+          <input type="range" min="1" max="8" step="1" data-path="game.enemies">
+          <span class="val" data-show="game.enemies"></span>
+        </div>
+        <div class="row">
+          <label>Тимейтов</label>
+          <input type="range" min="0" max="4" step="1" data-path="game.mates">
+          <span class="val" data-show="game.mates"></span>
+        </div>
+        <div class="row">
+          <label>HVH-режим (боты с читами)</label>
+          <input type="checkbox" data-path="game.hvh">
+        </div>
+        <div class="row">
+          <label>Чувствительность</label>
+          <input type="range" min="0.3" max="2" step="0.05" data-path="game.sens">
+          <span class="val" data-show="game.sens"></span>
+        </div>
+      </div>
     </div>
-    <div class="row" style="justify-content:center;">
-      <label style="flex:none;">Режим</label>
-      <select data-path="game.mode">
-        <option value="clear">Зачистка</option>
-        <option value="bomb">Закладка бомбы</option>
-      </select>
-      <label style="flex:none;">Сложность</label>
-      <select data-path="game.diff">
-        <option value="0">Новобранец</option>
-        <option value="1">Боец</option>
-        <option value="2">Ветеран</option>
-        <option value="3">Элита</option>
-      </select>
+  </div>
+</div>
+
+<!-- ===================== РЕДАКТОР КАРТ ===================== -->
+<div id="editorUI" class="hidden">
+  <div class="ed-panel">
+    <div class="ed-title">Редактор карт</div>
+    <div id="edMsg"></div>
+    <div class="ed-tools">
+      <button class="ed-tool active" data-tool="floor">▨ Пол</button>
+      <button class="ed-tool" data-tool="wall">■ Стена</button>
+      <button class="ed-tool" data-tool="crate">☒ Ящик</button>
+      <button class="ed-tool" data-tool="wood">≡ Дерево (прострел)</button>
+      <button class="ed-tool" data-tool="window">▤ Окно (ван-вей)</button>
+      <button class="ed-tool" data-tool="siteA">Ⓐ Плент A</button>
+      <button class="ed-tool" data-tool="siteB">Ⓑ Плент B</button>
+      <button class="ed-tool" data-tool="player">➤ Спавн игрока</button>
+      <button class="ed-tool" data-tool="enemy">● Спавн врага</button>
+      <button class="ed-tool" data-tool="mate">● Спавн тимейта</button>
     </div>
-    <div class="row" style="justify-content:center;">
-      <label style="flex:none;">Врагов</label>
-      <input type="range" min="1" max="8" step="1" data-path="game.enemies" style="width:110px;">
-      <span class="val" data-show="game.enemies"></span>
-      <label style="flex:none;">Тимейтов</label>
-      <input type="range" min="0" max="4" step="1" data-path="game.mates" style="width:90px;">
-      <span class="val" data-show="game.mates"></span>
+    <div class="ed-actions">
+      <button class="btn small" id="edSave">Сохранить</button>
+      <button class="btn small secondary" id="edLoad">Загрузить</button>
+      <button class="btn small secondary" id="edClear">Очистить</button>
+      <button class="btn small" id="edPlay">Тест ➜</button>
+      <button class="btn small secondary" id="edExit">Выход</button>
     </div>
-    <div class="row" style="justify-content:center;">
-      <label style="flex:none;">HVH-режим (боты с aimbot / anti-aim / wallhack)</label>
-      <input type="checkbox" data-path="game.hvh">
+    <div class="ed-hint">
+      ЛКМ — рисовать · ПКМ — стереть (стена)<br>
+      WASD — камера · колесо — зум · Esc — выход<br>
+      Границы всегда стена. Для режима бомбы закрасьте пленты A/B.
+      Карта сохраняется в браузере и выбирается в «Настройке матча».
     </div>
-    <div class="row" style="justify-content:center; margin-bottom:18px;">
-      <label style="flex:none;">Чувствительность прицела</label>
-      <input type="range" min="0.3" max="2" step="0.05" data-path="game.sens">
-      <span class="val" data-show="game.sens"></span>
-    </div>
-    <button class="btn" id="btnStart">НАЧАТЬ ОПЕРАЦИЮ</button>
   </div>
 </div>
 
@@ -557,7 +664,7 @@ const C4_TIMER = 40;            // сек до взрыва
 const BOT_NAMES = ['Phoenix','Viper','Sarge','Ghost','Havoc','Rex','Blitz','Cobra','Titan','Wasp','Onyx','Drake','Storm','Falcon','Bishop','Ivan'];
 
 const DEFAULT_SETTINGS = {
-  game: { hvh:true, sens:1, mode:'clear', enemies:4, mates:2, diff:0 },
+  game: { hvh:true, sens:1, mode:'clear', enemies:4, mates:2, diff:0, map:'dust2' },
   binds: { menu:'Insert', map:'KeyM', fakeduck:'KeyX', autopeek:'KeyV', mindmg:'KeyC', rage:'KeyF', aa:'KeyT' },
   crosshair: { size:8, gap:3, color:'#00ff66', dot:false, circle:false },
   rage:  { on:false, silent:true, fov:180, hitchance:60, mindmg:10, autofire:true, autowall:true, doubletap:false, resolver:true, priority:'fov', backtrack:200, autostop:true, hitbox:'auto', safepoint:false },
@@ -780,8 +887,8 @@ const WINDOWS = [
   [26,13],           // окно CT над мидом — классический ван-вей AWP
   [16,7],            // окно B (window room ↔ плент)
 ];
-const PLAYER_SPAWN = { x: 24.5*TILE, y: 48.5*TILE };  // T spawn
-const BOT_SPAWNS = [
+let PLAYER_SPAWN = { x: 24.5*TILE, y: 48.5*TILE };  // T spawn
+let BOT_SPAWNS = [
   [4,5],[9,7],[13,5],        // B
   [27,5],[32,8],[35,4],      // CT
   [42,6],[49,5],[51,10],     // A
@@ -791,13 +898,13 @@ const BOT_SPAWNS = [
   [6,18],[12,31],[9,29],     // туннели / lower
   [46,46],[41,18],           // нижний long / pit
 ];
-const POIS = [[8,8],[30,6],[46,9],[23,20],[23,36],[46,28],[24,48],[6,21],[12,37],[30,19],[34,14],[41,18],[46,46],[19,8]];
+let POIS = [[8,8],[30,6],[46,9],[23,20],[23,36],[46,28],[24,48],[6,21],[12,37],[30,19],[34,14],[41,18],[46,46],[19,8]];
 /* Спавны врагов в режиме бомбы: сторона CT и пленты */
-const CT_SPAWNS = [[27,5],[32,8],[35,4],[42,6],[49,5],[51,10],[23,16],[30,19],[46,20],[41,18],[4,5],[9,7]];
+let CT_SPAWNS = [[27,5],[32,8],[35,4],[42,6],[49,5],[51,10],[23,16],[30,19],[46,20],[41,18],[4,5],[9,7]];
 /* Спавны тиммейтов: рядом с игроком на T */
-const MATE_SPAWNS = [[20,47],[28,47],[23,50],[30,50]];
+let MATE_SPAWNS = [[20,47],[28,47],[23,50],[30,50]];
 /* Пленты для бомбы */
-const BOMBSITES = {
+let BOMBSITES = {
   A: { x0:40, y0:3, x1:52, y1:15 },
   B: { x0:3,  y0:3, x1:15, y1:14 },
 };
@@ -810,7 +917,7 @@ function siteAt(x,y){
   return null;
 }
 /* Кемп-споты по коллаутам; site — оборона плента */
-const CAMP_SPOTS = [
+let CAMP_SPOTS = [
   {x:26,y:12, lx:24,ly:22},            // за окном CT — ван-вей на мид
   {x:24,y:12, lx:23,ly:22},            // за mid doors
   {x:25,y:21, lx:24,ly:14},            // мид за xbox, взгляд на двери
@@ -829,7 +936,7 @@ const CAMP_SPOTS = [
   {x:29,y:45, lx:24,ly:42},            // T spawn → suicide
 ];
 /* подписи зон на полу (коллауты официального радара) */
-const MAP_LABELS = [
+let MAP_LABELS = [
   {t:'B',x:8,y:8.5,s:110},{t:'CT SPAWN',x:30.5,y:6,s:24},{t:'A',x:46,y:9,s:110},
   {t:'MID',x:23.5,y:26,s:36},{t:'LONG',x:47,y:30,s:26},{t:'TUNNELS',x:6.6,y:20.5,s:12},
   {t:'LOWER',x:9.5,y:29.6,s:8},{t:'T SPAWN',x:23,y:48,s:34},{t:'SHORT',x:34.4,y:15,s:10},
@@ -837,6 +944,73 @@ const MAP_LABELS = [
   {t:'RAMP',x:38.3,y:6.8,s:11},{t:'SUICIDE',x:24.1,y:41.5,s:9},{t:'GOOSE',x:42.6,y:5.7,s:9},
   {t:'CAR',x:45.9,y:16,s:8},{t:'WINDOW',x:19.6,y:9.6,s:8},
 ];
+/* Снимок dust2 для возврата после кастомных карт */
+const DUST2_DATA = {
+  player: PLAYER_SPAWN, bots: BOT_SPAWNS, cts: CT_SPAWNS, mates: MATE_SPAWNS,
+  pois: POIS, camps: CAMP_SPOTS, sites: BOMBSITES, labels: MAP_LABELS,
+};
+
+/* Авто-точки интереса для кастомных карт */
+function autoPois(n){
+  const out=[];
+  for(let i=0;i<n*8 && out.length<n;i++){
+    const t=randomFloorTile();
+    out.push([t.x,t.y]);
+  }
+  return out;
+}
+/* Авто-кемпспоты: тайл у стены, взгляд в самую открытую сторону */
+function autoCamps(n){
+  const out=[];
+  for(let i=0;i<n*20 && out.length<n;i++){
+    const t=randomFloorTile();
+    let wall=false;
+    for(const d of [[1,0],[-1,0],[0,1],[0,-1]])
+      if(grid[t.y+d[1]] && grid[t.y+d[1]][t.x+d[0]]!==0) wall=true;
+    if(!wall) continue;
+    const cx=t.x*TILE+TILE/2, cy=t.y*TILE+TILE/2;
+    let bestA=0,bestD=-1;
+    for(let k=0;k<8;k++){
+      const a=k*Math.PI/4;
+      const dd=raycastWall(cx,cy,a,900);
+      if(dd>bestD){bestD=dd;bestA=a;}
+    }
+    out.push({x:t.x, y:t.y, lx:clamp(t.x+Math.round(Math.cos(bestA)*4),1,MAP_W-2), ly:clamp(t.y+Math.round(Math.sin(bestA)*4),1,MAP_H-2)});
+  }
+  return out.length?out:[{x:2,y:2,lx:5,ly:5}];
+}
+
+/* Применить карту: null → dust2, иначе данные редактора */
+function applyMapData(md){
+  if(!md){
+    buildMap();
+    PLAYER_SPAWN=DUST2_DATA.player; BOT_SPAWNS=DUST2_DATA.bots; CT_SPAWNS=DUST2_DATA.cts;
+    MATE_SPAWNS=DUST2_DATA.mates; POIS=DUST2_DATA.pois; CAMP_SPOTS=DUST2_DATA.camps;
+    BOMBSITES=DUST2_DATA.sites; MAP_LABELS=DUST2_DATA.labels;
+  } else {
+    grid = md.tiles.map(r=>r.split('').map(Number));
+    for(let x=0;x<MAP_W;x++){ grid[0][x]=1; grid[MAP_H-1][x]=1; }
+    for(let y=0;y<MAP_H;y++){ grid[y][0]=1; grid[y][MAP_W-1]=1; }
+    PLAYER_SPAWN={x:(md.player[0]+0.5)*TILE, y:(md.player[1]+0.5)*TILE};
+    const en = (md.enemies&&md.enemies.length) ? md.enemies : [[md.player[0], Math.max(2,md.player[1]-10)]];
+    BOT_SPAWNS=en.slice(); CT_SPAWNS=en.slice();
+    MATE_SPAWNS=(md.mates&&md.mates.length) ? md.mates.slice() : [[md.player[0]+1, md.player[1]]];
+    BOMBSITES={};
+    for(const k of ['A','B']){
+      const list=(md.sites&&md.sites[k])||[];
+      if(list.length){
+        let x0=999,y0=999,x1=-1,y1=-1;
+        for(const s of list){ x0=Math.min(x0,s[0]); y0=Math.min(y0,s[1]); x1=Math.max(x1,s[0]); y1=Math.max(y1,s[1]); }
+        BOMBSITES[k]={x0,y0,x1,y1};
+      }
+    }
+    POIS=autoPois(16);
+    CAMP_SPOTS=autoCamps(12);
+    MAP_LABELS=[];
+  }
+  if(Render.canvas){ Render.prerenderWorld(); Render.prerenderMinimap(); }
+}
+
 function buildMap(){
   grid = Array.from({length:MAP_H}, ()=>Array(MAP_W).fill(1));
   for(const [x,y,w,h] of CARVES)
@@ -2256,6 +2430,19 @@ const UI = {
       tabs.appendChild(d);
     });
     this.el('btnStart').onclick=()=>{ AudioSys.init(); Game.startMatch(); };
+    this.el('btnEditor').onclick=()=>{ AudioSys.init(); Editor.enter(); };
+    document.querySelectorAll('.ed-tool').forEach(btn=>{
+      btn.onclick=()=>{
+        document.querySelectorAll('.ed-tool').forEach(b=>b.classList.remove('active'));
+        btn.classList.add('active');
+        Editor.tool=btn.dataset.tool;
+      };
+    });
+    this.el('edSave').onclick=()=>Editor.save();
+    this.el('edLoad').onclick=()=>{ const d=Editor.loadData(); if(d){ Editor.applyToWork(d); Editor.msg('Загружено ✓'); } else Editor.msg('Сохранений нет'); };
+    this.el('edClear').onclick=()=>{ Editor.blank(); Editor.msg('Очищено'); };
+    this.el('edPlay').onclick=()=>Editor.play();
+    this.el('edExit').onclick=()=>Editor.exit();
     this.el('btnReady').onclick=()=>Game.startCombat();
     this.el('btnNextRound').onclick=()=>Game.startBuyPhase();
     this.el('btnRestart').onclick=()=>{ UI.showOverlay('mainMenu'); Game.state='menu'; G.state='menu'; };
@@ -2521,8 +2708,8 @@ const Render = {
     }
     x.font='bold 42px Arial'; x.textAlign='center'; x.textBaseline='middle';
     x.fillStyle='rgba(232,163,61,0.9)';
-    x.fillText('A', (BOMBSITES.A.x0+BOMBSITES.A.x1)/2*s, (BOMBSITES.A.y0+BOMBSITES.A.y1)/2*s);
-    x.fillText('B', (BOMBSITES.B.x0+BOMBSITES.B.x1)/2*s, (BOMBSITES.B.y0+BOMBSITES.B.y1)/2*s);
+    if(BOMBSITES.A) x.fillText('A', (BOMBSITES.A.x0+BOMBSITES.A.x1)/2*s, (BOMBSITES.A.y0+BOMBSITES.A.y1)/2*s);
+    if(BOMBSITES.B) x.fillText('B', (BOMBSITES.B.x0+BOMBSITES.B.x1)/2*s, (BOMBSITES.B.y0+BOMBSITES.B.y1)/2*s);
     this.minimapCanvas=c;
   },
   /* персонаж: dx/dy — где рисуем (для ботов это фейк-позиция), ang — видимый угол */
@@ -2564,6 +2751,7 @@ const Render = {
     const ctx=this.ctx, S=Game.settings, p=G.player;
     ctx.fillStyle='#0b0e11';
     ctx.fillRect(0,0,this.W,this.H);
+    if(G.state==='editor'){ Editor.draw(ctx); return; }
     if(!p){ return; }
 
     const cam=Game.cam;
@@ -3199,6 +3387,165 @@ const Render = {
 };
 
 /* ################################################################
+   #  SECTION 12: EDITOR — редактор карт
+   ################################################################ */
+const Editor = {
+  active:false, tool:'floor',
+  player:[28,40], enemies:[], mates:[], site:null,
+  msg(t){ const e=document.getElementById('edMsg'); if(e) e.textContent=t||''; },
+  blank(){
+    grid=Array.from({length:MAP_H},()=>Array(MAP_W).fill(1));   // всё скала — вырезайте
+    this.site=Array.from({length:MAP_H},()=>Array(MAP_W).fill(0));
+    this.enemies=[]; this.mates=[]; this.player=[28,40];
+  },
+  loadData(){
+    try { return JSON.parse(localStorage.getItem('dustprotocol_custom_map')); } catch(e){ return null; }
+  },
+  applyToWork(md){
+    grid=md.tiles.map(r=>r.split('').map(Number));
+    this.site=Array.from({length:MAP_H},()=>Array(MAP_W).fill(0));
+    for(const s of (md.sites&&md.sites.A)||[]) this.site[s[1]][s[0]]=1;
+    for(const s of (md.sites&&md.sites.B)||[]) this.site[s[1]][s[0]]=2;
+    this.enemies=(md.enemies||[]).slice();
+    this.mates=(md.mates||[]).slice();
+    this.player=(md.player||[28,40]).slice();
+  },
+  collect(){
+    const A=[], B=[];
+    for(let y=0;y<MAP_H;y++) for(let x=0;x<MAP_W;x++){
+      if(this.site[y][x]===1) A.push([x,y]);
+      else if(this.site[y][x]===2) B.push([x,y]);
+    }
+    return { tiles: grid.map(r=>r.join('')), player:this.player.slice(),
+      enemies:this.enemies.slice(), mates:this.mates.slice(), sites:{A,B} };
+  },
+  enter(){
+    this.active=true;
+    Game.state='editor'; G.state='editor';
+    UI.showOverlay(null);
+    document.getElementById('editorUI').classList.remove('hidden');
+    document.body.classList.add('editing');
+    const saved=this.loadData();
+    if(saved) this.applyToWork(saved); else this.blank();
+    Game.cam.x=this.player[0]*TILE; Game.cam.y=this.player[1]*TILE;
+    Game.userZoom=0.7;
+    this.msg('');
+  },
+  exit(){
+    this.active=false;
+    document.getElementById('editorUI').classList.add('hidden');
+    document.body.classList.remove('editing');
+    applyMapData(null);   // фон меню — dust2
+    Game.state='menu'; G.state='menu';
+    Game.userZoom=1.2;
+    UI.showOverlay('mainMenu');
+  },
+  save(){
+    try {
+      localStorage.setItem('dustprotocol_custom_map', JSON.stringify(this.collect()));
+      this.msg('Сохранено ✓');
+    } catch(e){ this.msg('Ошибка сохранения'); }
+  },
+  play(){
+    if(!this.enemies.length){ this.msg('Поставьте хотя бы один спавн врага!'); return; }
+    this.save();
+    Game.settings.game.map='custom';
+    Game.saveSettings(); UI.refreshInputs();
+    this.active=false;
+    document.getElementById('editorUI').classList.add('hidden');
+    document.body.classList.remove('editing');
+    Game.userZoom=1.2;
+    Game.startMatch();
+  },
+  update(dt){
+    // свободная камера
+    const sp=640/Game.cam.zoom;
+    if(Input.keys['KeyW']) Game.cam.y-=sp*dt;
+    if(Input.keys['KeyS']) Game.cam.y+=sp*dt;
+    if(Input.keys['KeyA']) Game.cam.x-=sp*dt;
+    if(Input.keys['KeyD']) Game.cam.x+=sp*dt;
+    Game.cam.x=clamp(Game.cam.x,0,WORLD_W); Game.cam.y=clamp(Game.cam.y,0,WORLD_H);
+    Game.cam.zoom=lerp(Game.cam.zoom,Game.userZoom,1-Math.exp(-8*dt));
+    // покраска
+    if(Input.lmb) this.paintAt(Input.mouseX,Input.mouseY,false);
+    if(Input.rmb) this.paintAt(Input.mouseX,Input.mouseY,true);
+  },
+  paintAt(sx,sy,erase){
+    // не рисуем сквозь панель инструментов
+    if(sx<215) return;
+    const w=Game.screenToWorld(sx,sy);
+    const tx=Math.floor(w.x/TILE), ty=Math.floor(w.y/TILE);
+    if(tx<1||ty<1||tx>=MAP_W-1||ty>=MAP_H-1) return;
+    const rmSpawn=()=>{
+      this.enemies=this.enemies.filter(s=>s[0]!==tx||s[1]!==ty);
+      this.mates=this.mates.filter(s=>s[0]!==tx||s[1]!==ty);
+    };
+    if(erase){ grid[ty][tx]=1; this.site[ty][tx]=0; rmSpawn(); return; }
+    switch(this.tool){
+      case 'floor':  grid[ty][tx]=0; break;
+      case 'wall':   grid[ty][tx]=1; this.site[ty][tx]=0; rmSpawn(); break;
+      case 'crate':  grid[ty][tx]=2; break;
+      case 'wood':   grid[ty][tx]=3; break;
+      case 'window': grid[ty][tx]=4; break;
+      case 'siteA':  grid[ty][tx]=0; this.site[ty][tx]=1; break;
+      case 'siteB':  grid[ty][tx]=0; this.site[ty][tx]=2; break;
+      case 'player': grid[ty][tx]=0; this.player=[tx,ty]; break;
+      case 'enemy':  grid[ty][tx]=0; if(!this.enemies.some(s=>s[0]===tx&&s[1]===ty)) this.enemies.push([tx,ty]); break;
+      case 'mate':   grid[ty][tx]=0; if(!this.mates.some(s=>s[0]===tx&&s[1]===ty)) this.mates.push([tx,ty]); break;
+    }
+  },
+  draw(ctx){
+    const cam=Game.cam, W=Render.W, H=Render.H;
+    ctx.save();
+    ctx.translate(W/2,H/2); ctx.scale(cam.zoom,cam.zoom); ctx.translate(-cam.x,-cam.y);
+    // видимая область тайлов
+    const x0=clamp(Math.floor((cam.x-W/2/cam.zoom)/TILE),0,MAP_W-1);
+    const x1=clamp(Math.ceil((cam.x+W/2/cam.zoom)/TILE),0,MAP_W-1);
+    const y0=clamp(Math.floor((cam.y-H/2/cam.zoom)/TILE),0,MAP_H-1);
+    const y1=clamp(Math.ceil((cam.y+H/2/cam.zoom)/TILE),0,MAP_H-1);
+    for(let ty=y0;ty<=y1;ty++) for(let tx=x0;tx<=x1;tx++){
+      const v=grid[ty][tx], px=tx*TILE, py=ty*TILE;
+      if(v===0) ctx.fillStyle='#b39868';
+      else if(v===1) ctx.fillStyle='#3a3f47';
+      else if(v===2) ctx.fillStyle='#8a6d3b';
+      else if(v===3) ctx.fillStyle='#7a5c30';
+      else ctx.fillStyle='#4a7fa8';
+      ctx.fillRect(px,py,TILE,TILE);
+      const sv=this.site[ty]?this.site[ty][tx]:0;
+      if(sv){ ctx.fillStyle = sv===1?'rgba(232,163,61,0.3)':'rgba(110,157,211,0.3)'; ctx.fillRect(px,py,TILE,TILE); }
+      ctx.strokeStyle='rgba(0,0,0,0.15)'; ctx.lineWidth=1;
+      ctx.strokeRect(px+0.5,py+0.5,TILE,TILE);
+    }
+    // маркеры спавнов
+    ctx.font='bold 12px Arial'; ctx.textAlign='center';
+    for(const s of this.enemies){
+      ctx.fillStyle='#ff4d4d';
+      ctx.beginPath(); ctx.arc(s[0]*TILE+TILE/2,s[1]*TILE+TILE/2,10,0,6.28); ctx.fill();
+    }
+    for(const s of this.mates){
+      ctx.fillStyle='#3ad67a';
+      ctx.beginPath(); ctx.arc(s[0]*TILE+TILE/2,s[1]*TILE+TILE/2,10,0,6.28); ctx.fill();
+    }
+    ctx.fillStyle='#ffffff';
+    ctx.beginPath(); ctx.arc(this.player[0]*TILE+TILE/2,this.player[1]*TILE+TILE/2,11,0,6.28); ctx.fill();
+    ctx.fillStyle='#0f1620'; ctx.fillText('P', this.player[0]*TILE+TILE/2, this.player[1]*TILE+TILE/2+4);
+    // ховер
+    const w=Game.screenToWorld(Input.mouseX,Input.mouseY);
+    const hx=Math.floor(w.x/TILE), hy=Math.floor(w.y/TILE);
+    if(hx>=0&&hy>=0&&hx<MAP_W&&hy<MAP_H){
+      ctx.strokeStyle='#8bc53f'; ctx.lineWidth=2;
+      ctx.strokeRect(hx*TILE+1,hy*TILE+1,TILE-2,TILE-2);
+    }
+    ctx.restore();
+    // инфо
+    ctx.fillStyle='rgba(8,10,12,0.7)'; ctx.fillRect(W-190,10,180,44);
+    ctx.fillStyle='#c8d6e5'; ctx.font='12px Arial'; ctx.textAlign='left';
+    ctx.fillText('Инструмент: '+this.tool, W-180, 28);
+    ctx.fillText('Тайл: '+hx+','+hy+'   врагов: '+this.enemies.length, W-180, 44);
+  },
+};
+
+/* ################################################################
    #  SECTION 12: GAME — машина состояний и цикл
    #  MainMenu → BuyPhase → Combat → RoundEnd → GameOver
    ################################################################ */
@@ -3223,6 +3570,13 @@ const Game = {
   },
 
   startMatch(){
+    // выбранная карта: dust2 или пользовательская из редактора
+    let md=null;
+    if(this.settings.game.map==='custom'){
+      try { md=JSON.parse(localStorage.getItem('dustprotocol_custom_map')); } catch(e){}
+      if(!md) pushLog('Своя карта не найдена — играем de_dust2', '#ff7a7a');
+    }
+    applyMapData(md||null);
     G.player=new Player();
     G.round=1; G.scoreT=0; G.scoreCT=0; G.totalKills=0; G.roundsWon=0;
     this.resetWorld();
@@ -3335,6 +3689,10 @@ const Game = {
   },
 
   onKeyDown(code, e){
+    if(this.state==='editor'){
+      if(code==='Escape') Editor.exit();
+      return;
+    }
     const B=this.settings.binds;
     if(code===B.menu){ UI.toggleGS(); return; }
     if(code===B.map && (this.state==='combat'||this.state==='buy')){ G.showMap=!G.showMap; return; }
@@ -3421,6 +3779,7 @@ const Game = {
     Particles.update(dt);
 
     if(this.state==='buy') return;   // закупка без лимита времени: старт по кнопке/Enter
+    if(this.state==='editor'){ Editor.update(dt); return; }
     if(this.state!=='combat') return;
 
     const p=G.player;
