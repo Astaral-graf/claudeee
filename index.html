@@ -252,9 +252,6 @@ select { background:#1c232c; color:#d7e3ef; border:1px solid #2a3340; border-rad
             <div class="gs-row"><input type="checkbox" id="rageOn" data-path="rage.on"><label for="rageOn">Enabled</label></div>
             <div class="gs-row" data-req="rage.on"><input type="checkbox" id="rageSilent" data-path="rage.silent"><label for="rageSilent">Silent aim</label></div>
             <div class="gs-row" data-req="rage.on"><label>Field of view</label><input type="range" min="1" max="180" step="1" data-path="rage.fov"><span class="val" data-show="rage.fov"></span></div>
-            <div class="gs-row" data-req="rage.on"><label>Hit chance</label><input type="range" min="0" max="100" step="1" data-path="rage.hitchance"><span class="val" data-show="rage.hitchance"></span></div>
-            <div class="gs-row" data-req="rage.on"><label>Minimum damage</label><input type="range" min="1" max="110" step="1" data-path="rage.mindmg"><span class="val" data-show="rage.mindmg"></span></div>
-            <div class="gs-row" data-req="rage.on"><input type="checkbox" id="rageAuto" data-path="rage.autofire"><label for="rageAuto">Automatic fire</label></div>
             <div class="gs-row" data-req="rage.on"><label>Target selection</label>
               <select data-path="rage.priority">
                 <option value="fov">Crosshair</option>
@@ -262,15 +259,6 @@ select { background:#1c232c; color:#d7e3ef; border:1px solid #2a3340; border-rad
                 <option value="hp">Lowest health</option>
               </select>
             </div>
-          </div>
-        </div>
-        <div class="gs-col">
-          <div class="gs-group"><div class="gs-title">Accuracy</div>
-            <div class="gs-row" data-req="rage.on"><input type="checkbox" id="rageAW" data-path="rage.autowall"><label for="rageAW">Auto wall <span class="gs-sub">(пробитие стен)</span></label></div>
-            <div class="gs-row" data-req="rage.on"><input type="checkbox" id="rageRes" data-path="rage.resolver"><label for="rageRes">Resolver <span class="gs-sub">(вскрытие AA ботов)</span></label></div>
-            <div class="gs-row" data-req="rage.on"><input type="checkbox" id="rageAS" data-path="rage.autostop"><label for="rageAS">Auto stop <span class="gs-sub">(тормоз для точности)</span></label></div>
-            <div class="gs-row" data-req="rage.on"><input type="checkbox" id="rageSP" data-path="rage.safepoint"><label for="rageSP">Safe point <span class="gs-sub">(только вскрытые цели)</span></label></div>
-            <div class="gs-row"><label>Backtrack (ms)</label><input type="range" min="0" max="400" step="20" data-path="rage.backtrack"><span class="val" data-show="rage.backtrack"></span></div>
             <div class="gs-row" data-req="rage.on"><label>Hitbox</label>
               <select data-path="rage.hitbox">
                 <option value="auto">Auto</option>
@@ -278,19 +266,32 @@ select { background:#1c232c; color:#d7e3ef; border:1px solid #2a3340; border-rad
                 <option value="body">Body (safe)</option>
               </select>
             </div>
-            <div class="gs-note">Удерживайте <b>C</b> — форс minimum damage = 1 (прострел через что угодно).</div>
           </div>
+          <div class="gs-group"><div class="gs-title">Accuracy</div>
+            <div class="gs-row" data-req="rage.on"><label>Hit chance</label><input type="range" min="0" max="100" step="1" data-path="rage.hitchance"><span class="val" data-show="rage.hitchance"></span></div>
+            <div class="gs-row" data-req="rage.on"><label>Minimum damage</label><input type="range" min="1" max="110" step="1" data-path="rage.mindmg"><span class="val" data-show="rage.mindmg"></span></div>
+            <div class="gs-row" data-req="rage.on"><input type="checkbox" id="rageAuto" data-path="rage.autofire"><label for="rageAuto">Automatic fire</label></div>
+            <div class="gs-row" data-req="rage.on"><input type="checkbox" id="rageAS" data-path="rage.autostop"><label for="rageAS">Auto stop</label></div>
+            <div class="gs-row" data-req="rage.on"><input type="checkbox" id="rageAW" data-path="rage.autowall"><label for="rageAW">Auto wall <span class="gs-sub">(пробитие стен)</span></label></div>
+            <div class="gs-row" data-req="rage.on"><input type="checkbox" id="rageSP" data-path="rage.safepoint"><label for="rageSP">Safe point <span class="gs-sub">(только вскрытые цели)</span></label></div>
+          </div>
+        </div>
+        <div class="gs-col">
           <div class="gs-group"><div class="gs-title">Exploits</div>
-            <div class="gs-row" data-req="rage.on"><input type="checkbox" id="rageDT" data-path="rage.doubletap"><label for="rageDT">Double tap</label></div>
-            <div class="gs-note">Double tap мгновенно досылает второй патрон после каждого выстрела.</div>
+            <div class="gs-row" data-req="rage.on"><input type="checkbox" id="rageDT" data-path="rage.doubletap"><label for="rageDT">Double tap <span class="gs-sub">(зарядка 3.5с)</span></label></div>
+            <div class="gs-row"><label>Backtrack (ms)</label><input type="range" min="0" max="400" step="20" data-path="rage.backtrack"><span class="val" data-show="rage.backtrack"></span></div>
+            <div class="gs-note">DT досылает второй патрон после выстрела; заряд и осечки видны в индикаторе под прицелом.</div>
           </div>
-          <div class="gs-note">Без резолвера aimbot целится в видимую (фейковую) модель бота — в HVH боты стоят в desync и пули уходят мимо реального хитбокса.</div>
+          <div class="gs-group"><div class="gs-title">Other</div>
+            <div class="gs-row" data-req="rage.on"><input type="checkbox" id="rageRes" data-path="rage.resolver"><label for="rageRes">Resolver <span class="gs-sub">(вскрытие AA ботов)</span></label></div>
+            <div class="gs-note">Удерживайте <b>C</b> — форс minimum damage = 1. Резолвер работает и для LEGIT-функций.</div>
+          </div>
         </div>
       </div>
 
       <div class="gs-page" id="gsAA">
         <div class="gs-col">
-          <div class="gs-group"><div class="gs-title">Anti-aimbot angles</div>
+          <div class="gs-group"><div class="gs-title">Angles</div>
             <div class="gs-row"><input type="checkbox" id="aaOn" data-path="aa.on"><label for="aaOn">Enabled</label></div>
             <div class="gs-row" data-req="aa.on"><label>Yaw base</label>
               <select data-path="aa.yaw">
@@ -301,8 +302,6 @@ select { background:#1c232c; color:#d7e3ef; border:1px solid #2a3340; border-rad
               </select>
             </div>
             <div class="gs-row" data-req="aa.on"><label>Yaw offset (°)</label><input type="range" min="-90" max="90" step="1" data-path="aa.yawoffset"><span class="val" data-show="aa.yawoffset"></span></div>
-            <div class="gs-row" data-req="aa.yaw=spin"><label>Spin speed</label><input type="range" min="10" max="200" step="1" data-path="aa.spin"><span class="val" data-show="aa.spin"></span></div>
-            <div class="gs-row" data-req="aa.on"><label>Desync amount</label><input type="range" min="0" max="100" step="1" data-path="aa.desync"><span class="val" data-show="aa.desync"></span></div>
             <div class="gs-row" data-req="aa.yaw=jitter"><label>Jitter amount</label><input type="range" min="0" max="100" step="1" data-path="aa.jitteramt"><span class="val" data-show="aa.jitteramt"></span></div>
             <div class="gs-row" data-req="aa.yaw=jitter"><label>Side</label>
               <select data-path="aa.side">
@@ -311,24 +310,21 @@ select { background:#1c232c; color:#d7e3ef; border:1px solid #2a3340; border-rad
                 <option value="right">Right</option>
               </select>
             </div>
+            <div class="gs-row" data-req="aa.yaw=spin"><label>Spin speed</label><input type="range" min="10" max="200" step="1" data-path="aa.spin"><span class="val" data-show="aa.spin"></span></div>
             <div class="gs-row" data-req="aa.on"><input type="checkbox" id="aaAT" data-path="aa.attargets"><label for="aaAT">At targets <span class="gs-sub">(фейк от ближайшего врага)</span></label></div>
-            <div class="gs-row" data-req="aa.on"><input type="checkbox" id="aaHS" data-path="aa.hideshots"><label for="aaHS">Hide shots <span class="gs-sub">(on-shot AA)</span></label></div>
           </div>
         </div>
         <div class="gs-col">
+          <div class="gs-group"><div class="gs-title">Desync</div>
+            <div class="gs-row" data-req="aa.on"><label>Desync amount</label><input type="range" min="0" max="100" step="1" data-path="aa.desync"><span class="val" data-show="aa.desync"></span></div>
+            <div class="gs-row" data-req="aa.on"><input type="checkbox" id="aaHS" data-path="aa.hideshots"><label for="aaHS">Hide shots <span class="gs-sub">(on-shot AA)</span></label></div>
+            <div class="gs-note">Боты целятся в фейковую модель (пунктир). Элита частично резолвит.</div>
+          </div>
           <div class="gs-group"><div class="gs-title">Fake lag</div>
             <div class="gs-row"><input type="checkbox" id="aaFL" data-path="aa.fakelag"><label for="aaFL">Enabled</label></div>
             <div class="gs-row" data-req="aa.fakelag"><label>Choked ticks</label><input type="range" min="2" max="14" step="1" data-path="aa.choke"><span class="val" data-show="aa.choke"></span></div>
-            <div class="gs-note" style="margin-top:2px;">Боты видят вашу модель с задержкой — полупрозрачный двойник показывает, где вас «видит сервер». Desync строится вокруг лаг-позиции.</div>
+            <div class="gs-note">Полупрозрачный двойник — то, где вас «видит сервер». Desync строится вокруг лаг-позиции.</div>
           </div>
-          <div class="gs-group"><div class="gs-title">Binds</div>
-            <div class="gs-note" style="margin-top:0;">
-              <b>X</b> (держать) — fake duck: хитбокс приседа при полной модели, боты мажут выше.<br><br>
-              <b>V</b> (держать) — auto peek: запоминает точку; после выстрела вас мгновенно затягивает обратно за укрытие.<br><br>
-              Hide shots: 0.4с после вашего выстрела desync усилен, резолвер ботов почти не вскрывает фейк.
-            </div>
-          </div>
-          <div class="gs-note">Боты целятся в вашу фейковую модель (пунктирный контур). Чем выше desync — тем дальше фейк от реального хитбокса и тем чаще боты мажут. Элитные боты частично «резолвят» вашу AA.</div>
         </div>
       </div>
 
@@ -391,20 +387,19 @@ select { background:#1c232c; color:#d7e3ef; border:1px solid #2a3340; border-rad
             <div class="gs-row"><input type="checkbox" id="miscLog" data-path="misc.hitlog"><label for="miscLog">Event log</label></div>
             <div class="gs-row"><input type="checkbox" id="miscCT" data-path="misc.clantag"><label for="miscCT">Animated clantag</label></div>
           </div>
-          <div class="gs-group"><div class="gs-title">Feedback</div>
-            <div class="gs-row"><input type="checkbox" id="miscHm" data-path="misc.hitmarker"><label for="miscHm">Hitmarker</label></div>
-            <div class="gs-row"><input type="checkbox" id="miscHs" data-path="misc.hitsound"><label for="miscHs">Hit sound</label></div>
-            <div class="gs-row"><input type="checkbox" id="miscKs" data-path="misc.killsound"><label for="miscKs">Kill sound</label></div>
-          </div>
-          <div class="gs-group"><div class="gs-title">Keybinds</div>
-            <div class="gs-row"><label>Меню чита</label><button class="gs-btn gs-bind" data-bind="menu">—</button></div>
-            <div class="gs-row"><label>Обзор карты</label><button class="gs-btn gs-bind" data-bind="map">—</button></div>
-            <div class="gs-row"><label>Fake duck <span class="gs-sub">(держать)</span></label><button class="gs-btn gs-bind" data-bind="fakeduck">—</button></div>
-            <div class="gs-row"><label>Auto peek <span class="gs-sub">(держать)</span></label><button class="gs-btn gs-bind" data-bind="autopeek">—</button></div>
-            <div class="gs-row"><label>Min damage <span class="gs-sub">(держать)</span></label><button class="gs-btn gs-bind" data-bind="mindmg">—</button></div>
-            <div class="gs-row"><label>Rage вкл/выкл</label><button class="gs-btn gs-bind" data-bind="rage">—</button></div>
-            <div class="gs-row"><label>Anti-aim вкл/выкл</label><button class="gs-btn gs-bind" data-bind="aa">—</button></div>
-            <div class="gs-note">Клик — нажмите новую клавишу. Esc — отмена.</div>
+          <div class="gs-group"><div class="gs-title">Indicators</div>
+            <div class="gs-row"><input type="checkbox" id="indOn" data-path="ind.on"><label for="indOn">Enabled</label></div>
+            <div class="gs-row" data-req="ind.on"><label>Position</label>
+              <select data-path="ind.pos">
+                <option value="under">Under crosshair</option>
+                <option value="left">Bottom left</option>
+              </select>
+            </div>
+            <div class="gs-row" data-req="ind.on"><input type="checkbox" id="indDt" data-path="ind.dt"><label for="indDt">Double tap charge</label></div>
+            <div class="gs-row" data-req="ind.on"><input type="checkbox" id="indAa" data-path="ind.aa"><label for="indAa">Anti-aim / hide shots</label></div>
+            <div class="gs-row" data-req="ind.on"><input type="checkbox" id="indLag" data-path="ind.lag"><label for="indLag">Fake lag choke</label></div>
+            <div class="gs-row" data-req="ind.on"><input type="checkbox" id="indDuck" data-path="ind.duck"><label for="indDuck">Fake duck</label></div>
+            <div class="gs-row" data-req="ind.on"><input type="checkbox" id="indPeek" data-path="ind.peek"><label for="indPeek">Auto peek</label></div>
           </div>
         </div>
         <div class="gs-col">
@@ -415,11 +410,16 @@ select { background:#1c232c; color:#d7e3ef; border:1px solid #2a3340; border-rad
             <div class="gs-row"><input type="checkbox" id="chDot" data-path="crosshair.dot"><label for="chDot">Center dot</label></div>
             <div class="gs-row"><input type="checkbox" id="chCircle" data-path="crosshair.circle"><label for="chCircle">Spread circle</label></div>
           </div>
+          <div class="gs-group"><div class="gs-title">Feedback</div>
+            <div class="gs-row"><input type="checkbox" id="miscHm" data-path="misc.hitmarker"><label for="miscHm">Hitmarker</label></div>
+            <div class="gs-row"><input type="checkbox" id="miscHs" data-path="misc.hitsound"><label for="miscHs">Hit sound</label></div>
+            <div class="gs-row"><input type="checkbox" id="miscKs" data-path="misc.killsound"><label for="miscKs">Kill sound</label></div>
+          </div>
           <div class="gs-group"><div class="gs-title">Game</div>
             <div class="gs-row"><input type="checkbox" id="gameHvh" data-path="game.hvh"><label for="gameHvh">HVH mode <span class="gs-sub">(со след. раунда)</span></label></div>
             <div class="gs-row"><label>Sensitivity</label><input type="range" min="0.3" max="2" step="0.05" data-path="game.sens"><span class="val" data-show="game.sens"></span></div>
-            <div class="gs-row"><input type="checkbox" id="miscAP" data-path="misc.autopistol"><label for="miscAP">Auto pistol <span class="gs-sub">(зажатие для полуавто)</span></label></div>
-            <div class="gs-row"><input type="checkbox" id="miscAB" data-path="misc.autobuy"><label for="miscAB">Auto buy <span class="gs-sub">(лучший лоадаут за деньги)</span></label></div>
+            <div class="gs-row"><input type="checkbox" id="miscAP" data-path="misc.autopistol"><label for="miscAP">Auto pistol</label></div>
+            <div class="gs-row"><input type="checkbox" id="miscAB" data-path="misc.autobuy"><label for="miscAB">Auto buy</label></div>
           </div>
         </div>
       </div>
@@ -448,11 +448,28 @@ select { background:#1c232c; color:#d7e3ef; border:1px solid #2a3340; border-rad
             <div class="gs-row"><label>beta</label><button class="gs-btn" data-slot="b" data-act="save">save</button><button class="gs-btn" data-slot="b" data-act="load">load</button></div>
             <div class="gs-row"><label>gamma</label><button class="gs-btn" data-slot="g" data-act="save">save</button><button class="gs-btn" data-slot="g" data-act="load">load</button></div>
             <div class="gs-row" style="margin-top:14px;"><label>defaults</label><button class="gs-btn" id="gsReset">reset</button></div>
+            <div class="gs-note">Текущие настройки автосохраняются при каждом изменении.</div>
           </div>
         </div>
-        <div class="gs-col"><div class="gs-note">Текущие настройки автосохраняются в localStorage при каждом изменении. Слоты — независимые пресеты.</div></div>
+        <div class="gs-col">
+          <div class="gs-group"><div class="gs-title">Keybinds</div>
+            <div class="gs-row"><label>Меню чита</label><button class="gs-btn gs-bind" data-bind="menu">—</button></div>
+            <div class="gs-row"><label>Обзор карты</label><button class="gs-btn gs-bind" data-bind="map">—</button></div>
+            <div class="gs-row"><label>Fake duck <span class="gs-sub">(держать)</span></label><button class="gs-btn gs-bind" data-bind="fakeduck">—</button></div>
+            <div class="gs-row"><label>Auto peek <span class="gs-sub">(держать)</span></label><button class="gs-btn gs-bind" data-bind="autopeek">—</button></div>
+            <div class="gs-row"><label>Min damage <span class="gs-sub">(держать)</span></label><button class="gs-btn gs-bind" data-bind="mindmg">—</button></div>
+            <div class="gs-row"><label>Rage вкл/выкл</label><button class="gs-btn gs-bind" data-bind="rage">—</button></div>
+            <div class="gs-row"><label>Anti-aim вкл/выкл</label><button class="gs-btn gs-bind" data-bind="aa">—</button></div>
+            <div class="gs-note">Клик — нажмите новую клавишу. Esc — отмена.</div>
+          </div>
+        </div>
       </div>
+    </div>
+  </div>
+</div>
+</div>
 
+<!-- ===================== ИТОГИ РАУНДА
     </div>
   </div>
 </div>
@@ -506,10 +523,12 @@ const WEAPONS = {
   nova:   { name:'Nova',     slot:'primary',dmg:26,  hs:2.0, rate:1.1, spread:11,  range:420,  price:1050, mag:8,  reserve:32, reload:2.8, move:0.96, auto:false, pellets:8 },
 };
 const GRENADES = {
-  he:    { name:'Осколочная', price:300, max:1 },
-  smoke: { name:'Дымовая',    price:300, max:1 },
-  flash: { name:'Светошумовая', price:200, max:2 },
+  he:     { name:'Осколочная', price:300, max:1 },
+  smoke:  { name:'Дымовая',    price:300, max:1 },
+  flash:  { name:'Светошумовая', price:200, max:2 },
+  molotov:{ name:'Молотов',    price:400, max:1 },
 };
+const FIRE_DPS = 38;            // урон огня молотова в секунду
 const GEAR = {
   armor:  { name:'Бронежилет',   price:650  },
   helmet: { name:'Броня + шлем', price:1000 },
@@ -546,6 +565,7 @@ const DEFAULT_SETTINGS = {
   legit: { on:false, fov:30, smooth:60, rcs:true, trigger:false, triggerDelay:80 },
   vis:   { esp:false, box:'corner', color:'#9bd62b', name:true, hp:true, weapon:true, dist:true, glow:false, resolved:true, drops:false, radar:false, soundesp:false, oof:false, dmgnum:true, nadepred:true, trail:true },
   misc:  { watermark:true, binds:true, hitlog:true, hitmarker:true, hitsound:true, killsound:true, autopistol:false, autobuy:false, clantag:true },
+  ind:   { on:true, pos:'under', dt:true, aa:true, duck:true, peek:true, lag:true },
   skins: { player:'#3a86ff', weapon:'#20262e', pattern:'solid' },
 };
 
@@ -1136,8 +1156,10 @@ function killCharacter(target, attacker, wkey, isHead){
   target.hp = 0;
   AudioSys.death(target.x, target.y);
   Particles.blood(target.x, target.y, rand(0,6.28));
-  const wname = WEAPONS[wkey] ? WEAPONS[wkey].name : (wkey==='he'?'Граната':wkey);
-  G.killfeed.unshift({ text: (attacker.name||'Игрок')+'  ['+wname+(isHead?' ▸HS':'')+']  '+(target.name||'Игрок'), time: G.time });
+  const wname = WEAPONS[wkey] ? WEAPONS[wkey].name : (wkey==='he'?'Граната':(wkey==='fire'?'Молотов':(wkey==='c4'?'C4':wkey)));
+  G.killfeed.unshift({ a:(attacker.name||'Игрок'), at:(attacker===G.player?'T':(attacker.team||'CT')),
+    v:(target.name||'Игрок'), vt:(target===G.player?'T':(target.team||'CT')),
+    w:wname, hs:!!isHead, time:G.time });
   if(G.killfeed.length>6) G.killfeed.pop();
   if(target.isBot){
     if(target.gun && target.gun.key!=='knife' && target.gun.key!=='usp')
@@ -1251,7 +1273,7 @@ class Player {
     this.money = START_MONEY;
     this.dead=false; this.crouch=false; this.walk=false;
     this.slots = { primary:null, pistol:makeGun('usp'), melee:makeGun('knife') };
-    this.grenades = { he:0, smoke:0, flash:0 };
+    this.grenades = { he:0, smoke:0, flash:0, molotov:0 };
     this.curSlot = 'pistol';
     this.gnadeSel = 'he';
     this.stepAcc = 0;
@@ -1288,7 +1310,7 @@ class Player {
     if(lostWeapons){
       this.slots.primary=null;
       this.slots.pistol=makeGun('usp');
-      this.grenades={he:0,smoke:0,flash:0};
+      this.grenades={he:0,smoke:0,flash:0,molotov:0};
       this.armor=0; this.helmet=false;
     } else {
       for(const s of ['primary','pistol']){
@@ -1459,7 +1481,14 @@ class Player {
     if(G.state!=='combat'){ Input.consumeClick(); return; }
 
     if(this.curSlot==='grenade'){
-      if(Input.consumeClick()) this.throwGrenade(world);
+      /* замах: держим ЛКМ — сила броска растёт, отпустили — бросок */
+      Input.consumeClick();
+      if(Input.lmb){
+        this.nadeCharge=Math.min(1,(this.nadeCharge||0)+dt*1.5);
+      } else if((this.nadeCharge||0)>0){
+        const ch=this.nadeCharge; this.nadeCharge=0;
+        this.throwGrenade(world, 0.35+0.65*ch);
+      }
     } else if(g){
       this.updateFire(dt, g, S);
     }
@@ -1567,12 +1596,12 @@ class Player {
     g.reloading = w.reload;
     AudioSys.reload(this.x,this.y);
   }
-  throwGrenade(worldTarget){
+  throwGrenade(worldTarget, powerMul){
     const type=this.gnadeSel;
     if(this.grenades[type]<=0) return;
     this.grenades[type]--;
     const a = this.aimAngle;
-    const d = clamp(dist(this.x,this.y,worldTarget.x,worldTarget.y), 100, 620);
+    const d = clamp(dist(this.x,this.y,worldTarget.x,worldTarget.y), 100, 620) * (powerMul||1);
     G.grenades.push(new Grenade(this.x,this.y, a, d, type, this));
     if(this.grenades[type]<=0){
       const other = Object.keys(this.grenades).find(k=>this.grenades[k]>0);
@@ -1629,7 +1658,7 @@ class Grenade {
     this.x=x; this.y=y; this.type=type; this.owner=owner;
     const v = Math.sqrt(throwDist)*22;
     this.vx=Math.cos(angle)*v; this.vy=Math.sin(angle)*v;
-    this.fuse = type==='he' ? 1.4 : 1.1;
+    this.fuse = type==='he' ? 1.4 : (type==='molotov' ? 0.9 : 1.1);
     this.dead=false;
   }
   update(dt){
@@ -1657,6 +1686,11 @@ class Grenade {
         }
       }
       emitNoise(this.x,this.y,1000,this.owner);
+    } else if(this.type==='molotov'){
+      /* молотов: зона огня с уроном в секунду */
+      AudioSys.burst(0.6*AudioSys.atten(this.x,this.y), .4, 250, .8, .35);
+      G.fires.push({x:this.x, y:this.y, r:0, maxR:100, life:7, tick:0, owner:this.owner});
+      emitNoise(this.x,this.y,700,this.owner);
     } else if(this.type==='smoke'){
       G.smokes.push({x:this.x,y:this.y,r:0,maxR:140,life:12});
       AudioSys.burst(0.3*AudioSys.atten(this.x,this.y),.3,400,1,.25);
@@ -1721,7 +1755,14 @@ class Bot {
     this.trail=[];            // история позиций для backtrack игрока
     this.lastSeenT=-99;       // когда последний раз видел игрока (для прострелов)
     this.wbTimer=rand(0.5,1.5);
+    this.wbBurst=0;           // очередь прошивки по мин-дамагу
     this.dtCd=0;
+    this.peekT=rand(2,5);     // пик из кемпа
+    this.peeking=0;
+    /* граната бота: по бюджету */
+    this.nadeType = (this.hvh && this.budget>=2200 && Math.random()<0.6)
+      ? ['he','molotov','molotov','flash'][randi(0,3)] : null;
+    this.nadeCd=rand(4,9);
     /* поведение: план (патруль/кемп), укрытие, разминирование */
     this.plan=null; this.holdSpot=null; this.holdT=8;
     this.decideT=rand(1,3);
@@ -1918,9 +1959,9 @@ class Bot {
         break;
       }
       case 'hold': {
-        /* кемп: присед, держим угол; HVH-кемпер пре-эймит врага через стену */
+        /* кемп: присед, держим угол; HVH-кемпер пре-эймит врага через стену
+           и периодически ПИКАЕТ — выглядывает из-за угла и уходит обратно */
         this.crouch=true;
-        this.vx*=Math.pow(0.001,dt); this.vy*=Math.pow(0.001,dt);
         if(this.holdSpot){
           let fa;
           if(this.hvh && p && !p.dead && dist2(this.x,this.y,p.x,p.y)<700*700)
@@ -1928,8 +1969,25 @@ class Bot {
           else
             fa=angTo(this.x,this.y,(this.holdSpot.lx+0.5)*TILE,(this.holdSpot.ly+0.5)*TILE);
           this.angle=lerpAngle(this.angle, fa+Math.sin(this.stateTime*0.8)*0.14, 5*dt);
-        }
-        // кемпер уже наведён — реагирует быстрее обычного
+          const sx=this.holdSpot.x*TILE+TILE/2, sy=this.holdSpot.y*TILE+TILE/2;
+          this.peekT-=dt;
+          if(this.peeking>0){
+            // выглядываем в сторону угла обзора
+            this.peeking-=dt;
+            this.crouch=false;
+            const pa=angTo(this.x,this.y,(this.holdSpot.lx+0.5)*TILE,(this.holdSpot.ly+0.5)*TILE);
+            this.vx=lerp(this.vx,Math.cos(pa)*this.cfg.speed*0.6,1-Math.exp(-8*dt));
+            this.vy=lerp(this.vy,Math.sin(pa)*this.cfg.speed*0.6,1-Math.exp(-8*dt));
+          } else if(this.peekT<=0 && p && !p.dead && dist2(this.x,this.y,p.x,p.y)<820*820){
+            this.peeking=rand(0.35,0.7);
+            this.peekT=rand(2.5,5.5);
+          } else if(dist2(this.x,this.y,sx,sy)>20*20){
+            // возвращаемся на спот
+            const ba=angTo(this.x,this.y,sx,sy);
+            this.vx=lerp(this.vx,Math.cos(ba)*this.cfg.speed*0.55,1-Math.exp(-8*dt));
+            this.vy=lerp(this.vy,Math.sin(ba)*this.cfg.speed*0.55,1-Math.exp(-8*dt));
+          } else { this.vx*=Math.pow(0.001,dt); this.vy*=Math.pow(0.001,dt); }
+        } else { this.vx*=Math.pow(0.001,dt); this.vy*=Math.pow(0.001,dt); }
         if(sees && this.reactTimer>=this.cfg.reaction*0.35){ this.plan=null; this.setState('combat'); break; }
         if(this.stateTime>this.holdT){ this.plan=null; this.setState('patrol'); }
         break;
@@ -2073,22 +2131,52 @@ class Bot {
       }
     }
 
-    /* HVH: прострелы — бот банит через двери/ящики по свежей позиции */
-    if(this.hvh && this.tier>=1 && !sees && p && !p.dead && G.time-this.lastSeenT<2){
-      this.wbTimer-=dt;
-      if(this.wbTimer<=0){
-        this.wbTimer=rand(0.7,1.6);
+    /* HVH: авто-дамаг — прошивка стен по мин-дамагу очередями.
+       Кемперы на споте шьют по wallhack-инфе постоянно (окно 8с) */
+    if(this.hvh && this.tier>=1 && !sees && p && !p.dead){
+      const wbWindow = this.state==='hold' ? 8 : 2;
+      if(G.time-this.lastSeenT < wbWindow){
         const gg=this.gun, ww=WEAPONS[gg.key];
-        if(gg.ammo>0 && gg.reloading<=0 && gg.cooldown<=0){
+        if(gg.cooldown>0) gg.cooldown-=dt;
+        this.wbTimer-=dt;
+        if(this.wbBurst<=0 && this.wbTimer<=0){
+          this.wbTimer = this.state==='hold' ? rand(1.2,2.4) : rand(0.7,1.6);
           const dP=dist(this.x,this.y,p.x,p.y);
           const aP=angTo(this.x,this.y,p.x,p.y);
           const cast=castBullet(this.x,this.y,aP,dP+40, ww.pen+2.5);
-          if(cast.stop>=dP-16 && ww.dmg*multAtDist(cast,dP)>=22){
-            gg.cooldown=1/ww.rate*1.4; gg.ammo--;
-            this.angle=aP;
-            fireHitscan(this, aP+deg(rand(-2.5,2.5)), gg.key, {pen:ww.pen+2.5});
-          }
+          const minDmg = 18;   // мин-дамаг ботов
+          if(cast.stop>=dP-16 && ww.dmg*multAtDist(cast,dP)>=minDmg)
+            this.wbBurst=randi(2,4);   // очередь прошивки
         }
+        if(this.wbBurst>0 && gg.ammo>0 && gg.reloading<=0 && gg.cooldown<=0){
+          const aP=angTo(this.x,this.y,p.x,p.y);
+          gg.cooldown=1/ww.rate*1.15; gg.ammo--; this.wbBurst--;
+          this.angle=aP;
+          fireHitscan(this, aP+deg(rand(-2.2,2.2)), gg.key, {pen:ww.pen+2.5});
+        }
+      } else this.wbBurst=0;
+    }
+
+    /* бот кидает гранату по последней позиции врага (кемперов выкуривает молотов) */
+    if(this.hvh && this.nadeType && p && !p.dead && !sees){
+      this.nadeCd-=dt;
+      if(this.nadeCd<=0){
+        const dP=dist(this.x,this.y,p.x,p.y);
+        if(dP>180 && dP<650 && G.time-this.lastSeenT<4){
+          G.grenades.push(new Grenade(this.x,this.y, angTo(this.x,this.y,p.x,p.y), dP, this.nadeType, this));
+          this.nadeType=null;
+        } else this.nadeCd=1.5;
+      }
+    }
+
+    /* избегание огня молотовов */
+    for(const f of G.fires){
+      const dF=dist(this.x,this.y,f.x,f.y);
+      if(dF < f.r+24){
+        const aF=angTo(f.x,f.y,this.x,this.y);
+        this.vx=Math.cos(aF)*this.cfg.speed;
+        this.vy=Math.sin(aF)*this.cfg.speed;
+        if(this.state==='hold'){ this.plan=null; this.setState('patrol'); }
       }
     }
 
@@ -2114,7 +2202,7 @@ const UI = {
     { name:'1 Пистолеты', items:[{t:'w',k:'deagle'}] },
     { name:'2 ПП / Дробовик', items:[{t:'w',k:'mp7'},{t:'w',k:'nova'}] },
     { name:'3 Винтовки', items:[{t:'w',k:'ak47'},{t:'w',k:'m4'},{t:'w',k:'ssg'},{t:'w',k:'awp'},{t:'w',k:'scar20'}] },
-    { name:'4 Гранаты', items:[{t:'g',k:'he'},{t:'g',k:'smoke'},{t:'g',k:'flash'}] },
+    { name:'4 Гранаты', items:[{t:'g',k:'he'},{t:'g',k:'smoke'},{t:'g',k:'flash'},{t:'g',k:'molotov'}] },
     { name:'5 Снаряжение', items:[{t:'a',k:'armor'},{t:'a',k:'helmet'}] },
   ],
   binding: null,
@@ -2335,10 +2423,10 @@ function cornerBox(ctx,x,y,w,h,len){
 function predictGrenade(p){
   const world=Game.screenToWorld(Input.mouseX,Input.mouseY);
   const a=p.aimAngle;
-  const d=clamp(dist(p.x,p.y,world.x,world.y),100,620);
+  const d=clamp(dist(p.x,p.y,world.x,world.y),100,620) * (p.nadeCharge>0 ? 0.35+0.65*p.nadeCharge : 1);
   const v=Math.sqrt(d)*22;
   let x=p.x, y=p.y, vx=Math.cos(a)*v, vy=Math.sin(a)*v;
-  let fuse = p.gnadeSel==='he' ? 1.4 : 1.1;
+  let fuse = p.gnadeSel==='he' ? 1.4 : (p.gnadeSel==='molotov' ? 0.9 : 1.1);
   const pts=[{x,y}];
   const dtp=1/30;
   while(fuse>0){
@@ -2509,7 +2597,7 @@ const Render = {
     }
 
     for(const gr of G.grenades){
-      ctx.fillStyle = gr.type==='he'?'#3d9970':(gr.type==='smoke'?'#7f8c8d':'#f1f2f6');
+      ctx.fillStyle = gr.type==='he'?'#3d9970':(gr.type==='smoke'?'#7f8c8d':(gr.type==='molotov'?'#ff7a2b':'#f1f2f6'));
       ctx.beginPath(); ctx.arc(gr.x,gr.y,5,0,6.28); ctx.fill();
     }
 
@@ -2523,10 +2611,21 @@ const Render = {
         for(const q of pts) ctx.lineTo(q.x,q.y);
         ctx.stroke(); ctx.setLineDash([]);
         const end=pts[pts.length-1];
-        const R = p.gnadeSel==='he'?230 : (p.gnadeSel==='smoke'?140:120);
-        ctx.strokeStyle = p.gnadeSel==='he'?'rgba(255,120,60,0.5)':(p.gnadeSel==='smoke'?'rgba(170,180,190,0.6)':'rgba(255,255,255,0.5)');
+        const R = p.gnadeSel==='he'?230 : (p.gnadeSel==='smoke'?140:(p.gnadeSel==='molotov'?100:120));
+        ctx.strokeStyle = (p.gnadeSel==='he'||p.gnadeSel==='molotov')?'rgba(255,120,60,0.5)':(p.gnadeSel==='smoke'?'rgba(170,180,190,0.6)':'rgba(255,255,255,0.5)');
         ctx.beginPath(); ctx.arc(end.x,end.y,R*0.5,0,6.28); ctx.stroke();
       }
+    }
+
+    // огонь молотовов
+    for(const f of G.fires){
+      ctx.globalAlpha = 0.28 + 0.1*Math.sin(G.time*17+f.x);
+      ctx.fillStyle='#ff7a2b';
+      ctx.beginPath(); ctx.arc(f.x,f.y,f.r,0,6.28); ctx.fill();
+      ctx.globalAlpha = 0.35 + 0.15*Math.sin(G.time*23+f.y);
+      ctx.fillStyle='#ffd166';
+      ctx.beginPath(); ctx.arc(f.x,f.y,f.r*0.45,0,6.28); ctx.fill();
+      ctx.globalAlpha=1;
     }
 
     // sound ESP: расширяющиеся кольца выстрелов ботов (видны сквозь стены)
@@ -2676,12 +2775,20 @@ const Render = {
       ctx.fillRect(0,0,this.W,this.H);
     }
   },
+  /* скруглённая плашка в стиле HUD CS:GO */
+  rr(ctx,x,y,w,h,r){
+    ctx.beginPath();
+    ctx.moveTo(x+r,y); ctx.arcTo(x+w,y,x+w,y+h,r); ctx.arcTo(x+w,y+h,x,y+h,r);
+    ctx.arcTo(x,y+h,x,y,r); ctx.arcTo(x,y,x+w,y,r); ctx.closePath();
+  },
   worldToScreen(wx,wy){
     const cam=Game.cam;
     return { x:(wx-cam.x)*cam.zoom+this.W/2, y:(wy-cam.y)*cam.zoom+this.H/2 };
   },
   drawHUD(ctx){
     const p=G.player, S=Game.settings;
+    const HFONT="'Segoe UI','Trebuchet MS',Arial,sans-serif";
+    const T_COL='#EABE54', CT_COL='#6E9DD3';   // командные цвета CS
     ctx.textAlign='left';
 
     /* offscreen arrows: стрелки на ботов за экраном */
@@ -2747,6 +2854,48 @@ const Render = {
         ctx.stroke();
         ctx.globalAlpha=1;
       }
+      /* индикаторы состояний (MISC → Indicators) */
+      if(S.ind && S.ind.on && G.state==='combat' && !p.dead){
+        const items=[];
+        if(S.ind.dt && S.rage.doubletap && S.rage.on)
+          items.push({t:'DT', c: p.dtCd<=0 ? ACCENT : '#e04f4f', bar: p.dtCd<=0 ? 1 : 1-p.dtCd/DT_COOLDOWN});
+        if(S.ind.aa && S.aa.on)
+          items.push({t: p.onShotT>0 ? 'HS' : 'AA', c: p.onShotT>0 ? '#e8a33d' : '#ffffff'});
+        if(S.ind.lag && S.aa.fakelag)
+          items.push({t:'LAG', c:CT_COL, bar: p.lagTick/Math.max(2,Math.round(S.aa.choke))});
+        if(S.ind.duck && p.fakeduck) items.push({t:'DUCK', c:ACCENT});
+        if(S.ind.peek && p.peekAnchor) items.push({t:'PEEK', c:'#4aa3df'});
+        if(p.nadeCharge>0) items.push({t:'THROW', c:'#ffd166', bar:p.nadeCharge});
+        if(items.length){
+          ctx.font='bold 11px '+HFONT;
+          if(S.ind.pos==='under'){
+            const ws=items.map(i=>ctx.measureText(i.t).width);
+            let tot=0; ws.forEach(w=>tot+=w); tot+=8*(items.length-1);
+            let ix=mx-tot/2; const iy=my+32;
+            ctx.textAlign='left';
+            items.forEach((it,i)=>{
+              ctx.fillStyle=it.c; ctx.fillText(it.t, ix, iy);
+              if(it.bar!==undefined){
+                ctx.fillStyle='rgba(255,255,255,0.25)'; ctx.fillRect(ix,iy+3,ws[i],2);
+                ctx.fillStyle=it.c; ctx.fillRect(ix,iy+3,ws[i]*clamp(it.bar,0,1),2);
+              }
+              ix+=ws[i]+8;
+            });
+          } else {
+            let iy=this.H-160;
+            ctx.textAlign='left';
+            for(const it of items){
+              ctx.fillStyle='rgba(8,10,12,0.55)'; this.rr(ctx,12,iy-12,70,18,3); ctx.fill();
+              ctx.fillStyle=it.c; ctx.fillText(it.t, 20, iy+1);
+              if(it.bar!==undefined){
+                ctx.fillStyle='rgba(255,255,255,0.25)'; ctx.fillRect(20,iy+4,50,2);
+                ctx.fillStyle=it.c; ctx.fillRect(20,iy+4,50*clamp(it.bar,0,1),2);
+              }
+              iy-=24;
+            }
+          }
+        }
+      }
     }
 
     /* watermark в стиле gamesense */
@@ -2801,61 +2950,99 @@ const Render = {
 
     if(G.state!=='combat' && G.state!=='buy') return;
 
-    /* нижняя панель */
-    const y0=this.H-58;
-    ctx.fillStyle='rgba(10,13,17,0.72)';
-    ctx.fillRect(0,y0-14,this.W,72);
-    ctx.fillStyle=p.hp>30?'#7ed957':'#ff4d4d';
-    ctx.font='bold 26px monospace';
-    ctx.fillText('✚ '+Math.max(0,Math.ceil(p.hp)), 24, y0+18);
-    ctx.fillStyle='#4aa3df';
-    ctx.fillText('▣ '+Math.ceil(p.armor)+(p.helmet?'+':''), 170, y0+18);
-    ctx.fillStyle='#7ed957';
-    ctx.font='bold 22px monospace';
-    ctx.fillText('$ '+p.money, 320, y0+16);
+    /* ===== нижний HUD в стиле CS:GO ===== */
+    const hpY=this.H-64;
+    ctx.fillStyle='rgba(8,10,12,0.55)';
+    this.rr(ctx,12,hpY,206,52,4); ctx.fill();
+    const hpCol = p.hp>25 ? '#ffffff' : '#e04f4f';
+    ctx.fillStyle=hpCol;
+    ctx.fillRect(28,hpY+22,20,8); ctx.fillRect(34,hpY+16,8,20);
+    ctx.font='bold 30px '+HFONT;
+    ctx.fillText(''+Math.max(0,Math.ceil(p.hp)), 58, hpY+38);
+    ctx.fillStyle='#9fb8cf';
+    ctx.save(); ctx.translate(130,hpY+27);
+    ctx.beginPath();
+    ctx.moveTo(0,-11); ctx.lineTo(9,-7); ctx.lineTo(9,3); ctx.quadraticCurveTo(9,10,0,13);
+    ctx.quadraticCurveTo(-9,10,-9,3); ctx.lineTo(-9,-7); ctx.closePath(); ctx.fill();
+    ctx.restore();
+    ctx.fillText(''+Math.ceil(p.armor), 148, hpY+38);
+    if(p.helmet){ ctx.font='bold 11px '+HFONT; ctx.fillStyle='#9fb8cf'; ctx.fillText('HELMET', 148, hpY+12); }
+    if(G.mode==='bomb' && G.bomb && G.bomb.state==='carried'){
+      ctx.fillStyle='rgba(8,10,12,0.55)'; this.rr(ctx,12,hpY-32,84,24,4); ctx.fill();
+      ctx.fillStyle = Math.sin(G.time*6)>0 ? '#e8a33d' : '#c0392b';
+      ctx.font='bold 14px '+HFONT; ctx.fillText('C4', 24, hpY-14);
+      ctx.fillStyle='#9fb3c8'; ctx.font='10px '+HFONT; ctx.fillText('[E] плент', 46, hpY-14);
+    }
+    // патроны справа
+    const amX=this.W-244, amY=this.H-64;
+    ctx.fillStyle='rgba(8,10,12,0.55)';
+    this.rr(ctx,amX,amY,232,52,4); ctx.fill();
     ctx.textAlign='right';
-    ctx.fillStyle='#e8eef4';
-    ctx.font='bold 26px monospace';
     if(p.curSlot==='grenade'){
-      ctx.fillText(GRENADES[p.gnadeSel].name+' × '+p.grenades[p.gnadeSel], this.W-24, y0+18);
+      ctx.fillStyle='#fff'; ctx.font='bold 22px '+HFONT;
+      ctx.fillText(GRENADES[p.gnadeSel].name, this.W-24, amY+26);
+      ctx.fillStyle='#9fb3c8'; ctx.font='bold 13px '+HFONT;
+      ctx.fillText('× '+p.grenades[p.gnadeSel]+'  ·  ЛКМ держать — сила', this.W-24, amY+45);
     } else if(p.gun){
       const g=p.gun, w=WEAPONS[g.key];
-      const ammoStr = g.key==='knife' ? '—' : (g.reloading>0 ? '⟳' : g.ammo+' / '+g.reserve);
-      ctx.fillText(w.name+'   '+ammoStr, this.W-24, y0+18);
+      ctx.fillStyle='#8aa0b5'; ctx.font='bold 12px '+HFONT;
+      ctx.fillText(w.name.toUpperCase(), this.W-24, amY+16);
+      ctx.fillStyle = g.reloading>0 ? '#e8a33d' : '#ffffff';
+      ctx.font='bold 32px '+HFONT;
+      const ammoMain = g.key==='knife' ? '—' : (g.reloading>0 ? '···' : ''+g.ammo);
+      ctx.fillText(ammoMain, this.W-84, amY+46);
+      if(g.key!=='knife'){
+        ctx.fillStyle='#8aa0b5'; ctx.font='bold 16px '+HFONT;
+        ctx.fillText('/ '+g.reserve, this.W-24, amY+46);
+      }
     }
-    ctx.font='12px monospace';
-    ctx.fillStyle='#8aa0b5';
-    const slotStr = [
-      (p.slots.primary?('1:'+WEAPONS[p.slots.primary.key].name):'1:—'),
-      '2:'+WEAPONS[p.slots.pistol.key].name, '3:Нож',
-      '4:Гранаты('+(p.grenades.he+p.grenades.smoke+p.grenades.flash)+')'
-    ].join('   ') + (G.mode==='bomb'&&G.bomb&&G.bomb.state==='carried' ? '   [C4]' : '');
-    ctx.fillText(slotStr, this.W-24, y0+38);
+    ctx.font='11px '+HFONT; ctx.fillStyle='rgba(200,214,226,0.7)';
+    const nadeTotal=p.grenades.he+p.grenades.smoke+p.grenades.flash+(p.grenades.molotov||0);
+    const slotStr=[
+      (p.slots.primary?('1 '+WEAPONS[p.slots.primary.key].name):''),
+      '2 '+WEAPONS[p.slots.pistol.key].name, '3 Нож',
+      nadeTotal>0?('4 Гранаты ×'+nadeTotal):''
+    ].filter(s=>s).join('    ');
+    ctx.fillText(slotStr, this.W-24, amY-8);
     ctx.textAlign='left';
 
-    /* верх: таймер, раунд, жизни */
+    /* ===== верхняя панель счёта как в CS:GO ===== */
     ctx.textAlign='center';
-    ctx.fillStyle='rgba(10,13,17,0.72)';
-    ctx.fillRect(this.W/2-150,8,300,54);
-    ctx.fillStyle='#f5a623';
-    ctx.font='bold 24px monospace';
-    let timerTxt;
+    const tbW=320, tbX=this.W/2-tbW/2, tbY=8;
+    ctx.fillStyle='rgba(8,10,12,0.6)';
+    this.rr(ctx,tbX,tbY,tbW,46,4); ctx.fill();
+    ctx.fillStyle='rgba(255,255,255,0.08)';
+    ctx.fillRect(tbX+96,tbY+6,1,34); ctx.fillRect(tbX+tbW-96,tbY+6,1,34);
+    const aliveE=G.bots.filter(b=>!b.dead&&b.team==='CT').length;
+    const aliveM=G.bots.filter(b=>!b.dead&&b.team==='T').length+(p.dead?0:1);
+    ctx.fillStyle=T_COL; ctx.font='bold 26px '+HFONT;
+    ctx.fillText(''+G.scoreT, tbX+48, tbY+31);
+    ctx.font='bold 10px '+HFONT;
+    ctx.fillText('T · жив '+aliveM, tbX+48, tbY+42);
+    let timerTxt, timerCol='#ffffff';
     if(G.state==='buy') timerTxt='ЗАКУПКА';
     else if(G.mode==='bomb' && G.bomb && G.bomb.state==='planted'){
       const bt=Math.max(0,Math.ceil(G.bomb.timer));
-      timerTxt='C4  0:'+(''+bt).padStart(2,'0')+'  ['+G.bomb.site+']';
-      ctx.fillStyle = Math.sin(G.time*8)>0 ? '#ff4d4d' : '#ffb14d';
+      timerTxt='0:'+(''+bt).padStart(2,'0');
+      timerCol = Math.sin(G.time*8)>0 ? '#ff4d4d' : '#ffb14d';
     } else {
       const t=Math.max(0,Math.ceil(G.roundTimer));
       timerTxt=Math.floor(t/60)+':'+(''+(t%60)).padStart(2,'0');
     }
-    ctx.fillText(timerTxt, this.W/2, 32);
-    ctx.font='12px monospace';
-    ctx.fillStyle='#9fb3c8';
-    const aliveE=G.bots.filter(b=>!b.dead&&b.team==='CT').length;
-    const aliveM=G.bots.filter(b=>!b.dead&&b.team==='T').length;
+    ctx.fillStyle=timerCol;
+    ctx.font='bold 24px '+HFONT;
+    ctx.fillText(timerTxt, this.W/2, tbY+30);
+    if(G.mode==='bomb' && G.bomb && G.bomb.state==='planted'){
+      ctx.font='bold 9px '+HFONT; ctx.fillStyle='#ff8d5a';
+      ctx.fillText('C4 · '+G.bomb.site, this.W/2, tbY+42);
+    }
+    ctx.fillStyle=CT_COL; ctx.font='bold 26px '+HFONT;
+    ctx.fillText(''+G.scoreCT, tbX+tbW-48, tbY+31);
+    ctx.font='bold 10px '+HFONT;
+    ctx.fillText('CT · жив '+aliveE, tbX+tbW-48, tbY+42);
+    ctx.font='11px '+HFONT; ctx.fillStyle='#8aa0b5';
     const modeStr=(G.mode==='bomb'?' · БОМБА':'')+(Game.settings.game.hvh?' · HVH':'');
-    ctx.fillText('Раунд '+G.round+' · '+BOT_TIERS[G.botTier].label+modeStr+' · Враги: '+aliveE+' · Союзники: '+aliveM+' · Счёт '+G.scoreT+':'+G.scoreCT, this.W/2, 52);
+    ctx.fillText('Раунд '+G.round+' · '+BOT_TIERS[G.botTier].label+modeStr, this.W/2, tbY+60);
     if(p.dead && G.state==='combat'){
       ctx.fillStyle='rgba(255,77,77,0.9)'; ctx.font='bold 18px Tahoma';
       ctx.fillText('ВЫ МЕРТВЫ — наблюдение за раундом', this.W/2, 84);
@@ -2880,19 +3067,25 @@ const Render = {
       }
     }
 
-    /* килфид */
-    ctx.textAlign='right';
-    ctx.font='13px monospace';
+    /* килфид с командными цветами */
+    ctx.font='bold 12px '+HFONT;
     let ky=16+wmH;
     for(const k of G.killfeed){
       const age=G.time-k.time;
       if(age>6) continue;
+      const aC = k.at==='CT' ? CT_COL : T_COL;
+      const vC = k.vt==='CT' ? CT_COL : T_COL;
+      const mid=' ['+k.w+(k.hs?' HS':'')+'] ';
+      const wA=ctx.measureText(k.a).width, wM=ctx.measureText(mid).width, wV=ctx.measureText(k.v).width;
+      const total=wA+wM+wV;
+      const x1=this.W-22-total;
       ctx.globalAlpha=clamp(1-(age-4.5)/1.5,0,1);
-      ctx.fillStyle='rgba(10,13,17,0.6)';
-      const tw=ctx.measureText(k.text).width;
-      ctx.fillRect(this.W-tw-30, ky-13, tw+16, 19);
-      ctx.fillStyle='#ffb3b3';
-      ctx.fillText(k.text, this.W-22, ky);
+      ctx.fillStyle='rgba(8,10,12,0.65)';
+      this.rr(ctx,x1-8,ky-13,total+16,19,3); ctx.fill();
+      ctx.textAlign='left';
+      ctx.fillStyle=aC; ctx.fillText(k.a, x1, ky);
+      ctx.fillStyle = k.hs ? '#ffd166' : '#d7e3ef'; ctx.fillText(mid, x1+wA, ky);
+      ctx.fillStyle=vC; ctx.fillText(k.v, x1+wA+wM, ky);
       ctx.globalAlpha=1;
       ky+=23;
     }
@@ -2901,7 +3094,7 @@ const Render = {
     if(S.misc.hitlog){
       ctx.textAlign='left';
       ctx.font='11px Consolas, monospace';
-      let ly=this.H-92;
+      let ly=this.H-128;
       for(const l of G.hitlog){
         const age=G.time-l.time;
         if(age>6) continue;
@@ -2995,7 +3188,13 @@ const Render = {
     ctx.restore();
     ctx.restore();
     ctx.strokeStyle='rgba(255,255,255,0.18)'; ctx.strokeRect(mX+0.5,mY+0.5,RSZ,RSZ);
+    // деньги под радаром (как в CS)
+    ctx.fillStyle='rgba(8,10,12,0.55)';
+    this.rr(ctx,mX,mY+RSZ+8,112,30,4); ctx.fill();
+    ctx.fillStyle='#8bc53f';
+    ctx.font='bold 19px '+HFONT;
     ctx.textAlign='left';
+    ctx.fillText('$ '+p.money, mX+12, mY+RSZ+30);
   },
 };
 
@@ -3030,7 +3229,7 @@ const Game = {
     this.startBuyPhase();
   },
   resetWorld(){
-    G.bots=[]; G.grenades=[]; G.smokes=[]; G.tracers=[]; G.holes=[];
+    G.bots=[]; G.grenades=[]; G.smokes=[]; G.tracers=[]; G.holes=[]; G.fires=[];
     G.drops=[]; G.decals=[]; G.killfeed=[]; G.soundPings=[];
     G.time=G.time||0; G.recoil=0; G.flashAlpha=0; G.dmgFlash=0; G.hitmarkerT=0;
     G.roundKills=0; G.rageLock=null; G.showMap=false; G.deathDelay=0; G.winDelay=0;
@@ -3083,7 +3282,7 @@ const Game = {
       }
     }
     if(p.slots.pistol.key!=='deagle' && p.money>=WEAPONS.deagle.price){ p.slots.pistol=makeGun('deagle'); p.money-=WEAPONS.deagle.price; }
-    for(const k of ['he','flash','smoke'])
+    for(const k of ['he','flash','smoke','molotov'])
       while(p.grenades[k]<GRENADES[k].max && p.money>=GRENADES[k].price){ p.grenades[k]++; p.money-=GRENADES[k].price; }
     p.curSlot = p.slots.primary ? 'primary' : 'pistol';
   },
@@ -3171,7 +3370,7 @@ const Game = {
       case 'Digit3': p.selectSlot('melee'); break;
       case 'Digit4': p.selectSlot('grenade'); break;
       case 'KeyG': {
-        const keys=['he','smoke','flash'];
+        const keys=['he','smoke','flash','molotov'];
         const have=keys.filter(k=>p.grenades[k]>0);
         if(have.length){
           const i=have.indexOf(p.gnadeSel);
@@ -3232,6 +3431,26 @@ const Game = {
       const gr=G.grenades[i];
       gr.update(dt);
       if(gr.dead) G.grenades.splice(i,1);
+    }
+    /* огонь молотовов: рост, тик урона, частицы */
+    for(let i=G.fires.length-1;i>=0;i--){
+      const f=G.fires[i];
+      if(f.r<f.maxR) f.r=Math.min(f.maxR,f.r+dt*280);
+      f.life-=dt;
+      f.tick-=dt;
+      if(Math.random()<0.5){
+        Particles.spawn({type:'spark', x:f.x+rand(-f.r,f.r)*0.8, y:f.y+rand(-f.r,f.r)*0.8,
+          vx:rand(-15,15), vy:rand(-60,-20), life:rand(.3,.7), col: Math.random()<.5?'#ff9f43':'#ffd166'});
+      }
+      if(f.tick<=0){
+        f.tick=0.25;
+        for(const t of [G.player,...G.bots]){
+          if(t.dead) continue;
+          if(dist2(t.x,t.y,f.x,f.y) < f.r*f.r)
+            applyDamage(t, FIRE_DPS*0.25, false, f.owner||G.player, 'fire');
+        }
+      }
+      if(f.life<=0) G.fires.splice(i,1);
     }
     for(let i=G.smokes.length-1;i>=0;i--){
       const s=G.smokes[i];
@@ -3339,7 +3558,7 @@ const Game = {
     G.state='menu';
     G.time=0; G.fps=60;
     G.player=null; G.bots=[]; G.smokes=[]; G.tracers=[]; G.holes=[];
-    G.drops=[]; G.decals=[]; G.killfeed=[]; G.grenades=[]; G.soundPings=[]; G.hitlog=[];
+    G.drops=[]; G.decals=[]; G.killfeed=[]; G.grenades=[]; G.soundPings=[]; G.hitlog=[]; G.fires=[];
     G.recoil=0; G.flashAlpha=0; G.dmgFlash=0; G.hitmarkerT=0;
     G.round=1; G.scoreT=0; G.scoreCT=0; G.botTier=0;
     G.mode='clear'; G.bomb=null;
