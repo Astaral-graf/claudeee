@@ -196,6 +196,77 @@ body.editing #game { cursor: crosshair; }
 .ed-actions { display:flex; flex-wrap:wrap; gap:6px; margin-bottom:10px; }
 .ed-hint { font-size:10px; color:#5f7085; line-height:1.6; }
 #edMsg { font-size:11px; color:#8bc53f; min-height:16px; margin-bottom:6px; }
+
+/* ============================================================
+   ЭКРАНЫ CS:GO: полноэкранное меню с навбаром, закупка с рейлом
+   ============================================================ */
+#mainMenu { display:block; padding:0; }
+.cs-top {
+  position:absolute; top:0; left:0; right:0; height:54px;
+  display:flex; align-items:center; gap:30px; padding:0 30px;
+  background:rgba(8,11,15,.9); border-bottom:1px solid #232d3a;
+}
+.cs-logo { font-size:19px; font-weight:800; font-style:italic; color:#fff; letter-spacing:1px; }
+.cs-logo span { color:#8bc53f; }
+.cs-tab {
+  text-transform:uppercase; letter-spacing:2px; font-size:13px; color:#7b8ea3;
+  cursor:pointer; padding:18px 4px 15px; border-bottom:3px solid transparent;
+}
+.cs-tab:hover { color:#c8d6e5; }
+.cs-tab.active { color:#fff; border-bottom-color:#8bc53f; }
+.cs-right { margin-left:auto; font-size:11px; letter-spacing:2px; color:#43536a; text-transform:uppercase; }
+.cs-content {
+  position:absolute; top:76px; bottom:56px; left:50%; transform:translateX(-50%);
+  width:min(1080px,95vw); display:flex; gap:20px;
+}
+.map-card {
+  flex:1.25; background:#10161d; border:1px solid #2c3946; border-radius:3px;
+  overflow:hidden; display:flex; flex-direction:column;
+}
+.map-card canvas { flex:1; width:100%; min-height:0; object-fit:contain; background:#0b0f14; }
+.map-name {
+  padding:12px 18px; display:flex; justify-content:space-between; align-items:baseline;
+  border-top:1px solid #232d3a; background:#0e141b;
+}
+.map-name b { font-size:19px; color:#fff; letter-spacing:1px; }
+.map-name span { font-size:11px; color:#7b8ea3; text-transform:uppercase; letter-spacing:1px; }
+.play-col { flex:1; display:flex; flex-direction:column; gap:12px; min-width:340px; }
+.play-col .setup-card { flex:1; }
+#btnStart { padding:18px; font-size:20px; }
+.cs-bottom {
+  position:absolute; bottom:0; left:0; right:0; height:40px;
+  display:flex; align-items:center; gap:24px; padding:0 30px;
+  background:rgba(8,11,15,.9); border-top:1px solid #232d3a;
+  font-size:11px; color:#5f7085;
+}
+.cs-bottom b { color:#9fb3c8; }
+
+/* ---- закупка CS:GO ---- */
+.buyscreen {
+  position:absolute; inset:0; padding:26px 40px;
+  display:flex; flex-direction:column;
+  font-family:'Segoe UI',Arial,sans-serif;
+}
+.buy-head2 { display:flex; align-items:baseline; gap:20px; margin-bottom:16px; }
+.buy-title { font-size:24px; font-weight:800; font-style:italic; color:#fff; letter-spacing:3px; text-transform:uppercase; }
+.buy-money { margin-left:auto; font-size:30px; font-weight:800; color:#8bc53f; }
+.buy-main { flex:1; display:flex; gap:20px; min-height:0; }
+.buy-rail { display:flex; flex-direction:column; gap:4px; width:210px; }
+.buy-rail .buy-tab {
+  display:flex; gap:10px; padding:13px 16px; font-size:13px; border-radius:2px;
+}
+.buy-rail .buy-tab .num { color:#8bc53f; font-weight:800; }
+.buy-rail .buy-tab.active .num { color:#0f1620; }
+.buy-grid { display:flex; flex-wrap:wrap; gap:12px; align-content:flex-start; overflow-y:auto; }
+.buy-grid .buy-item {
+  width:170px; height:130px; display:flex; flex-direction:column; align-items:center;
+  justify-content:space-between; padding:12px 10px 10px;
+}
+.w-icon { height:52px; display:flex; align-items:center; }
+.w-icon svg { width:120px; height:48px; stroke:#cfd8e3; fill:none; stroke-width:3; stroke-linejoin:round; }
+.buy-item:hover .w-icon svg { stroke:#8bc53f; }
+.buy-item .w-name { font-size:13px; letter-spacing:.5px; text-transform:uppercase; }
+.buy-bottom { display:flex; align-items:center; gap:18px; margin-top:14px; }
 </style>
 </head>
 <body>
@@ -204,25 +275,18 @@ body.editing #game { cursor: crosshair; }
 
 <!-- ===================== ГЛАВНОЕ МЕНЮ ===================== -->
 <div id="mainMenu" class="overlay">
-  <div class="panel" style="min-width:820px; max-width:900px;">
-    <h1>DUST PROTOCOL</h1>
-    <div class="sub" style="margin-bottom:20px;">HVH · de_dust2 · counter-strike style</div>
-    <div class="menu-layout">
-      <div class="nav-col">
-        <button class="btn" id="btnStart">▶ Играть</button>
-        <button class="btn secondary" id="btnEditor">🛠 Редактор карт</button>
-        <div class="controls-mini">
-          <div><b>WASD</b> движение</div>
-          <div><b>ЛКМ/ПКМ</b> огонь/прицел</div>
-          <div><b>Shift/Ctrl</b> шаг/присед</div>
-          <div><b>R · E · B · G</b> перезарядка · подбор · закупка · граната</div>
-          <div><b>M</b> обзор карты</div>
-          <div><b>X / V / C</b> fake duck / auto peek / min dmg</div>
-          <div><b>F / T</b> тоггл rage / AA</div>
-          <div><b>Insert</b> чит-меню</div>
-          <div style="color:#43536a;">клавиши биндятся: CONFIG → Keybinds</div>
-        </div>
-      </div>
+  <div class="cs-top">
+    <div class="cs-logo">DUST<span>PROTOCOL</span></div>
+    <div class="cs-tab active">Играть</div>
+    <div class="cs-tab" id="btnEditor">Редактор карт</div>
+    <div class="cs-right">HVH Edition · gamesense</div>
+  </div>
+  <div class="cs-content">
+    <div class="map-card">
+      <canvas id="mapPreview" width="448" height="448"></canvas>
+      <div class="map-name"><b id="mapName">de_dust2</b><span>Соревновательный · HVH</span></div>
+    </div>
+    <div class="play-col">
       <div class="setup-card">
         <div class="card-title">Настройка матча</div>
         <div class="row">
@@ -268,7 +332,14 @@ body.editing #game { cursor: crosshair; }
           <span class="val" data-show="game.sens"></span>
         </div>
       </div>
+      <button class="btn" id="btnStart">▶ &nbsp;Играть</button>
     </div>
+  </div>
+  <div class="cs-bottom">
+    <span><b>WASD</b> движение</span><span><b>ЛКМ/ПКМ</b> огонь/прицел</span>
+    <span><b>M</b> карта</span><span><b>X/V/C</b> duck/peek/dmg</span>
+    <span><b>F/T</b> rage/AA</span><span><b>Insert</b> чит-меню</span>
+    <span style="margin-left:auto;">клавиши биндятся: CONFIG → Keybinds</span>
   </div>
 </div>
 
@@ -293,6 +364,7 @@ body.editing #game { cursor: crosshair; }
       <button class="btn small" id="edSave">Сохранить</button>
       <button class="btn small secondary" id="edLoad">Загрузить</button>
       <button class="btn small secondary" id="edClear">Очистить</button>
+      <button class="btn small secondary" id="edDust2">Dust2</button>
       <button class="btn small" id="edPlay">Тест ➜</button>
       <button class="btn small secondary" id="edExit">Выход</button>
     </div>
@@ -307,30 +379,29 @@ body.editing #game { cursor: crosshair; }
 
 <!-- ===================== МЕНЮ ЗАКУПКИ ===================== -->
 <div id="buyMenu" class="overlay hidden">
-  <div class="panel">
-    <div class="buy-head">
-      <h2 style="margin:0;">ЗАКУПКА СНАРЯЖЕНИЯ</h2>
-      <div><span id="buyMoney">$800</span></div>
+  <div class="buyscreen">
+    <div class="buy-head2">
+      <div class="buy-title">Закупка снаряжения</div>
+      <div class="buy-money" id="buyMoney">$800</div>
     </div>
-    <div class="row" style="font-size:12px; gap:8px; flex-wrap:wrap; margin-bottom:8px;">
-      <label style="flex:none;">Режим</label>
+    <div class="buy-main">
+      <div class="buy-rail" id="buyTabs"></div>
+      <div class="buy-grid" id="buyGrid"></div>
+    </div>
+    <div class="buy-bottom">
+      <label style="font-size:12px;color:#7b8ea3;">Режим</label>
       <select data-path="game.mode">
         <option value="clear">Зачистка</option>
         <option value="bomb">Закладка бомбы</option>
       </select>
-      <label style="flex:none;">Врагов</label>
+      <label style="font-size:12px;color:#7b8ea3;">Врагов</label>
       <input type="range" min="1" max="8" step="1" data-path="game.enemies" style="width:90px;">
       <span class="val" data-show="game.enemies"></span>
-      <label style="flex:none;">Тимейтов</label>
+      <label style="font-size:12px;color:#7b8ea3;">Тимейтов</label>
       <input type="range" min="0" max="4" step="1" data-path="game.mates" style="width:80px;">
       <span class="val" data-show="game.mates"></span>
-      <span class="hint" style="margin:0;">— применится к этому раунду</span>
-    </div>
-    <div class="buy-tabs" id="buyTabs"></div>
-    <div class="buy-grid" id="buyGrid"></div>
-    <div class="row" style="margin-top:16px; justify-content:space-between;">
-      <span class="hint">Клавиши 1–5 — категории · клик — купить · B — закрыть/открыть</span>
-      <button class="btn" id="btnReady">В БОЙ ➜</button>
+      <span class="hint" style="margin:0 0 0 8px;">1–5 категории · клик — купить · B — закрыть · Enter — в бой</span>
+      <button class="btn" id="btnReady" style="margin-left:auto;">В бой ➜</button>
     </div>
   </div>
 </div>
@@ -376,7 +447,8 @@ body.editing #game { cursor: crosshair; }
           </div>
           <div class="gs-group"><div class="gs-title">Accuracy</div>
             <div class="gs-row" data-req="rage.on"><label>Hit chance</label><input type="range" min="0" max="100" step="1" data-path="rage.hitchance"><span class="val" data-show="rage.hitchance"></span></div>
-            <div class="gs-row" data-req="rage.on"><label>Minimum damage</label><input type="range" min="1" max="110" step="1" data-path="rage.mindmg"><span class="val" data-show="rage.mindmg"></span></div>
+            <div class="gs-row" data-req="rage.on"><input type="checkbox" id="rageDA" data-path="rage.dmgauto"><label for="rageDA">Minimum damage: Auto <span class="gs-sub">(по HP цели)</span></label></div>
+            <div class="gs-row" data-req="!rage.dmgauto"><label>Minimum damage</label><input type="range" min="1" max="110" step="1" data-path="rage.mindmg"><span class="val" data-show="rage.mindmg"></span></div>
             <div class="gs-row" data-req="rage.on"><input type="checkbox" id="rageAuto" data-path="rage.autofire"><label for="rageAuto">Automatic fire</label></div>
             <div class="gs-row" data-req="rage.on"><input type="checkbox" id="rageAS" data-path="rage.autostop"><label for="rageAS">Auto stop</label></div>
             <div class="gs-row" data-req="rage.on"><input type="checkbox" id="rageAW" data-path="rage.autowall"><label for="rageAW">Auto wall <span class="gs-sub">(пробитие стен)</span></label></div>
@@ -667,7 +739,7 @@ const DEFAULT_SETTINGS = {
   game: { hvh:true, sens:1, mode:'clear', enemies:4, mates:2, diff:0, map:'dust2' },
   binds: { menu:'Insert', map:'KeyM', fakeduck:'KeyX', autopeek:'KeyV', mindmg:'KeyC', rage:'KeyF', aa:'KeyT' },
   crosshair: { size:8, gap:3, color:'#00ff66', dot:false, circle:false },
-  rage:  { on:false, silent:true, fov:180, hitchance:60, mindmg:10, autofire:true, autowall:true, doubletap:false, resolver:true, priority:'fov', backtrack:200, autostop:true, hitbox:'auto', safepoint:false },
+  rage:  { on:false, silent:true, fov:180, hitchance:60, mindmg:10, autofire:true, autowall:true, doubletap:false, resolver:true, priority:'fov', backtrack:200, autostop:true, hitbox:'auto', safepoint:false, dmgauto:true },
   aa:    { on:false, yaw:'jitter', spin:60, desync:60, hideshots:false, yawoffset:0, jitteramt:40, side:'switch', attargets:false, fakelag:false, choke:8 },
   legit: { on:false, fov:30, smooth:60, rcs:true, trigger:false, triggerDelay:80 },
   vis:   { esp:false, box:'corner', color:'#9bd62b', name:true, hp:true, weapon:true, dist:true, glow:false, resolved:true, drops:false, radar:false, soundesp:false, oof:false, dmgnum:true, nadepred:true, trail:true },
@@ -1395,18 +1467,26 @@ function fireHitscan(shooter, angle, wkey, opts){
     }
     if(best){
       hitAny = true;
-      let hsChance = 0.14;
-      if(shooter===G.player){
-        if(Input.rmb) hsChance+=0.12;
-        if(shooter.crouch) hsChance+=0.05;
-        const hb = Game.settings.rage.on ? Game.settings.rage.hitbox : 'auto';
-        if(hb==='head') hsChance=0.7;       // форс в голову
-        else if(hb==='body') hsChance=0;    // безопасный body-aim
-      }
-      else hsChance = 0.14;   // как у игрока — силы равны
-      const isHead = Math.random()<hsChance;
       let dmg = w.dmg * multAtDist(cast, bestD);   // штраф за пробитие
       if(bestD > w.range) dmg *= Math.max(0.35, 1-(bestD-w.range)/1200);
+      let isHead;
+      if(shooter===G.player && Game.settings.rage.on && wkey!=='knife'){
+        /* rage выбирает хитбокс: auto — в голову, если тело не убивает (фикс SSG) */
+        const hb=Game.settings.rage.hitbox;
+        if(hb==='head') isHead=true;
+        else if(hb==='body') isHead=false;
+        else {
+          const bodyEff = best.armor>0 ? dmg*0.5 : dmg;
+          isHead = bodyEff < best.hp;
+        }
+      } else {
+        let hsChance = 0.14;
+        if(shooter===G.player){
+          if(Input.rmb) hsChance+=0.12;
+          if(shooter.crouch) hsChance+=0.05;
+        }
+        isHead = Math.random()<hsChance;
+      }
       Particles.blood((bestPos||best).x, (bestPos||best).y, a);
       applyDamage(best, dmg, isHead, shooter, wkey);
     } else if(wkey!=='knife' && cast.stop<maxD && bestD>=cast.stop-1){
@@ -1813,8 +1893,15 @@ function pickRageTarget(p, rage, gun){
     if(cast.stop < dReal-16) continue;
     let dmg = w.dmg * multAtDist(cast, dReal);
     if(dReal > w.range) dmg *= Math.max(0.35, 1-(dReal-w.range)/1200);
-    const minD = Input.keys[Game.settings.binds.mindmg] ? 1 : rage.mindmg;  // бинд: форс минимального урона
-    if(dmg < minD) continue;
+    /* эффективный урон по выбранному хитбоксу (броня, шлем, множитель HS) */
+    const bodyEff = b.armor>0 ? dmg*0.5 : dmg;
+    let headEff = dmg*w.hs; if(b.helmet) headEff*=0.6;
+    const effDmg = rage.hitbox==='body' ? bodyEff : (rage.hitbox==='head' ? headEff : Math.max(bodyEff,headEff));
+    let minD;
+    if(Input.keys[Game.settings.binds.mindmg]) minD=1;              // бинд: форс
+    else if(rage.dmgauto) minD=Math.min(b.hp,30);                   // авто: добить или ощутимый чип
+    else minD=rage.mindmg;
+    if(effDmg < minD) continue;
     let sc;
     if(rage.priority==='near') sc=dReal;
     else if(rage.priority==='hp') sc=b.hp;
@@ -2370,6 +2457,28 @@ class Bot {
 /* ################################################################
    #  SECTION 10: UI — закупка, gamesense-меню (биндинг, драг, конфиги)
    ################################################################ */
+/* Силуэты оружия для карточек закупки (в духе CS) */
+const WEAPON_ICONS = {
+  pistol:  '<svg viewBox="0 0 100 44"><path d="M14 12 H66 V21 H40 L35 34 H22 L27 21 H14 Z M66 14 H74 V19 H66 Z"/></svg>',
+  smg:     '<svg viewBox="0 0 100 44"><path d="M8 14 H68 V22 H50 L48 33 H38 L40 22 H26 L24 29 H15 L17 22 H8 Z M68 15 H84 V20 H68 Z M30 22 H36 V27 H30 Z"/></svg>',
+  rifle:   '<svg viewBox="0 0 100 44"><path d="M6 16 H70 L92 12 V18 L70 22 H52 L50 32 H40 L42 22 H22 L20 29 H11 L13 22 H6 Z"/></svg>',
+  sniper:  '<svg viewBox="0 0 100 44"><path d="M4 18 H68 L94 15 V20 L68 24 H48 L46 35 H37 L39 24 H18 L16 31 H9 L11 24 H4 Z M30 9 H54 V13 H30 Z M40 13 V18"/></svg>',
+  shotgun: '<svg viewBox="0 0 100 44"><path d="M6 16 H84 V23 H34 L29 33 H18 L23 23 H6 Z M6 18 H84"/></svg>',
+  nade:    '<svg viewBox="0 0 100 44"><circle cx="50" cy="25" r="13"/><path d="M44 12 H56 V8 H60"/></svg>',
+  fire:    '<svg viewBox="0 0 100 44"><path d="M42 36 C34 30 36 22 42 16 C42 22 46 24 46 24 C46 16 50 10 56 6 C54 14 60 16 60 24 C64 20 64 18 64 18 C68 26 66 32 58 36 Z"/></svg>',
+  gear:    '<svg viewBox="0 0 100 44"><path d="M50 6 L66 12 V24 C66 32 58 38 50 40 C42 38 34 32 34 24 V12 Z"/></svg>',
+};
+function weaponIcon(item){
+  if(item.t==='a') return WEAPON_ICONS.gear;
+  if(item.t==='g') return item.k==='molotov' ? WEAPON_ICONS.fire : WEAPON_ICONS.nade;
+  const k=item.k;
+  if(k==='usp'||k==='deagle') return WEAPON_ICONS.pistol;
+  if(k==='mp7') return WEAPON_ICONS.smg;
+  if(k==='awp'||k==='ssg'||k==='scar20') return WEAPON_ICONS.sniper;
+  if(k==='nova') return WEAPON_ICONS.shotgun;
+  return WEAPON_ICONS.rifle;
+}
+
 const UI = {
   buyCat: 0,
   buyCats: [
@@ -2415,8 +2524,11 @@ const UI = {
     document.querySelectorAll('[data-req]').forEach(el=>{
       const ex=el.dataset.req;
       let ok;
-      if(ex.includes('=')){ const kv=ex.split('='); ok = String(getPath(Game.settings,kv[0]))===kv[1]; }
-      else ok = !!getPath(Game.settings,ex);
+      let neg=false, e2=ex;
+      if(e2[0]==='!'){ neg=true; e2=e2.slice(1); }
+      if(e2.includes('=')){ const kv=e2.split('='); ok = String(getPath(Game.settings,kv[0]))===kv[1]; }
+      else ok = !!getPath(Game.settings,e2);
+      if(neg) ok=!ok;
       el.classList.toggle('gs-off', !ok);
     });
   },
@@ -2425,7 +2537,8 @@ const UI = {
     const tabs=this.el('buyTabs');
     this.buyCats.forEach((c,i)=>{
       const d=document.createElement('div');
-      d.className='buy-tab'; d.textContent=c.name;
+      d.className='buy-tab';
+      d.innerHTML='<span class="num">'+(i+1)+'</span><span>'+c.name.replace(/^\d+\s*/,'')+'</span>';
       d.onclick=()=>{ this.buyCat=i; this.renderBuy(); };
       tabs.appendChild(d);
     });
@@ -2441,6 +2554,7 @@ const UI = {
     this.el('edSave').onclick=()=>Editor.save();
     this.el('edLoad').onclick=()=>{ const d=Editor.loadData(); if(d){ Editor.applyToWork(d); Editor.msg('Загружено ✓'); } else Editor.msg('Сохранений нет'); };
     this.el('edClear').onclick=()=>{ Editor.blank(); Editor.msg('Очищено'); };
+    this.el('edDust2').onclick=()=>Editor.loadDust2();
     this.el('edPlay').onclick=()=>Editor.play();
     this.el('edExit').onclick=()=>Editor.exit();
     this.el('btnReady').onclick=()=>Game.startCombat();
@@ -2482,6 +2596,7 @@ const UI = {
         this.styleRange(inp);
         this.refreshDeps();
         Game.saveSettings();
+        if(path==='game.map') this.updateMapPreview();
         // одинаковые пути в разных местах (game.hvh в меню и в gs) — синхронизируем
         document.querySelectorAll('[data-path="'+path+'"]').forEach(other=>{
           if(other===inp) return;
@@ -2534,6 +2649,36 @@ const UI = {
   toggleGS(){
     this.el('gsWrap').classList.toggle('hidden');
   },
+  /* превью выбранной карты в главном меню */
+  updateMapPreview(){
+    const cv=this.el('mapPreview'); if(!cv) return;
+    const ctx2=cv.getContext('2d');
+    ctx2.fillStyle='#0b0f14'; ctx2.fillRect(0,0,cv.width,cv.height);
+    const sel=Game.settings.game.map;
+    let g=null, nm='de_dust2';
+    if(sel==='custom'){
+      const md=Editor.loadData();
+      if(md){ g=md.tiles.map(r=>r.split('').map(Number)); nm='Своя карта'; }
+      else nm='Своя карта (пусто)';
+    }
+    if(!g){
+      const keep=grid;           // dust2 для превью, не трогая текущее состояние
+      buildMap(); g=grid; grid=keep;
+      if(sel!=='custom') nm='de_dust2';
+    }
+    const s=cv.width/MAP_W;
+    for(let y=0;y<MAP_H;y++) for(let x=0;x<MAP_W;x++){
+      const v=g[y][x];
+      if(v===0) ctx2.fillStyle='rgba(200,210,220,0.30)';
+      else if(v===2) ctx2.fillStyle='rgba(230,235,240,0.45)';
+      else if(v===3) ctx2.fillStyle='rgba(170,126,63,0.85)';
+      else if(v===4) ctx2.fillStyle='rgba(120,190,255,0.75)';
+      else continue;
+      ctx2.fillRect(x*s,y*s,s,s);
+    }
+    const nameEl=this.el('mapName');
+    if(nameEl) nameEl.textContent=nm;
+  },
   renderBuy(){
     const p=G.player;
     this.el('buyMoney').textContent='$'+p.money;
@@ -2564,7 +2709,8 @@ const UI = {
       const poor=p.money<price;
       if(owned) d.classList.add('owned');
       else if(poor) d.classList.add('poor');
-      d.innerHTML='<div class="w-name">'+name+'</div><div class="w-stats">'+stats+'</div><div class="w-price">$'+price+'</div>';
+      d.innerHTML='<div class="w-icon">'+weaponIcon(item)+'</div><div class="w-name">'+name+'</div><div class="w-price">$'+price+'</div>';
+      d.title=stats.replace(/<br>/g,'  ·  ');
       if(!owned && !poor) d.onclick=()=>{ this.buy(item); };
       gridEl.appendChild(d);
     }
@@ -3401,6 +3547,20 @@ const Editor = {
   loadData(){
     try { return JSON.parse(localStorage.getItem('dustprotocol_custom_map')); } catch(e){ return null; }
   },
+  /* загрузить dust2 как основу для редактирования */
+  loadDust2(){
+    applyMapData(null);
+    this.site=Array.from({length:MAP_H},()=>Array(MAP_W).fill(0));
+    for(const k of ['A','B']){
+      const r=DUST2_DATA.sites[k];
+      for(let y=r.y0;y<=r.y1;y++) for(let x=r.x0;x<=r.x1;x++)
+        if(grid[y]&&grid[y][x]===0) this.site[y][x]=(k==='A'?1:2);
+    }
+    this.player=[Math.floor(DUST2_DATA.player.x/TILE), Math.floor(DUST2_DATA.player.y/TILE)];
+    this.enemies=DUST2_DATA.bots.map(s=>s.slice());
+    this.mates=DUST2_DATA.mates.map(s=>s.slice());
+    this.msg('dust2 загружен — редактируйте');
+  },
   applyToWork(md){
     grid=md.tiles.map(r=>r.split('').map(Number));
     this.site=Array.from({length:MAP_H},()=>Array(MAP_W).fill(0));
@@ -3921,6 +4081,7 @@ const Game = {
     G.recoil=0; G.flashAlpha=0; G.dmgFlash=0; G.hitmarkerT=0;
     G.round=1; G.scoreT=0; G.scoreCT=0; G.botTier=0;
     G.mode='clear'; G.bomb=null;
+    UI.updateMapPreview();
     requestAnimationFrame(ts=>this.loop(ts));
   },
 };
@@ -3929,6 +4090,7 @@ const Game = {
 UI.showOverlay=function(id){
   for(const o of ['mainMenu','buyMenu','roundEnd','gameOver'])
     document.getElementById(o).classList.toggle('hidden', o!==id);
+  if(id==='mainMenu') UI.updateMapPreview();
 };
 
 window.addEventListener('load', ()=>Game.init());

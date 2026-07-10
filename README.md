@@ -2,11 +2,11 @@
 
 Браузерный 2D top-down HvH-шутер по мотивам CS:GO / de_dust2. Один файл — `index.html`, чистый HTML5/CSS/JS (Canvas API, без внешних зависимостей). Открывается двойным кликом в любом современном браузере.
 
-## Меню в стиле CS:GO Panorama
-Тёмное меню с зелёной кнопкой «Играть», карточкой настройки матча и **редактором карт**. Все панели (закупка, итоги, game over) в единой CS-теме.
+## Меню как в CS:GO
+Полноэкранное главное меню в духе Panorama: верхний навбар с логотипом и вкладками (Играть / Редактор карт), **карточка-превью выбранной карты**, панель настройки матча, большая зелёная кнопка «Играть», нижняя полоса подсказок. **Закупка как в CS:GO**: заголовок с деньгами, левая колонка категорий 1–5, карточки оружия с **силуэтами** и ценами, нижняя панель с настройками раунда и кнопкой «В бой».
 
 ## Редактор карт
-Кнопка «Редактор карт» в главном меню: рисуйте свою карту — пол, стены, ящики, простреливаемое дерево, окна-ванвеи, пленты A/B, спавны игрока/врагов/тимейтов. ЛКМ — рисовать, ПКМ — стирать, WASD — камера, колесо — зум. Сохранение в браузер, кнопка «Тест» сразу запускает матч на вашей карте; выбор карты — в «Настройке матча» (de_dust2 / Своя карта). Кемп-споты и точки патруля ботов генерируются автоматически.
+Кнопка «Редактор карт» в главном меню: кнопка **Dust2 загружает оригинальную карту для редактирования** (со спавнами и плентами) или рисуйте свою с нуля — пол, стены, ящики, простреливаемое дерево, окна-ванвеи, пленты A/B, спавны игрока/врагов/тимейтов. ЛКМ — рисовать, ПКМ — стирать, WASD — камера, колесо — зум. Сохранение в браузер, кнопка «Тест» сразу запускает матч на вашей карте; выбор карты — в «Настройке матча» (de_dust2 / Своя карта). Кемп-споты и точки патруля ботов генерируются автоматически.
 
 ## Настройка матча
 Перед стартом (и в каждой фазе закупки — **без таймера**, старт по кнопке «В БОЙ» или Enter) выбираются:
@@ -33,7 +33,7 @@
 
 ## Чит-меню (Insert) — в стиле gamesense/skeet
 Каждая функция в своей директории: RAGE (Aimbot / Accuracy / Exploits / Other), ANTI-AIM (Angles / Desync / Fake lag), LEGIT (Aimbot / Triggerbot), VISUALS (Player ESP / World / Effects), MISC (Interface / Indicators / Crosshair / Feedback / Game), CONFIG (Configs / Keybinds):
-- **RAGE** — Aimbot (silent, FOV, hit chance, min damage, autofire, target selection), Auto wall (пробитие стен), Resolver, Double tap, **Backtrack** (стрельба по истории хитбоксов), Auto stop, Hitbox (auto/head/body safe), Safe point
+- **RAGE** — Aimbot (silent, FOV, hit chance, autofire, target selection), **Minimum damage: Auto** (по HP цели) или слайдер, Auto wall, Resolver, Double tap, **Backtrack**, Auto stop, **умный Hitbox** (auto сам целится в голову, когда тело не убивает — SSG ваншотит даже в шлем), Safe point
 - **ANTI-AIM** — yaw (backward/static/jitter/spin), **yaw offset**, **jitter amount**, **side** (left/right/switch), **at targets**, spin speed, desync amount, **Hide shots** (on-shot AA), **Fake lag** с настройкой choked ticks — боты видят полупрозрачного двойника с задержкой; фейковая модель рисуется пунктиром
 - **LEGIT** — плавный aimbot (FOV/smooth), RCS, триггербот с задержкой реакции
 - **VISUALS** — ESP (corner/full box, name, HP, weapon, distance, glow, resolved-хитбокс), radar hack, sound ESP, offscreen arrows, weapon drops, **damage numbers**, **grenade prediction** (траектория и радиус), backtrack-точки
