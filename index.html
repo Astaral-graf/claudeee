@@ -333,12 +333,13 @@ body.editing #game { cursor: crosshair; }
         </div>
       </div>
       <button class="btn" id="btnStart">▶ &nbsp;Играть</button>
+      <button class="btn secondary" id="btnEditor2" style="padding:13px;">🛠 &nbsp;Редактор карт</button>
     </div>
   </div>
   <div class="cs-bottom">
     <span><b>WASD</b> движение</span><span><b>ЛКМ/ПКМ</b> огонь/прицел</span>
     <span><b>M</b> карта</span><span><b>X/V/C</b> duck/peek/dmg</span>
-    <span><b>F/T</b> rage/AA</span><span><b>Insert</b> чит-меню</span>
+    <span><b>F/T</b> rage/AA</span><span><b>Del</b> чит-меню</span>
     <span style="margin-left:auto;">клавиши биндятся: CONFIG → Keybinds</span>
   </div>
 </div>
@@ -737,7 +738,7 @@ const BOT_NAMES = ['Phoenix','Viper','Sarge','Ghost','Havoc','Rex','Blitz','Cobr
 
 const DEFAULT_SETTINGS = {
   game: { hvh:true, sens:1, mode:'clear', enemies:4, mates:2, diff:0, map:'dust2' },
-  binds: { menu:'Insert', map:'KeyM', fakeduck:'KeyX', autopeek:'KeyV', mindmg:'KeyC', rage:'KeyF', aa:'KeyT' },
+  binds: { menu:'Delete', map:'KeyM', fakeduck:'KeyX', autopeek:'KeyV', mindmg:'KeyC', rage:'KeyF', aa:'KeyT' },
   crosshair: { size:8, gap:3, color:'#00ff66', dot:false, circle:false },
   rage:  { on:false, silent:true, fov:180, hitchance:60, mindmg:10, autofire:true, autowall:true, doubletap:false, resolver:true, priority:'fov', backtrack:200, autostop:true, hitbox:'auto', safepoint:false, dmgauto:true },
   aa:    { on:false, yaw:'jitter', spin:60, desync:60, hideshots:false, yawoffset:0, jitteramt:40, side:'switch', attargets:false, fakelag:false, choke:8 },
@@ -2544,6 +2545,7 @@ const UI = {
     });
     this.el('btnStart').onclick=()=>{ AudioSys.init(); Game.startMatch(); };
     this.el('btnEditor').onclick=()=>{ AudioSys.init(); Editor.enter(); };
+    this.el('btnEditor2').onclick=()=>{ AudioSys.init(); Editor.enter(); };
     document.querySelectorAll('.ed-tool').forEach(btn=>{
       btn.onclick=()=>{
         document.querySelectorAll('.ed-tool').forEach(b=>b.classList.remove('active'));
@@ -3722,8 +3724,12 @@ const Game = {
     let saved=null;
     try { saved=JSON.parse(localStorage.getItem('dustprotocol_gs_cfg')); } catch(e){}
     this.settings=deepMerge(DEFAULT_SETTINGS, saved||{});
-    // миграция: автозакуп больше не включён по умолчанию
-    if(!saved || saved._v!==2){ this.settings.misc.autobuy=false; this.settings._v=2; this.saveSettings(); }
+    // миграции настроек
+    const v = saved ? (saved._v||0) : 99;
+    if(v<2) this.settings.misc.autobuy=false;                       // автозакуп больше не по умолчанию
+    if(v<3 && this.settings.binds.menu==='Insert') this.settings.binds.menu='Delete';  // меню чита теперь Del
+    this.settings._v=3;
+    this.saveSettings();
   },
   saveSettings(){
     try { localStorage.setItem('dustprotocol_gs_cfg', JSON.stringify(this.settings)); } catch(e){}
