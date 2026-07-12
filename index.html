@@ -1871,7 +1871,8 @@ class Player {
   }
   /* единый выстрел игрока: rapid fire (быстрее) + учёт RCS-бампа */
   shoot(g, w, angle, pen, S){
-    const rate = w.rate * ((S.exp && S.exp.rapidfire && w.charge===undefined) ? 1.8 : 1);
+    let rate = w.rate;
+    if(S.exp && S.exp.rapidfire) rate *= 4;   // rapid fire: намного быстрее
     g.cooldown = 1/rate;
     g.ammo--;
     const hit = fireHitscan(this, angle, g.key, {pen});
@@ -1892,13 +1893,20 @@ class Player {
     }
     if(g.reloading>0) return;
 
-    /* ---------- ОРУЖИЕ С ЗАДЕРЖКОЙ (R8): барабан крутится перед выстрелом ---------- */
+    /* ---------- ОРУЖИЕ С ЗАДЕРЖКОЙ (R8): барабан крутится перед выстрелом ----------
+       Латч: барабан докручивается даже если отпустить (одиночный тап срабатывает),
+       ровно один выстрел за нажатие — без беспрерывной стрельбы. */
     if(w.charge>0){
-      // авто-револьвер держит курок за игрока; иначе — ЛКМ / rage autofire
-      const wantHold = Input.lmb || S.rage.autorv || (S.rage.on && S.rage.autofire) ||
+      // авто-огонь держит курок сам: auto revolver / rage autofire / triggerbot
+      const autoHold = S.rage.autorv || (S.rage.on && S.rage.autofire) ||
         (S.legit.trigger && this.crosshairOverBot());
-      if(wantHold && g.ammo>0 && g.cooldown<=0){
-        if(!this.charging){ this.charging=true; this.chargeT=w.charge; }
+      // старт цикла — когда барабан готов (cooldown прошёл), по свежему клику, удержанию или авто
+      if(!this.charging && g.cooldown<=0 && g.ammo>0 && (clicked || Input.lmb || autoHold)){
+        this.charging=true;
+        this.chargeT = w.charge * ((S.exp && S.exp.rapidfire) ? 0.25 : 1);
+      }
+      // барабан крутится независимо от кнопки
+      if(this.charging){
         this.chargeT-=dt;
         if(this.chargeT<=0){
           this.charging=false;
@@ -1909,7 +1917,7 @@ class Player {
           }
           this.shoot(g,w,ang,pen,S);   // у R8 нет DT
         }
-      } else { this.charging=false; this.chargeT=0; }
+      }
       Input.consumeClick();
       return;
     }
@@ -1952,7 +1960,8 @@ class Player {
       } else this.trigT=0;
     }
     const semiSpam = S.misc.autopistol && w.slot==='pistol';
-    const trigger = (w.auto || semiSpam) ? (Input.lmb || auto) : (clicked || auto);
+    const rapid = S.exp && S.exp.rapidfire;
+    const trigger = (w.auto || semiSpam || rapid) ? (Input.lmb || auto) : (clicked || auto);
     if(trigger && g.cooldown<=0){
       if(g.ammo>0) this.shoot(g, w, this.aimAngle, w.pen, S);
       else this.startReload();
