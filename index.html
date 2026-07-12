@@ -1612,7 +1612,7 @@ class Player {
     this.spray = 0;           // счётчик выстрелов очереди (отдача)
     this.sprayCool = 0;       // время до сброса очереди
     this.scoped = false;      // прицел (только снайперки)
-    this.charging = false; this.chargeT = 0;   // R8: задержка перед выстрелом
+    this.charging = false; this.chargeT = 0; this.r8Want = false;   // R8: буфер намерения + задержка
     this.defLagT = 0;         // defensive lag окно после DT
     this.dtKeyPrev = false;   // прошлое состояние клавиши DT (для отжатия)
   }
@@ -1628,6 +1628,7 @@ class Player {
     this.x=PLAYER_SPAWN.x; this.y=PLAYER_SPAWN.y; this.vx=0; this.vy=0;
     this.fakeX=this.x; this.fakeY=this.y;
     this.lagX=this.x; this.lagY=this.y; this.lagTick=0; this.dtCd=0;
+    this.charging=false; this.chargeT=0; this.r8Want=false;
     this.pendingShot=null;
     if(lostWeapons){
       this.slots.primary=null;
@@ -1898,20 +1899,18 @@ class Player {
     }
     if(g.reloading>0) return;
 
-    /* ---------- ОРУЖИЕ С ЗАДЕРЖКОЙ (R8): барабан крутится перед выстрелом ----------
-       Латч: барабан докручивается даже если отпустить (одиночный тап срабатывает),
-       ровно один выстрел за нажатие — без беспрерывной стрельбы. */
+    /* ================= R8 РЕВОЛЬВЕР (полностью переработан) =================
+       Барабан крутится charge-секунд перед выстрелом. Намерение выстрелить
+       БУФЕРИЗУЕТСЯ (r8Want): клик не теряется, даже если попал во время кручения
+       барабана или кулдауна — гарантированно ровно один выстрел за нажатие. */
     if(w.charge>0){
-      // авто-огонь держит курок сам: auto revolver / rage autofire / triggerbot
-      const autoHold = S.rage.autorv || (S.rage.on && S.rage.autofire) ||
+      const auto = S.rage.autorv || (S.rage.on && S.rage.autofire) ||
         (S.legit.trigger && this.crosshairOverBot());
-      // старт цикла — когда барабан готов (cooldown прошёл), по свежему клику, удержанию или авто
-      if(!this.charging && g.cooldown<=0 && g.ammo>0 && (clicked || Input.lmb || autoHold)){
-        this.charging=true;
-        this.chargeT = w.charge * ((S.exp && S.exp.rapidfire) ? 0.25 : 1);
-      }
-      // барабан крутится независимо от кнопки
-      if(this.charging){
+      // запомнить намерение (клик/удержание/авто) — не теряется до выстрела
+      if(clicked || Input.lmb || auto) this.r8Want = true;
+      // выстрел, когда барабан готов
+      if(this.r8Want && g.ammo>0 && g.cooldown<=0){
+        if(!this.charging){ this.charging=true; this.chargeT = w.charge * ((S.exp && S.exp.rapidfire) ? 0.25 : 1); }
         this.chargeT-=dt;
         if(this.chargeT<=0){
           this.charging=false;
@@ -1920,9 +1919,11 @@ class Player {
             const t=pickRageTarget(this,S.rage,g);
             if(t){ ang=angTo(this.x,this.y,t.ax,t.ay); if(!S.rage.silent) this.aimAngle=ang; if(S.rage.autowall) pen=w.pen+2.5; }
           }
-          this.shoot(g,w,ang,pen,S);   // у R8 нет DT
+          this.shoot(g,w,ang,pen,S);        // у R8 нет DT
+          this.r8Want = Input.lmb || auto;  // держишь/авто → продолжаем; тап → стоп
         }
       }
+      if(g.ammo<=0){ this.charging=false; this.r8Want=false; if(g.reserve>0) this.startReload(); }
       Input.consumeClick();
       return;
     }
@@ -2006,6 +2007,7 @@ class Player {
       this.gnadeSel = this.grenades[this.gnadeSel]>0 ? this.gnadeSel : has;
     }
     this.curSlot=s;
+    this.r8Want=false; this.charging=false; this.chargeT=0;
   }
 }
 
@@ -2150,6 +2152,8 @@ class Bot {
     this.resolvedNow=false;   // «вскрыл» ли бот AA игрока в текущей очереди
     this.trail=[];            // история позиций для backtrack игрока
     this.lastSeenT=-99;       // когда последний раз видел игрока (для прострелов)
+    this.lastLostT=-99; this._see=false;   // repeek: быстрая реакция при переоткрытии
+    this.tradeT=0;            // кулдаун трейд-решения
     this.wbTimer=rand(0.5,1.5);
     this.wbBurst=0;           // очередь прошивки по мин-дамагу
     this.dtCd=0;
@@ -2231,6 +2235,14 @@ class Bot {
     }
     return hasLOS(this.x,this.y,p.x,p.y,true);
   }
+  /* позиция врага, с которым бьётся союзник рядом (для трейда) */
+  tradeTarget(){
+    for(const o of G.bots){
+      if(o===this||o.dead||o.team!==this.team) continue;
+      if(o.state==='combat' && o.lastKnown && dist2(this.x,this.y,o.x,o.y)<620*620) return o.lastKnown;
+    }
+    return null;
+  }
   /* ближайший живой враг (для CT это игрок и тиммейты) */
   pickEnemy(){
     let best=null, bd=Infinity;
@@ -2286,10 +2298,13 @@ class Bot {
 
     const sees = p ? this.canSeeEnemy(p) : false;
     if(sees){
-      this.reactTimer+=dt;
+      const repeek = (G.time - this.lastLostT) < 1.3;   // недавно терял из виду → префайр
+      this.reactTimer += dt * (repeek ? 2.6 : 1);
       this.lastKnown={x:p.x,y:p.y};
       this.lastSeenT=G.time;
+      this._see=true;
     } else {
+      if(this._see){ this.lastLostT=G.time; this._see=false; }
       this.reactTimer=Math.max(0,this.reactTimer-dt*2);
     }
     /* HVH-wallhack: бот знает, где враг, но решает — пушить или сесть в засаду */
@@ -2342,6 +2357,16 @@ class Bot {
     switch(this.state){
       case 'patrol': {
         if(sees && this.reactTimer>=this.cfg.reaction){ this.plan=null; this.setState('combat'); break; }
+        // трейд-фраг: если союзник рядом ведёт бой — идём поддержать на его цель
+        this.tradeT-=dt;
+        if(this.hvh && this.tradeT<=0){
+          const tf=this.tradeTarget();
+          if(tf){
+            this.tradeT=1.2;
+            this.moveAlongPath(Math.floor(tf.x/TILE),Math.floor(tf.y/TILE),0.95,dt);
+            break;
+          }
+        }
         if(!this.plan) this.choosePlan();
         if(this.plan==='hold' && this.holdSpot){
           if(this.moveAlongPath(this.holdSpot.x,this.holdSpot.y,0.6,dt)) this.setState('hold');
@@ -2573,6 +2598,16 @@ class Bot {
         this.vx=Math.cos(aF)*this.cfg.speed;
         this.vy=Math.sin(aF)*this.cfg.speed;
         if(this.state==='hold'){ this.plan=null; this.setState('patrol'); }
+      }
+    }
+
+    /* разъединение: боты не слипаются в кучу — расталкиваются от союзников */
+    for(const o of G.bots){
+      if(o===this||o.dead||o.team!==this.team) continue;
+      const dx=this.x-o.x, dy=this.y-o.y, dd=dx*dx+dy*dy;
+      if(dd<40*40 && dd>1){
+        const d2=Math.sqrt(dd), push=(40-d2)/40;
+        this.vx+=dx/d2*push*100; this.vy+=dy/d2*push*100;
       }
     }
 
