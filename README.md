@@ -34,7 +34,7 @@
 ## Чит-меню (Del) — в стиле gamesense/skeet
 Каждая функция в своей директории: RAGE (Aimbot / Accuracy / Exploits / Other), ANTI-AIM (Angles / Desync / Fake lag), LEGIT (Aimbot / Triggerbot), VISUALS (Player ESP / World / Effects), MISC (Interface / Indicators / Crosshair / Feedback / Game), CONFIG (Configs / Keybinds):
 - **RAGE** — Aimbot (silent, FOV, hit chance, autofire, target selection), **Minimum damage: Auto** (по HP цели) или слайдер, Auto wall, Resolver, Double tap, **Backtrack**, Auto stop, **умный Hitbox** (auto сам целится в голову, когда тело не убивает — SSG ваншотит даже в шлем), Safe point
-- **ANTI-AIM** — yaw (backward/static/jitter/spin), **yaw offset**, **jitter amount**, **side** (left/right/switch), **at targets**, spin speed, desync amount, **Hide shots** (on-shot AA), **Fake lag** с настройкой choked ticks — боты видят полупрозрачного двойника с задержкой; фейковая модель рисуется пунктиром
+- **ANTI-AIM** (глубоко проработан) — **Angles**: yaw base (backward/static/at targets/**freestanding**/spin), yaw offset −180…180, yaw modifier (**sway** с диапазоном и скоростью), spin speed. **Jitter**: mode (off/offset/center/random) + amount + speed. **Desync**: amount, side (switch/left/right), **fake limit**, **desync on shot**, hide shots, **lean/roll**. **Fake lag**: condition (always/moving/standing) + choked ticks. Боты целятся в фейковую модель (пунктир), резолвер вскрывает реальный хитбокс
 - **LEGIT** — плавный aimbot (FOV/smooth), RCS, триггербот с задержкой реакции
 - **VISUALS** — ESP (corner/full box, name, HP, weapon, distance, glow, resolved-хитбокс), radar hack, sound ESP, offscreen arrows, weapon drops, **damage numbers**, **grenade prediction** (траектория и радиус), backtrack-точки
 - **MISC** — watermark с **анимированным clantag**, динамический keybind list, event log, hitmarker/hit sound/kill sound, прицел + spread circle, auto pistol, **auto buy**
@@ -71,5 +71,10 @@
 - Синтезированный звук (Web Audio API), частицы, hitmarker, kill/hit sounds
 - Стабильные 60 FPS, фиксированный шаг симуляции
 
+## Оружие, отдача и прицел
+- **ПКМ-прицеливание только у снайперок** (AWP / SSG 08 / SCAR-20) — у них scope: зум камеры и почти нулевой разброс. У остального оружия ПКМ ничего не даёт (как в CS)
+- **Отдача-спрей** у автоматов без прицела: пули по очереди уводит по паттерну (AK/M4/MP7 climb+змейка) — держать зажатым неточно, надо тапать/бёрстить; RCS частично гасит. Прицел растёт с очередью, сбрасывается после паузы
+- **R8 Револьвер** ($600) в пистолетах: медленный, но бьёт 74 в тело / хедшот-машина, высокое пробитие — есть у ботов и в килфиде
+
 ## Управление
-WASD — движение · мышь — прицел · ЛКМ — огонь · ПКМ — прицеливание · Shift — тихий шаг · Ctrl — присед · R — перезарядка · 1–4 — слоты · G — смена гранаты · E — подобрать оружие · B — закупка · **Del — чит-меню**
+WASD — движение · мышь — прицел · **ПКМ — прицел (только снайперки)** · Shift — тихий шаг · Ctrl — присед · R — перезарядка · 1–4 — слоты · G — смена гранаты · E — подобрать оружие · B — закупка · **Del — чит-меню**

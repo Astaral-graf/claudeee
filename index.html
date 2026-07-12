@@ -477,33 +477,62 @@ body.editing #game { cursor: crosshair; }
               <select data-path="aa.yaw">
                 <option value="backward">Backward</option>
                 <option value="static">Static</option>
-                <option value="jitter">Jitter</option>
+                <option value="attarget">At targets</option>
+                <option value="freestand">Freestanding</option>
                 <option value="spin">Spin</option>
               </select>
             </div>
-            <div class="gs-row" data-req="aa.on"><label>Yaw offset (°)</label><input type="range" min="-90" max="90" step="1" data-path="aa.yawoffset"><span class="val" data-show="aa.yawoffset"></span></div>
-            <div class="gs-row" data-req="aa.yaw=jitter"><label>Jitter amount</label><input type="range" min="0" max="100" step="1" data-path="aa.jitteramt"><span class="val" data-show="aa.jitteramt"></span></div>
-            <div class="gs-row" data-req="aa.yaw=jitter"><label>Side</label>
+            <div class="gs-row" data-req="aa.on"><label>Yaw offset (°)</label><input type="range" min="-180" max="180" step="1" data-path="aa.yawoffset"><span class="val" data-show="aa.yawoffset"></span></div>
+            <div class="gs-row" data-req="aa.on"><label>Yaw modifier</label>
+              <select data-path="aa.yawmod">
+                <option value="none">None</option>
+                <option value="sway">Sway</option>
+              </select>
+            </div>
+            <div class="gs-row" data-req="aa.yawmod=sway"><label>Sway range (°)</label><input type="range" min="5" max="90" step="1" data-path="aa.swayrange"><span class="val" data-show="aa.swayrange"></span></div>
+            <div class="gs-row" data-req="aa.yawmod=sway"><label>Sway speed</label><input type="range" min="20" max="300" step="5" data-path="aa.swayspeed"><span class="val" data-show="aa.swayspeed"></span></div>
+            <div class="gs-row" data-req="aa.yaw=spin"><label>Spin speed</label><input type="range" min="10" max="250" step="1" data-path="aa.spin"><span class="val" data-show="aa.spin"></span></div>
+          </div>
+          <div class="gs-group"><div class="gs-title">Jitter</div>
+            <div class="gs-row" data-req="aa.on"><label>Mode</label>
+              <select data-path="aa.jitter">
+                <option value="off">Off</option>
+                <option value="offset">Offset</option>
+                <option value="center">Center</option>
+                <option value="random">Random</option>
+              </select>
+            </div>
+            <div class="gs-row" data-req="aa.on"><label>Amount (°)</label><input type="range" min="0" max="100" step="1" data-path="aa.jitteramt"><span class="val" data-show="aa.jitteramt"></span></div>
+            <div class="gs-row" data-req="aa.on"><label>Speed</label><input type="range" min="10" max="200" step="1" data-path="aa.jitterspeed"><span class="val" data-show="aa.jitterspeed"></span></div>
+          </div>
+        </div>
+        <div class="gs-col">
+          <div class="gs-group"><div class="gs-title">Desync</div>
+            <div class="gs-row" data-req="aa.on"><label>Amount</label><input type="range" min="0" max="100" step="1" data-path="aa.desync"><span class="val" data-show="aa.desync"></span></div>
+            <div class="gs-row" data-req="aa.on"><label>Side</label>
               <select data-path="aa.side">
                 <option value="switch">Switch</option>
                 <option value="left">Left</option>
                 <option value="right">Right</option>
               </select>
             </div>
-            <div class="gs-row" data-req="aa.yaw=spin"><label>Spin speed</label><input type="range" min="10" max="200" step="1" data-path="aa.spin"><span class="val" data-show="aa.spin"></span></div>
-            <div class="gs-row" data-req="aa.on"><input type="checkbox" id="aaAT" data-path="aa.attargets"><label for="aaAT">At targets <span class="gs-sub">(фейк от ближайшего врага)</span></label></div>
-          </div>
-        </div>
-        <div class="gs-col">
-          <div class="gs-group"><div class="gs-title">Desync</div>
-            <div class="gs-row" data-req="aa.on"><label>Desync amount</label><input type="range" min="0" max="100" step="1" data-path="aa.desync"><span class="val" data-show="aa.desync"></span></div>
+            <div class="gs-row" data-req="aa.on"><label>Fake limit (%)</label><input type="range" min="0" max="100" step="1" data-path="aa.fakelimit"><span class="val" data-show="aa.fakelimit"></span></div>
+            <div class="gs-row" data-req="aa.on"><input type="checkbox" id="aaDS" data-path="aa.desyncshot"><label for="aaDS">Desync on shot <span class="gs-sub">(шире в стрельбе)</span></label></div>
             <div class="gs-row" data-req="aa.on"><input type="checkbox" id="aaHS" data-path="aa.hideshots"><label for="aaHS">Hide shots <span class="gs-sub">(on-shot AA)</span></label></div>
-            <div class="gs-note">Боты целятся в фейковую модель (пунктир). Элита частично резолвит.</div>
+            <div class="gs-row" data-req="aa.on"><input type="checkbox" id="aaLean" data-path="aa.lean"><label for="aaLean">Lean / roll <span class="gs-sub">(визуал)</span></label></div>
+            <div class="gs-note">Боты целятся в фейковую модель (пунктир) — резолвер вскрывает реальный хитбокс.</div>
           </div>
           <div class="gs-group"><div class="gs-title">Fake lag</div>
             <div class="gs-row"><input type="checkbox" id="aaFL" data-path="aa.fakelag"><label for="aaFL">Enabled</label></div>
-            <div class="gs-row" data-req="aa.fakelag"><label>Choked ticks</label><input type="range" min="2" max="14" step="1" data-path="aa.choke"><span class="val" data-show="aa.choke"></span></div>
-            <div class="gs-note">Полупрозрачный двойник — то, где вас «видит сервер». Desync строится вокруг лаг-позиции.</div>
+            <div class="gs-row" data-req="aa.fakelag"><label>Condition</label>
+              <select data-path="aa.fakelagcond">
+                <option value="always">Always</option>
+                <option value="move">Moving</option>
+                <option value="stand">Standing</option>
+              </select>
+            </div>
+            <div class="gs-row" data-req="aa.fakelag"><label>Choked ticks</label><input type="range" min="2" max="16" step="1" data-path="aa.choke"><span class="val" data-show="aa.choke"></span></div>
+            <div class="gs-note">Полупрозрачный двойник — где вас «видит сервер».</div>
           </div>
         </div>
       </div>
@@ -691,17 +720,29 @@ const PLAYER_LIVES = 3;
 const ACCENT = '#9bd62b'; // фирменный зелёный меню
 
 const WEAPONS = {
-  knife:  { name:'Нож',      slot:'melee',  dmg:45,  hs:2.0, rate:1.6, spread:0,   range:58,   price:0,    mag:Infinity, reserve:0, reload:0,   move:1.08, auto:false, pellets:1 },
-  usp:    { name:'USP-S',    slot:'pistol', dmg:35,  hs:4.0, rate:4.5, spread:2.6, range:900,  price:0,    mag:12, reserve:24, reload:2.0, move:1.0,  auto:false, pellets:1 },
-  deagle: { name:'Deagle',   slot:'pistol', dmg:53,  hs:4.7, rate:2.4, spread:4.2, range:1000, price:700,  mag:7,  reserve:21, reload:2.2, move:1.0,  auto:false, pellets:1 },
-  mp7:    { name:'MP7',      slot:'primary',dmg:29,  hs:2.4, rate:12,  spread:5.0, range:700,  price:1500, mag:30, reserve:90, reload:2.3, move:1.02, auto:true,  pellets:1 },
-  ak47:   { name:'AK-47',    slot:'primary',dmg:36,  hs:4.0, rate:10,  spread:4.4, range:1200, price:2700, mag:30, reserve:90, reload:2.5, move:0.92, auto:true,  pellets:1 },
-  m4:     { name:'M4A4',     slot:'primary',dmg:33,  hs:4.0, rate:11,  spread:3.7, range:1200, price:3100, mag:30, reserve:90, reload:2.4, move:0.94, auto:true,  pellets:1 },
-  awp:    { name:'AWP',      slot:'primary',dmg:115, hs:2.0, rate:0.85,spread:9.0, range:2200, price:4750, mag:5,  reserve:15, reload:3.2, move:0.82, auto:false, pellets:1, adsSpread:0.35 },
-  ssg:    { name:'SSG 08',   slot:'primary',dmg:88,  hs:4.0, rate:1.25,spread:7.5, range:2000, price:1700, mag:10, reserve:30, reload:2.7, move:1.03, auto:false, pellets:1, adsSpread:0.28 },
-  scar20: { name:'SCAR-20',  slot:'primary',dmg:80,  hs:2.0, rate:3.6, spread:6.5, range:2000, price:5000, mag:20, reserve:40, reload:2.9, move:0.84, auto:true,  pellets:1, adsSpread:0.5 },
-  nova:   { name:'Nova',     slot:'primary',dmg:26,  hs:2.0, rate:1.1, spread:11,  range:420,  price:1050, mag:8,  reserve:32, reload:2.8, move:0.96, auto:false, pellets:8 },
+  knife:  { name:'Нож',      slot:'melee',  dmg:45,  hs:2.0, rate:1.6, spread:0,   range:58,   price:0,    mag:Infinity, reserve:0, reload:0,   move:1.08, auto:false, pellets:1, recoil:0 },
+  usp:    { name:'USP-S',    slot:'pistol', dmg:35,  hs:4.0, rate:4.5, spread:2.2, range:900,  price:0,    mag:12, reserve:24, reload:2.0, move:1.0,  auto:false, pellets:1, recoil:1.4 },
+  deagle: { name:'Deagle',   slot:'pistol', dmg:53,  hs:4.7, rate:2.4, spread:3.4, range:1000, price:700,  mag:7,  reserve:21, reload:2.2, move:1.0,  auto:false, pellets:1, recoil:2.6 },
+  r8:     { name:'R8 Револьвер', slot:'pistol', dmg:74, hs:4.5, rate:2.0, spread:2.8, range:1100, price:600, mag:8, reserve:8, reload:2.5, move:0.96, auto:false, pellets:1, recoil:3.2 },
+  mp7:    { name:'MP7',      slot:'primary',dmg:29,  hs:2.4, rate:12,  spread:3.6, range:700,  price:1500, mag:30, reserve:90, reload:2.3, move:1.02, auto:true,  pellets:1, recoil:2.4 },
+  ak47:   { name:'AK-47',    slot:'primary',dmg:36,  hs:4.0, rate:10,  spread:2.8, range:1200, price:2700, mag:30, reserve:90, reload:2.5, move:0.92, auto:true,  pellets:1, recoil:4.0 },
+  m4:     { name:'M4A4',     slot:'primary',dmg:33,  hs:4.0, rate:11,  spread:2.4, range:1200, price:3100, mag:30, reserve:90, reload:2.4, move:0.94, auto:true,  pellets:1, recoil:3.2 },
+  awp:    { name:'AWP',      slot:'primary',dmg:115, hs:2.0, rate:0.85,spread:9.0, range:2200, price:4750, mag:5,  reserve:15, reload:3.2, move:0.82, auto:false, pellets:1, scoped:true, adsSpread:0.03, recoil:0 },
+  ssg:    { name:'SSG 08',   slot:'primary',dmg:88,  hs:4.0, rate:1.25,spread:7.5, range:2000, price:1700, mag:10, reserve:30, reload:2.7, move:1.03, auto:false, pellets:1, scoped:true, adsSpread:0.05, recoil:0 },
+  scar20: { name:'SCAR-20',  slot:'primary',dmg:80,  hs:2.0, rate:3.6, spread:6.5, range:2000, price:5000, mag:20, reserve:40, reload:2.9, move:0.84, auto:true,  pellets:1, scoped:true, adsSpread:0.06, recoil:1.4 },
+  nova:   { name:'Nova',     slot:'primary',dmg:26,  hs:2.0, rate:1.1, spread:11,  range:420,  price:1050, mag:8,  reserve:32, reload:2.8, move:0.96, auto:false, pellets:8, recoil:0 },
 };
+/* прицел только у оружия со scoped; ПКМ вне снайперок ничего не даёт */
+function isScoped(key){ return !!(WEAPONS[key] && WEAPONS[key].scoped); }
+/* паттерн отдачи-спрея: детерминированный «подъём» + горизонтальный увод.
+   n — номер выстрела в очереди. Возвращает угловое смещение в градусах. */
+function recoilPattern(n, mag){
+  if(mag<=0) return 0;
+  const climb = Math.min(1, n/7);                 // разгон за ~7 выстрелов
+  const horiz = Math.sin(n*0.9) * (0.35+0.4*climb); // змейка вправо-влево
+  const side = (n>4 ? horiz : n*0.12);            // первые пули тянет в одну сторону
+  return deg(mag * side);
+}
 const GRENADES = {
   he:     { name:'Осколочная', price:300, max:1 },
   smoke:  { name:'Дымовая',    price:300, max:1 },
@@ -716,7 +757,7 @@ const GEAR = {
 
 /* Пробивная способность (бюджет пробития): дерево = 0.5, ящик = 1, бетон = 2.
    Любое оружие бьёт двери; AWP пробивает ящики и тонкие стены */
-const PEN = { knife:0, usp:0.5, deagle:1, mp7:0.5, ak47:1, m4:1, awp:2, nova:0, ssg:1.5, scar20:2 };
+const PEN = { knife:0, usp:0.5, deagle:1, r8:1.5, mp7:0.5, ak47:1, m4:1, awp:2, nova:0, ssg:1.5, scar20:2 };
 for(const k in WEAPONS) WEAPONS[k].pen = PEN[k]||0;
 
 /* Уровни ботов. Легаси-поля — для честного режима;
@@ -741,7 +782,10 @@ const DEFAULT_SETTINGS = {
   binds: { menu:'Delete', map:'KeyM', fakeduck:'KeyX', autopeek:'KeyV', mindmg:'KeyC', rage:'KeyF', aa:'KeyT' },
   crosshair: { size:8, gap:3, color:'#00ff66', dot:false, circle:false },
   rage:  { on:false, silent:true, fov:180, hitchance:60, mindmg:10, autofire:true, autowall:true, doubletap:false, resolver:true, priority:'fov', backtrack:200, autostop:true, hitbox:'auto', safepoint:false, dmgauto:true },
-  aa:    { on:false, yaw:'jitter', spin:60, desync:60, hideshots:false, yawoffset:0, jitteramt:40, side:'switch', attargets:false, fakelag:false, choke:8 },
+  aa:    { on:false, yaw:'backward', yawoffset:0, yawmod:'none', swayrange:35, swayspeed:120,
+           jitter:'off', jitteramt:45, jitterspeed:60, spin:60,
+           desync:60, side:'switch', fakelimit:100, desyncshot:true,
+           hideshots:false, fakelag:false, fakelagcond:'always', choke:8, lean:true },
   legit: { on:false, fov:30, smooth:60, rcs:true, trigger:false, triggerDelay:80 },
   vis:   { esp:false, box:'corner', color:'#9bd62b', name:true, hp:true, weapon:true, dist:true, glow:false, resolved:true, drops:false, radar:false, soundesp:false, oof:false, dmgnum:true, nadepred:true, trail:true },
   misc:  { watermark:true, binds:true, hitlog:true, hitmarker:true, hitsound:true, killsound:true, autopistol:false, autobuy:false, clantag:true },
@@ -1428,14 +1472,17 @@ function fireHitscan(shooter, angle, wkey, opts){
   let hitAny = false;
   for(let p=0;p<pellets;p++){
     let spreadDeg = w.spread;
+    let recoilOff = 0;
     if(shooter===G.player){
-      if(Input.rmb) spreadDeg *= (w.adsSpread!==undefined ? w.adsSpread : 0.45);
-      if(shooter.crouch) spreadDeg *= 0.7;
+      if(shooter.scoped && isScoped(wkey)) spreadDeg *= w.adsSpread;   // прицел: почти нет разброса
+      if(shooter.crouch) spreadDeg *= 0.75;
       const spd = Math.hypot(shooter.vx,shooter.vy);
-      spreadDeg *= 1 + spd/300;
-      spreadDeg *= 1 + G.recoil*1.2;   // отдача реально влияет на разброс (RCS её гасит)
+      spreadDeg *= 1 + spd/260;                                        // движение сильно портит точность
+      // отдача-спрей: направленное смещение по паттерну (снайперки без спрея)
+      recoilOff = recoilPattern(shooter.spray, w.recoil);
+      if(Game.settings.legit.rcs) recoilOff *= 0.35;                   // RCS частично компенсирует
     }
-    const a = angle + deg(rand(-spreadDeg,spreadDeg))*0.5;
+    const a = angle + recoilOff + deg(rand(-spreadDeg,spreadDeg))*0.5;
     const maxD = wkey==='knife' ? w.range : 2400;
     const cast = castBullet(shooter.x, shooter.y, a, maxD, pen);
     // поиск ближайшего персонажа на луче (по РЕАЛЬНЫМ хитбоксам)
@@ -1494,6 +1541,7 @@ function fireHitscan(shooter, angle, wkey, opts){
       Particles.impact(endX, endY, a);
     }
   }
+  if(shooter===G.player && wkey!=='knife'){ shooter.spray++; shooter.sprayCool=0.32; }
   AudioSys.shot(wkey, shooter.x, shooter.y);
   if(wkey!=='knife'){
     emitNoise(shooter.x, shooter.y, 780, shooter);
@@ -1537,7 +1585,7 @@ class Player {
     this.lastHitTime = -99;
     /* anti-aim: фейковая позиция, которую видят боты */
     this.fakeX = this.x; this.fakeY = this.y;
-    this.aaTimer = 0; this.aaSign = 1;
+    this.aaTimer = 0; this.aaSign = 1; this.fakeDir = null;
     this.pendingShot = null;  // отложенный выстрел double tap
     this.trigT = 0;           // таймер триггербота
     this.fakeduck = false;    // X: присед хитбокса при полной модели
@@ -1549,6 +1597,9 @@ class Player {
     this.planting = false;    // идёт установка бомбы
     this.lagX = this.x; this.lagY = this.y; this.lagTick = 0;  // fake lag
     this.dtCd = 0;            // зарядка double tap
+    this.spray = 0;           // счётчик выстрелов очереди (отдача)
+    this.sprayCool = 0;       // время до сброса очереди
+    this.scoped = false;      // прицел (только снайперки)
   }
   get gun(){
     if(this.curSlot==='grenade') return null;
@@ -1556,6 +1607,7 @@ class Player {
   }
   /* хитбокс: fake duck сжимает его при видимой полной модели */
   get hitR(){ return this.fakeduck ? 8 : (this.crouch ? 11 : 14); }
+  get canScope(){ return this.gun && isScoped(this.gun.key); }
   resetForRound(lostWeapons){
     this.dead=false; this.hp=100;
     this.x=PLAYER_SPAWN.x; this.y=PLAYER_SPAWN.y; this.vx=0; this.vy=0;
@@ -1580,6 +1632,9 @@ class Player {
     const S = Game.settings;
     this.fakeduck = !!Input.keys[S.binds.fakeduck];
     this.crouch = !!Input.keys['ControlLeft'] || !!Input.keys['ControlRight'] || this.fakeduck;
+    this.scoped = Input.rmb && this.canScope;   // прицел только у снайперок
+    // сброс очереди отдачи после паузы в стрельбе
+    if(this.sprayCool>0){ this.sprayCool-=dt; if(this.sprayCool<=0) this.spray=0; }
     this.walk = !!Input.keys['ShiftLeft'] || !!Input.keys['ShiftRight'];
     if(this.onShotT>0) this.onShotT-=dt;
     if(this.dtCd>0) this.dtCd-=dt;
@@ -1595,7 +1650,7 @@ class Player {
     if(this.walk) speed*=0.5;
     if(this.crouch) speed*=0.55;
     if(this.fakeduck) speed*=0.75;
-    if(Input.rmb) speed*=0.75;
+    if(this.scoped) speed*=0.7;   // прицеливание замедляет только снайперки
     const g = this.gun;
     if(g) speed *= WEAPONS[g.key].move;
     const txv = ix/len*speed, tyv = iy/len*speed;
@@ -1651,40 +1706,56 @@ class Player {
       } else G.bomb.plantP=0;
     }
 
-    /* --- fake lag: боты видят позицию с задержкой (чок тиков) --- */
+    /* --- fake lag: боты видят позицию с задержкой (условие: всегда/движение/стоя) --- */
+    let doChoke=false;
     if(S.aa.fakelag){
+      const moving=Math.hypot(this.vx,this.vy)>30;
+      doChoke = S.aa.fakelagcond==='always' || (S.aa.fakelagcond==='move'&&moving) || (S.aa.fakelagcond==='stand'&&!moving);
+    }
+    if(doChoke){
       this.lagTick=(this.lagTick|0)+1;
       if(this.lagTick>=Math.max(2,Math.round(S.aa.choke))){ this.lagTick=0; this.lagX=this.x; this.lagY=this.y; }
-    } else { this.lagX=this.x; this.lagY=this.y; }
+    } else { this.lagTick=0; this.lagX=this.x; this.lagY=this.y; }
 
-    /* --- anti-aim: фейковая позиция (desync) строится вокруг лаг-модели --- */
+    /* --- anti-aim: фейковая позиция (то, куда целятся боты без резолвера) --- */
     if(S.aa.on){
+      // переключение стороны десинка
       this.aaTimer-=dt;
       if(this.aaTimer<=0){
-        this.aaTimer=rand(0.08,0.18);
+        this.aaTimer=rand(0.08,0.2);
         this.aaSign = S.aa.side==='left' ? -1 : (S.aa.side==='right' ? 1 : -this.aaSign);
       }
-      let mag = S.aa.desync/100*30;
-      if(this.onShotT>0) mag*=1.5;   // hide shots: фейк дальше от реального хитбокса
-      // базовое направление: от взгляда или от ближайшего врага (at targets)
-      let baseAng = this.aimAngle+Math.PI;
-      if(S.aa.attargets){
-        let en=null, bd=Infinity;
-        for(const b of enemyBots()){ if(b.dead) continue; const d=dist2(this.x,this.y,b.x,b.y); if(d<bd){bd=d;en=b;} }
-        if(en) baseAng = angTo(en.x,en.y,this.x,this.y);
+      // 1) базовое направление «прочь»
+      let base;
+      switch(S.aa.yaw){
+        case 'static':   base=this.aimAngle+Math.PI; break;
+        case 'attarget': { let en=null,bd=Infinity;
+          for(const b of enemyBots()){ if(b.dead) continue; const d=dist2(this.x,this.y,b.x,b.y); if(d<bd){bd=d;en=b;} }
+          base = en ? angTo(en.x,en.y,this.x,this.y) : this.aimAngle+Math.PI; break; }
+        case 'spin':     base=G.time*S.aa.spin*0.12; break;
+        case 'freestand':{ const l=raycastWall(this.x,this.y,this.aimAngle-Math.PI/2,400),
+                                 r=raycastWall(this.x,this.y,this.aimAngle+Math.PI/2,400);
+          base=this.aimAngle+(l<r?-Math.PI/2:Math.PI/2); break; }
+        default:         base=this.aimAngle+Math.PI;   // backward
       }
-      let dir;
-      if(S.aa.yaw==='backward' || S.aa.yaw==='static') dir = baseAng;
-      else if(S.aa.yaw==='spin') dir = G.time*S.aa.spin*0.12;
-      else {
-        dir = baseAng + Math.PI/2*this.aaSign;              // jitter
-        dir += deg(rand(-1,1) * S.aa.jitteramt * 0.9);      // амплитуда джиттера
-      }
-      if(S.aa.yaw!=='spin') dir += deg(S.aa.yawoffset);
+      // 2) модификатор направления
+      let dir=base+deg(S.aa.yawoffset);
+      if(S.aa.yawmod==='sway') dir+=Math.sin(G.time*(S.aa.swayspeed*0.05))*deg(S.aa.swayrange);
+      // 3) сторона десинка (ширина = desync)
+      if(S.aa.yaw!=='spin') dir += this.aaSign * deg(15 + S.aa.desync*0.65);
+      // 4) джиттер (дрожание фейка)
+      const js=G.time*(S.aa.jitterspeed*0.12);
+      if(S.aa.jitter==='offset')      dir += deg(Math.sin(js)*S.aa.jitteramt*0.9);
+      else if(S.aa.jitter==='center') dir += deg(Math.sign(Math.sin(js))*S.aa.jitteramt*0.9);
+      else if(S.aa.jitter==='random') dir += deg(rand(-1,1)*S.aa.jitteramt*0.9);
+      // 5) дистанция фейка
+      let mag=27*(S.aa.fakelimit/100);
+      if(S.aa.hideshots && this.onShotT>0) mag*=1.5;   // on-shot AA
+      if(S.aa.desyncshot && Input.lmb) mag*=1.2;        // шире десинк в стрельбе
       let fx=this.lagX+Math.cos(dir)*mag, fy=this.lagY+Math.sin(dir)*mag;
       if(isSolid(fx,fy)){ fx=this.lagX; fy=this.lagY; }
-      this.fakeX=fx; this.fakeY=fy;
-    } else { this.fakeX=this.lagX; this.fakeY=this.lagY; }
+      this.fakeX=fx; this.fakeY=fy; this.fakeDir=dir;
+    } else { this.fakeX=this.lagX; this.fakeY=this.lagY; this.fakeDir=null; }
 
     /* --- прицел: мышь + legit-aimbot --- */
     const world = Game.screenToWorld(Input.mouseX, Input.mouseY);
@@ -1752,13 +1823,13 @@ class Player {
   /* вероятность попадания при текущем разбросе (для hit chance) */
   hitProb(w, d){
     let s = w.spread;
-    if(Input.rmb) s *= (w.adsSpread!==undefined ? w.adsSpread : 0.45);
-    if(this.crouch) s *= 0.7;
+    if(this.scoped && isScoped(w===this.gun? this.gun.key : '')) s *= w.adsSpread;
+    else if(this.gun && isScoped(this.gun.key) && this.scoped) s *= w.adsSpread;
+    if(this.crouch) s *= 0.75;
     const spd = Math.hypot(this.vx,this.vy);
-    s *= 1 + spd/300;
-    s *= 1 + G.recoil*1.2;
-    if(s<=0.05) return 1;
-    const half = deg(s)/2;
+    s *= 1 + spd/260;
+    let half = deg(s)/2 + Math.abs(recoilPattern(this.spray, w.recoil))*(Game.settings.legit.rcs?0.35:1);
+    if(half<=0.001) return 1;
     const angR = Math.atan2(13, Math.max(1,d));
     return clamp(angR/half, 0, 1);
   }
@@ -2047,12 +2118,12 @@ class Bot {
       if(b>=2700) return roll(['ak47','ak47','ssg','m4']);
       if(b>=1700) return roll(['ssg','ssg','mp7','deagle']);
       if(b>=1500) return roll(['mp7','deagle','nova']);
-      if(b>=700)  return roll(['deagle','usp']);
+      if(b>=700)  return roll(['deagle','r8','usp']);
       return 'usp';
     }
     const pools=[
-      ['usp','usp','mp7','nova'],
-      ['mp7','nova','deagle','ak47'],
+      ['usp','usp','r8','nova'],
+      ['mp7','nova','deagle','r8'],
       ['ak47','m4','mp7','ssg'],
       ['ak47','m4','awp','awp'],
     ];
@@ -2473,7 +2544,7 @@ function weaponIcon(item){
   if(item.t==='a') return WEAPON_ICONS.gear;
   if(item.t==='g') return item.k==='molotov' ? WEAPON_ICONS.fire : WEAPON_ICONS.nade;
   const k=item.k;
-  if(k==='usp'||k==='deagle') return WEAPON_ICONS.pistol;
+  if(k==='usp'||k==='deagle'||k==='r8') return WEAPON_ICONS.pistol;
   if(k==='mp7') return WEAPON_ICONS.smg;
   if(k==='awp'||k==='ssg'||k==='scar20') return WEAPON_ICONS.sniper;
   if(k==='nova') return WEAPON_ICONS.shotgun;
@@ -2483,7 +2554,7 @@ function weaponIcon(item){
 const UI = {
   buyCat: 0,
   buyCats: [
-    { name:'1 Пистолеты', items:[{t:'w',k:'deagle'}] },
+    { name:'1 Пистолеты', items:[{t:'w',k:'deagle'},{t:'w',k:'r8'}] },
     { name:'2 ПП / Дробовик', items:[{t:'w',k:'mp7'},{t:'w',k:'nova'}] },
     { name:'3 Винтовки', items:[{t:'w',k:'ak47'},{t:'w',k:'m4'},{t:'w',k:'ssg'},{t:'w',k:'awp'},{t:'w',k:'scar20'}] },
     { name:'4 Гранаты', items:[{t:'g',k:'he'},{t:'g',k:'smoke'},{t:'g',k:'flash'},{t:'g',k:'molotov'}] },
@@ -3016,10 +3087,9 @@ const Render = {
     // игрок: реальная модель + пунктирный ghost фейка (ваша AA)
     if(!p.dead){
       let visAng=p.angle;
-      if(S.aa.on){
-        if(S.aa.yaw==='spin') visAng=G.time*S.aa.spin*0.12;
-        else if(S.aa.yaw==='backward') visAng=p.angle+Math.PI;
-        else visAng=p.angle+(Math.sin(G.time*40)>0?2.4:-2.4);
+      if(S.aa.on && p.fakeDir!==null && p.fakeDir!==undefined){
+        visAng=p.fakeDir;
+        if(S.aa.lean) visAng+=Math.sin(G.time*8)*0.28;   // лёгкий roll/lean модели
       }
       this.drawCharacter(ctx,p,true,p.x,p.y,visAng);
       // fake lag: полупрозрачный двойник в лаг-позиции (то, что видят боты)
@@ -3154,7 +3224,7 @@ const Render = {
         mx=lk.x; my=lk.y;
       }
       const cs=S.crosshair;
-      const gap=cs.gap + G.recoil*10 + (Input.rmb?0:3);
+      const gap = p.scoped ? cs.gap : (cs.gap + 3 + Math.min(16, p.spray*1.7));
       ctx.strokeStyle=cs.color; ctx.lineWidth=2;
       ctx.beginPath();
       ctx.moveTo(mx-gap-cs.size,my); ctx.lineTo(mx-gap,my);
@@ -3169,10 +3239,10 @@ const Render = {
         const wpt=Game.screenToWorld(mx,my);
         const dW=dist(p.x,p.y,wpt.x,wpt.y);
         let s=cw.spread;
-        if(Input.rmb) s*=(cw.adsSpread!==undefined?cw.adsSpread:0.45);
-        if(p.crouch) s*=0.7;
-        s*=1+Math.hypot(p.vx,p.vy)/300;
-        s*=1+G.recoil*1.2;
+        if(p.scoped && isScoped(p.gun.key)) s*=cw.adsSpread;
+        if(p.crouch) s*=0.75;
+        s*=1+Math.hypot(p.vx,p.vy)/260;
+        s+=Math.abs(recoilPattern(p.spray,cw.recoil))/(Math.PI/180)*2;
         const rr=Math.tan(deg(s)/2)*dW*Game.cam.zoom;
         ctx.globalAlpha=0.45;
         ctx.beginPath(); ctx.arc(mx,my,Math.max(3,rr),0,6.28); ctx.stroke();
@@ -3728,7 +3798,10 @@ const Game = {
     const v = saved ? (saved._v||0) : 99;
     if(v<2) this.settings.misc.autobuy=false;                       // автозакуп больше не по умолчанию
     if(v<3 && this.settings.binds.menu==='Insert') this.settings.binds.menu='Delete';  // меню чита теперь Del
-    this.settings._v=3;
+    if(v<4){                                    // переработка AA: старый yaw='jitter' развалить
+      if(this.settings.aa.yaw==='jitter'){ this.settings.aa.yaw='backward'; this.settings.aa.jitter='center'; }
+    }
+    this.settings._v=4;
     this.saveSettings();
   },
   saveSettings(){
@@ -4027,7 +4100,7 @@ const Game = {
       this.cam.y=lerp(this.cam.y,lookY,1-Math.exp(-7*dt));
     }
     let wantZoom=this.userZoom;
-    if(Input.rmb && p.gun && (p.gun.key==='awp'||p.gun.key==='ssg'||p.gun.key==='scar20')) wantZoom*=0.8;
+    if(p.scoped) wantZoom*=(p.gun.key==='awp'?0.72:0.82);   // зум по прицелу снайперки
     this.cam.zoom=lerp(this.cam.zoom,wantZoom,1-Math.exp(-6*dt));
 
     G.roundTimer-=dt;
