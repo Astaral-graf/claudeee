@@ -459,8 +459,16 @@ body.editing #game { cursor: crosshair; }
         <div class="gs-col">
           <div class="gs-group"><div class="gs-title">Exploits</div>
             <div class="gs-row" data-req="rage.on"><input type="checkbox" id="rageDT" data-path="rage.doubletap"><label for="rageDT">Double tap <span class="gs-sub">(зарядка 3.5с)</span></label></div>
+            <div class="gs-row" data-req="rage.on"><input type="checkbox" id="rageRV" data-path="rage.autorv"><label for="rageRV">Auto revolver <span class="gs-sub">(держит курок R8)</span></label></div>
             <div class="gs-row"><label>Backtrack (ms)</label><input type="range" min="0" max="400" step="20" data-path="rage.backtrack"><span class="val" data-show="rage.backtrack"></span></div>
-            <div class="gs-note">DT досылает второй патрон после выстрела; заряд и осечки видны в индикаторе под прицелом.</div>
+            <div class="gs-note">DT досылает второй патрон (у R8 нет DT); auto revolver сам крутит барабан.</div>
+          </div>
+          <div class="gs-group"><div class="gs-title">Experimental <span class="gs-sub">(only-you)</span></div>
+            <div class="gs-row"><input type="checkbox" id="expRF" data-path="exp.rapidfire"><label for="expRF">Rapid fire <span class="gs-sub">(быстрее темп)</span></label></div>
+            <div class="gs-row"><input type="checkbox" id="expNS" data-path="exp.nospread"><label for="expNS">No spread <span class="gs-sub">(нулевой разброс)</span></label></div>
+            <div class="gs-row"><input type="checkbox" id="expFP" data-path="exp.fakepeek"><label for="expFP">Fake peek <span class="gs-sub">(держать H)</span></label></div>
+            <div class="gs-row"><input type="checkbox" id="expDL" data-path="exp.deflag"><label for="expDL">Defensive lag <span class="gs-sub">(чок при отжатии DT)</span></label></div>
+            <div class="gs-note">Экспериментальные фичи работают только для вас.</div>
           </div>
           <div class="gs-group"><div class="gs-title">Other</div>
             <div class="gs-row" data-req="rage.on"><input type="checkbox" id="rageRes" data-path="rage.resolver"><label for="rageRes">Resolver <span class="gs-sub">(вскрытие AA ботов)</span></label></div>
@@ -667,6 +675,7 @@ body.editing #game { cursor: crosshair; }
             <div class="gs-row"><label>Fake duck <span class="gs-sub">(держать)</span></label><button class="gs-btn gs-bind" data-bind="fakeduck">—</button></div>
             <div class="gs-row"><label>Auto peek <span class="gs-sub">(держать)</span></label><button class="gs-btn gs-bind" data-bind="autopeek">—</button></div>
             <div class="gs-row"><label>Min damage <span class="gs-sub">(держать)</span></label><button class="gs-btn gs-bind" data-bind="mindmg">—</button></div>
+            <div class="gs-row"><label>Fake peek <span class="gs-sub">(держать)</span></label><button class="gs-btn gs-bind" data-bind="fakepeek">—</button></div>
             <div class="gs-row"><label>Rage вкл/выкл</label><button class="gs-btn gs-bind" data-bind="rage">—</button></div>
             <div class="gs-row"><label>Anti-aim вкл/выкл</label><button class="gs-btn gs-bind" data-bind="aa">—</button></div>
             <div class="gs-note">Клик — нажмите новую клавишу. Esc — отмена.</div>
@@ -723,7 +732,7 @@ const WEAPONS = {
   knife:  { name:'Нож',      slot:'melee',  dmg:45,  hs:2.0, rate:1.6, spread:0,   range:58,   price:0,    mag:Infinity, reserve:0, reload:0,   move:1.08, auto:false, pellets:1, recoil:0 },
   usp:    { name:'USP-S',    slot:'pistol', dmg:35,  hs:4.0, rate:4.5, spread:2.2, range:900,  price:0,    mag:12, reserve:24, reload:2.0, move:1.0,  auto:false, pellets:1, recoil:1.4 },
   deagle: { name:'Deagle',   slot:'pistol', dmg:53,  hs:4.7, rate:2.4, spread:3.4, range:1000, price:700,  mag:7,  reserve:21, reload:2.2, move:1.0,  auto:false, pellets:1, recoil:2.6 },
-  r8:     { name:'R8 Револьвер', slot:'pistol', dmg:74, hs:4.5, rate:2.0, spread:2.8, range:1100, price:600, mag:8, reserve:8, reload:2.5, move:0.96, auto:false, pellets:1, recoil:3.2 },
+  r8:     { name:'R8 Револьвер', slot:'pistol', dmg:74, hs:4.5, rate:2.4, spread:2.8, range:1100, price:600, mag:8, reserve:8, reload:2.5, move:0.96, auto:false, pellets:1, recoil:3.2, charge:0.4, noDT:true },
   mp7:    { name:'MP7',      slot:'primary',dmg:29,  hs:2.4, rate:12,  spread:3.6, range:700,  price:1500, mag:30, reserve:90, reload:2.3, move:1.02, auto:true,  pellets:1, recoil:2.4 },
   ak47:   { name:'AK-47',    slot:'primary',dmg:36,  hs:4.0, rate:10,  spread:2.8, range:1200, price:2700, mag:30, reserve:90, reload:2.5, move:0.92, auto:true,  pellets:1, recoil:4.0 },
   m4:     { name:'M4A4',     slot:'primary',dmg:33,  hs:4.0, rate:11,  spread:2.4, range:1200, price:3100, mag:30, reserve:90, reload:2.4, move:0.94, auto:true,  pellets:1, recoil:3.2 },
@@ -779,9 +788,9 @@ const BOT_NAMES = ['Phoenix','Viper','Sarge','Ghost','Havoc','Rex','Blitz','Cobr
 
 const DEFAULT_SETTINGS = {
   game: { hvh:true, sens:1, mode:'clear', enemies:4, mates:2, diff:0, map:'dust2' },
-  binds: { menu:'Delete', map:'KeyM', fakeduck:'KeyX', autopeek:'KeyV', mindmg:'KeyC', rage:'KeyF', aa:'KeyT' },
+  binds: { menu:'Delete', map:'KeyM', fakeduck:'KeyX', autopeek:'KeyV', mindmg:'KeyC', rage:'KeyF', aa:'KeyT', fakepeek:'KeyH' },
   crosshair: { size:8, gap:3, color:'#00ff66', dot:false, circle:false },
-  rage:  { on:false, silent:true, fov:180, hitchance:60, mindmg:10, autofire:true, autowall:true, doubletap:false, resolver:true, priority:'fov', backtrack:200, autostop:true, hitbox:'auto', safepoint:false, dmgauto:true },
+  rage:  { on:false, silent:true, fov:180, hitchance:60, mindmg:10, autofire:true, autowall:true, doubletap:false, resolver:true, priority:'fov', backtrack:200, autostop:true, hitbox:'auto', safepoint:false, dmgauto:true, autorv:false },
   aa:    { on:false, yaw:'backward', yawoffset:0, yawmod:'none', swayrange:35, swayspeed:120,
            jitter:'off', jitteramt:45, jitterspeed:60, spin:60,
            desync:60, side:'switch', fakelimit:100, desyncshot:true,
@@ -791,6 +800,7 @@ const DEFAULT_SETTINGS = {
   misc:  { watermark:true, binds:true, hitlog:true, hitmarker:true, hitsound:true, killsound:true, autopistol:false, autobuy:false, clantag:true },
   ind:   { on:true, pos:'under', dt:true, aa:true, duck:true, peek:true, lag:true },
   skins: { player:'#3a86ff', weapon:'#20262e', pattern:'solid' },
+  exp:   { rapidfire:false, nospread:false, fakepeek:false, deflag:false },
 };
 
 /* ################################################################
@@ -1481,6 +1491,7 @@ function fireHitscan(shooter, angle, wkey, opts){
       // отдача-спрей: направленное смещение по паттерну (снайперки без спрея)
       recoilOff = recoilPattern(shooter.spray, w.recoil);
       if(Game.settings.legit.rcs) recoilOff *= 0.35;                   // RCS частично компенсирует
+      if(Game.settings.exp && Game.settings.exp.nospread){ spreadDeg=0; recoilOff=0; }  // no spread
     }
     const a = angle + recoilOff + deg(rand(-spreadDeg,spreadDeg))*0.5;
     const maxD = wkey==='knife' ? w.range : 2400;
@@ -1600,6 +1611,8 @@ class Player {
     this.spray = 0;           // счётчик выстрелов очереди (отдача)
     this.sprayCool = 0;       // время до сброса очереди
     this.scoped = false;      // прицел (только снайперки)
+    this.charging = false; this.chargeT = 0;   // R8: задержка перед выстрелом
+    this.defLagT = 0;         // defensive lag окно после DT
   }
   get gun(){
     if(this.curSlot==='grenade') return null;
@@ -1707,11 +1720,13 @@ class Player {
     }
 
     /* --- fake lag: боты видят позицию с задержкой (условие: всегда/движение/стоя) --- */
+    if(this.defLagT>0) this.defLagT-=dt;
     let doChoke=false;
     if(S.aa.fakelag){
       const moving=Math.hypot(this.vx,this.vy)>30;
       doChoke = S.aa.fakelagcond==='always' || (S.aa.fakelagcond==='move'&&moving) || (S.aa.fakelagcond==='stand'&&!moving);
     }
+    if(this.defLagT>0) doChoke=true;   // defensive lag: форс-чок после DT
     if(doChoke){
       this.lagTick=(this.lagTick|0)+1;
       if(this.lagTick>=Math.max(2,Math.round(S.aa.choke))){ this.lagTick=0; this.lagX=this.x; this.lagY=this.y; }
@@ -1752,10 +1767,17 @@ class Player {
       let mag=27*(S.aa.fakelimit/100);
       if(S.aa.hideshots && this.onShotT>0) mag*=1.5;   // on-shot AA
       if(S.aa.desyncshot && Input.lmb) mag*=1.2;        // шире десинк в стрельбе
+      if(this.defLagT>0) mag*=1.6;                      // defensive lag
       let fx=this.lagX+Math.cos(dir)*mag, fy=this.lagY+Math.sin(dir)*mag;
       if(isSolid(fx,fy)){ fx=this.lagX; fy=this.lagY; }
       this.fakeX=fx; this.fakeY=fy; this.fakeDir=dir;
     } else { this.fakeX=this.lagX; this.fakeY=this.lagY; this.fakeDir=null; }
+    /* fake peek: удержание бинда выносит фейк-модель вперёд по прицелу (приманка) */
+    if(S.exp && S.exp.fakepeek && Input.keys[S.binds.fakepeek]){
+      const fp=54;
+      const fx=this.lagX+Math.cos(this.aimAngle)*fp, fy=this.lagY+Math.sin(this.aimAngle)*fp;
+      if(!isSolid(fx,fy)){ this.fakeX=fx; this.fakeY=fy; this.fakeDir=this.aimAngle; }
+    }
 
     /* --- прицел: мышь + legit-aimbot --- */
     const world = Game.screenToWorld(Input.mouseX, Input.mouseY);
@@ -1801,6 +1823,7 @@ class Player {
           cg.ammo--;
           fireHitscan(this, ps.angle, ps.key, {pen:ps.pen});
           this.onFired(Game.settings);
+          if(Game.settings.exp && Game.settings.exp.deflag) this.defLagT=0.4;   // defensive lag после DT
         }
       }
     }
@@ -1822,6 +1845,7 @@ class Player {
   }
   /* вероятность попадания при текущем разбросе (для hit chance) */
   hitProb(w, d){
+    if(Game.settings.exp && Game.settings.exp.nospread) return 1;
     let s = w.spread;
     if(this.scoped && isScoped(w===this.gun? this.gun.key : '')) s *= w.adsSpread;
     else if(this.gun && isScoped(this.gun.key) && this.scoped) s *= w.adsSpread;
@@ -1845,6 +1869,16 @@ class Player {
     }
     return null;
   }
+  /* единый выстрел игрока: rapid fire (быстрее) + учёт RCS-бампа */
+  shoot(g, w, angle, pen, S){
+    const rate = w.rate * ((S.exp && S.exp.rapidfire && w.charge===undefined) ? 1.8 : 1);
+    g.cooldown = 1/rate;
+    g.ammo--;
+    const hit = fireHitscan(this, angle, g.key, {pen});
+    this.onFired(S);
+    G.recoil = Math.min(1, G.recoil + (S.legit.rcs ? 0.15 : 0.35));
+    return hit;
+  }
   updateFire(dt, g, S){
     if(this.planting){ Input.consumeClick(); return; }
     const w = WEAPONS[g.key];
@@ -1857,6 +1891,28 @@ class Player {
       return;
     }
     if(g.reloading>0) return;
+
+    /* ---------- ОРУЖИЕ С ЗАДЕРЖКОЙ (R8): барабан крутится перед выстрелом ---------- */
+    if(w.charge>0){
+      // авто-револьвер держит курок за игрока; иначе — ЛКМ / rage autofire
+      const wantHold = Input.lmb || S.rage.autorv || (S.rage.on && S.rage.autofire) ||
+        (S.legit.trigger && this.crosshairOverBot());
+      if(wantHold && g.ammo>0 && g.cooldown<=0){
+        if(!this.charging){ this.charging=true; this.chargeT=w.charge; }
+        this.chargeT-=dt;
+        if(this.chargeT<=0){
+          this.charging=false;
+          let ang=this.aimAngle, pen=w.pen;
+          if(S.rage.on){
+            const t=pickRageTarget(this,S.rage,g);
+            if(t){ ang=angTo(this.x,this.y,t.ax,t.ay); if(!S.rage.silent) this.aimAngle=ang; if(S.rage.autowall) pen=w.pen+2.5; }
+          }
+          this.shoot(g,w,ang,pen,S);   // у R8 нет DT
+        }
+      } else { this.charging=false; this.chargeT=0; }
+      Input.consumeClick();
+      return;
+    }
 
     /* ---------- RAGE AIMBOT ---------- */
     if(S.rage.on){
@@ -1872,13 +1928,10 @@ class Player {
           const prob = this.hitProb(w, tgt.d);
           // hit chance: автоматический огонь ждёт нужной точности; клик — форсит
           if(clicked || prob*100 >= S.rage.hitchance){
-            g.cooldown = 1/w.rate; g.ammo--;
             const pen = S.rage.autowall ? w.pen+2.5 : w.pen;
-            const hit = fireHitscan(this, aimA, g.key, {pen});
-            this.onFired(S);
+            const hit = this.shoot(g, w, aimA, pen, S);
             if(!hit && !tgt.resolved) pushLog('Missed '+tgt.bot.name+' — unresolved anti-aim', '#ff7a7a');
-            G.recoil = Math.min(1, G.recoil + (S.legit.rcs ? 0.15 : 0.35));
-            if(S.rage.doubletap && g.ammo>0 && this.dtCd<=0){
+            if(S.rage.doubletap && !w.noDT && g.ammo>0 && this.dtCd<=0){
               this.dtCd = DT_COOLDOWN;   // зарядка DT
               if(Math.random()<DT_FAIL) pushLog('double tap misfired', '#ff7a7a');
               else this.pendingShot = { t:0.07, angle:aimA, key:g.key, pen };
@@ -1901,12 +1954,8 @@ class Player {
     const semiSpam = S.misc.autopistol && w.slot==='pistol';
     const trigger = (w.auto || semiSpam) ? (Input.lmb || auto) : (clicked || auto);
     if(trigger && g.cooldown<=0){
-      if(g.ammo>0){
-        g.cooldown = 1/w.rate; g.ammo--;
-        fireHitscan(this, this.aimAngle, g.key, {});
-        this.onFired(S);
-        G.recoil = Math.min(1, G.recoil + ((S.legit.on&&S.legit.rcs) ? 0.15 : 0.35));
-      } else this.startReload();
+      if(g.ammo>0) this.shoot(g, w, this.aimAngle, w.pen, S);
+      else this.startReload();
     }
   }
   /* регистрация выстрела: auto peek и hide shots */
